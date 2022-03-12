@@ -10,9 +10,14 @@ Only with that informations Jo as wizard will create a complete OpenAPi specific
 * Object defintion
 * Default info section
 
+Repository: https://github.com/networkinss/joaswizard.  
 This project is inspired by https://github.com/isa-group/oas-wizard.  
 It is a complete re-write in Java instead of Node.js.  
 This is for better integration in Java applications, but also to be more flexible handling mustache engine.
+
+## Status
+
+It is still in development. Yet, the main function to create an OAS3 document is working.
 
 ## Build
 

@@ -34,7 +34,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorModel'
+                $ref: '#/components/schemas/ErrorModel'
     post:
       description: Creates a new {{resource}}
       operationId: add{{capResource}}
@@ -46,7 +46,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorModel'
+                $ref: '#/components/schemas/ErrorModel'
       requestBody:
         x-name: {{resource}}
         content:
@@ -79,7 +79,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorModel'
+                $ref: '#/components/schemas/ErrorModel'
     delete:
       description: deletes a single {{resource}} based on the {{resourceId}}
       operationId: delete{{capResource}}
@@ -98,7 +98,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorModel'
+                $ref: '#/components/schemas/ErrorModel'
     put:
       description: Update a {{resource}} based on its {{resourceId}}
       operationId: update{{capResource}}
@@ -117,7 +117,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorModel'
+                $ref: '#/components/schemas/ErrorModel'
       requestBody:
         x-name: {{resource}}
         content:
@@ -128,7 +128,7 @@ paths:
         required: true
 components:
   schemas:
-    errorModel:
+    ErrorModel:
       type: object
       required:
         - code

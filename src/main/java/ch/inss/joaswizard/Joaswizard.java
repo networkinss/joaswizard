@@ -17,7 +17,7 @@ public class Joaswizard implements Constants {
 
     public static void main(String[] args) {
 
-        if (args.length < 4) {
+        if (args.length < 3) {
             System.out.println("Need four parameter.");
             System.out.println("Usage: <inputfile> <outpufile> <resource> <Idfield>");
             System.exit(1);
@@ -26,9 +26,16 @@ public class Joaswizard implements Constants {
         parameter.setInputFile(args[0]);
         parameter.setOutputFile(args[1]);
         parameter.setResource(args[2]);
-        parameter.setResourceId(args[3]);
+        if (args.length >= 4) {
+            parameter.setResourceId(args[3]);    
+        }else{
+            parameter.setResourceId("id");
+        }
+        
         if (args.length >= 5) {
             parameter.setSourceType(args[4]);
+        }else{
+            parameter.setSourceType("file");
         }
         Joaswizard joaswizard = new Joaswizard();
         joaswizard.createCrudFile(parameter);

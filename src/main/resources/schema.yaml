@@ -1,13 +1,13 @@
-  {{objectName.value}}:
-  type: object
-  properties:
-    { { #data}}
-        {{key } }:
-  type: {{type}}{{#minlength}}
-
-  minLength: 1{{/minlength}}
-  example: {{value}}
-    {{/data}}
-  required:
-  { { #data}}      - {{key}}
-      {{/data } }
+    {{objectName.value}}:
+      type: object
+      properties:
+      {{#data}}
+        {{key}}:
+          type: {{type}}{{#minlength}}
+      
+          minLength: 1{{/minlength}}
+          example: {{value}}
+        {{/data}}
+      required:
+{{#data}}      - {{key}}
+            {{/data}}

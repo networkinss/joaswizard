@@ -63,7 +63,7 @@ public class Util implements Constants {
 
     public static HashMap<String, Object> readYamlFile(String inputFile) {
         if (inputFile == null) {
-            inputFile = "src/main/resources/Pet.yml";
+            inputFile = "src/test/resources/Pet.yml";
         }
         File file = new File(inputFile);
         Yaml yaml = new Yaml();
