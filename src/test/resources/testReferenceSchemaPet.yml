@@ -1,0 +1,23 @@
+    Pet:
+      type: object
+      properties:
+        name:
+          type: string      
+          minLength: 1
+          example: Underdog
+        price:
+          type: number
+          example: 12.05
+        status:
+          type: string      
+          minLength: 1
+          example: available
+        tags:
+          type: string      
+          minLength: 1
+          example: [dog, 4paws]
+      required:
+      - name
+      - price
+      - status
+      - tags
