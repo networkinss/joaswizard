@@ -1,0 +1,25 @@
+# eclipse conf file
+.settings
+.classpath
+.project
+.cache
+
+node_modules
+
+# idea conf files
+.idea
+*.ipr
+*.iws
+*.iml
+
+# building
+target
+build
+tmp
+dist
+output
+
+# misc
+.DS_Store
+
+/dependency-reduced-pom.xml
