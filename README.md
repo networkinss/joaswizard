@@ -42,3 +42,6 @@ Sample is in src/test/resources/Contact.yml
 
 Example:  
 `java -jar joaswizard-*.jar pet-oas.yaml petSample.yaml pet name`
+
+## Template adjustment
+To fill in your own details into the info section just adjust the file src/main/resources/crud.yaml accordingly.

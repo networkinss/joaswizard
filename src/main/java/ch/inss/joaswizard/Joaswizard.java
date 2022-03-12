@@ -54,7 +54,7 @@ public class Joaswizard implements Constants {
             parameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
         if (parameter.getInputFile() == null || parameter.getInputFile().equals("")) {
-            parameter.setInputFile("src/main/resources/Pet.yml");
+            parameter.setInputFile("src/test/resources/Pet.yml");
         }
         String dStr = null;
         if (parameter.getSourceType() != null && parameter.getSourceType().equals("file")) {
@@ -74,6 +74,32 @@ public class Joaswizard implements Constants {
         StringWriter writer = new StringWriter();
         StringWriter writerSchema = new StringWriter();
         /** Read input data sample. */
+        HashMap sampleMap = getSampleMap(parameter);
+        try {
+            mBasic.execute(writer, parameter).flush();
+            mSchema.execute(writerSchema, sampleMap).flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return writer + "\n" + writerSchema;
+    }
+
+    public String createSchema(Parameter parameter) {
+        System.out.println(parameter);
+        MustacheFactory mf = new DefaultMustacheFactory();
+        Mustache mSchema = mf.compile(schemaTemplate);
+        StringWriter writerSchema = new StringWriter();
+        HashMap sampleMap = getSampleMap(parameter);
+        try {
+            mSchema.execute(writerSchema, sampleMap).flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return writerSchema.toString();
+    }
+
+    private HashMap getSampleMap(Parameter parameter) {
+        /** Read input data sample. */
         HashMap<String, Object> map;
         map = Util.readYamlFromString(parameter.getSampleYaml());
 
@@ -89,13 +115,7 @@ public class Joaswizard implements Constants {
         }
         sampleMap.put("data", list);
         sampleMap.put("objectName", new SampleData("objectName", parameter.getCapResource()));
-        try {
-            mBasic.execute(writer, parameter).flush();
-            mSchema.execute(writerSchema, sampleMap).flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return writer + "\n" + writerSchema;
+        return sampleMap;
     }
 }
     

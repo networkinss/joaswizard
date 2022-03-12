@@ -2,6 +2,7 @@ package ch.inss.joaswizard;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +24,14 @@ class JoaswizardTest {
     private final String referenceContact = "src/test/resources/testReferenceContact.yml";
     private final String referencePet = "src/test/resources/testReferencePet.yml";
     private final String referenceString = "src/test/resources/testReferenceString.yml";
+    
+    private static Joaswizard jo = null;
+    
+    @BeforeAll
+    private static void  beforeAll() throws Exception{
+        jo = new Joaswizard();        
+    }
+
     
     @Test
     @Order(1)
@@ -68,6 +77,27 @@ class JoaswizardTest {
 
     @Test
     @Order(4)
+    void testSchemaPet() throws Exception {
+        String fileName = "testOutputSchema.yml";
+        Parameter parameter = new Parameter();
+        parameter.setResourceId("name");
+        parameter.setResource("pet");
+        parameter.setSampleYaml(Util.readFromFile("src/test/resources/Pet.yml"));
+        String schema = jo.createSchema(parameter);
+        Util.writeStringToData("output",schema,fileName);
+
+        File file1 = new File(output + fileName);
+        File file2 = new File("src/test/resources/testReferenceSchemaPet.yml");
+        assertTrue(file1.isFile());
+        assertTrue(file2.isFile());
+        
+        Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
+        file1.delete();
+        assertTrue(file1.isFile() == false);
+    }
+
+    @Test
+    @Order(5)
     void testFullPet() throws Exception {
         File file1 = new File(output + outputPet);
         File file2 = new File(referencePet);
@@ -79,7 +109,7 @@ class JoaswizardTest {
     }
 
     @Test
-    @Order(0)
+    @Order(6)
     void testCreateFromString() throws Exception {
         String debug = "Zmlyc3RuYW1lOiBNYXgKbmFtZTogTXVzdGVybWFubgpwaG9uZTogMTIzNDU2Nzg5CmVtYWlsOiAibWF4QGV4YW1wbGUuY29tIg==";
         Parameter parameter = new Parameter();
@@ -88,7 +118,7 @@ class JoaswizardTest {
         parameter.setOutputFile(outputString);
         parameter.setResourceId("name");
         parameter.setResource("contact");
-        Joaswizard jo = new Joaswizard();
+        
         jo.createCrudFile(parameter);
 
         File file1 = new File(output + outputString);

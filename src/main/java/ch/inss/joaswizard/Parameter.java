@@ -63,6 +63,7 @@ public class Parameter {
         return sampleYaml;
     }
 
+    /** The sample data frm which the output will be generated.*/
     public void setSampleYaml(String sampleYaml) {
         this.sampleYaml = sampleYaml;
     }
@@ -71,6 +72,7 @@ public class Parameter {
         return inputFile;
     }
 
+    /** The path to the input file. The content must be stored within the sampleYaml field. */
     public void setInputFile(String inputFile) {
         this.inputFile = inputFile;
     }
