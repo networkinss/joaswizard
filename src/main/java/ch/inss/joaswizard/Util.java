@@ -6,7 +6,10 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Util implements Constants {
 
@@ -79,5 +82,18 @@ public class Util implements Constants {
 
     public static boolean isNumber(String str) {
         return str != null && str.matches("[0-9.]+");
+    }
+
+    public static List<String> getYamlAsString(HashMap<Integer, List<Map<String, String>>> map){
+        List<String> result = new ArrayList<>();
+        for ( Integer index : map.keySet() ){
+            List<Map<String, String>> mapList = map.get(index);
+            String yaml = new String();
+            for ( Map<String, String> sheetMap : mapList){
+                
+            }
+            
+        }
+        return result;
     }
 }

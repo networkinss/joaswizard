@@ -9,10 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -163,9 +160,10 @@ class JoaswizardTest {
 //        p1.setResource("PetObject");
         p1.setResourceId("name");
         ExcelWrapper excelWrapper = new ExcelWrapper();
-        HashMap<Integer, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx", null, null);
-        Assertions.assertEquals(3,integerListHashMap.get(0).size());
+        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx", null, null);
         Assertions.assertEquals(3,integerListHashMap.keySet().size());
+        Assertions.assertEquals(6,integerListHashMap.keySet().iterator().next().length());
+        
         
 //        String schema1 = jo.createSchema(p1);
 //        Util.writeStringToData("output",schema1,"testOutputSchema_Object.yml");

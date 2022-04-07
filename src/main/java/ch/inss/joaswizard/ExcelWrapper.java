@@ -13,18 +13,17 @@ import java.util.*;
 import static org.apache.poi.ss.usermodel.Cell.*;
 
 public class ExcelWrapper {
-    public HashMap<Integer, List<Map<String, String>>>  readExcel(String file, String sheetPrefix, String sheetPostfix){
+    public HashMap<String, List<Map<String, String>>>  readExcel(String file, String sheetPrefix, String sheetPostfix){
         try {
-            HashMap<Integer, List<Map<String, String>>> map = new HashMap<>();
+            HashMap<String, List<Map<String, String>>> map = new HashMap<>();
             final XSSFWorkbook workbook = new XSSFWorkbook(file);
             List<XSSFName> allNames = workbook.getAllNames();
             Iterator it = workbook.iterator();
-            int i = 0;
             while ( it.hasNext() ){
                 final XSSFSheet sheet = (XSSFSheet) it.next();
+                
                 List<Map<String, String>> list = sheetContent(sheet);
-                map.put(i,list);
-                i++;
+                map.put(sheet.getSheetName(),list);
             }
             
             
