@@ -82,6 +82,14 @@ class JoaswizardTest {
         Parameter parameter = new Parameter();
         parameter.setResourceId("name");
         parameter.setResource("pet");
+        
+        Parameter p1 = new Parameter();
+        p1.setResource("PetObject");
+        p1.setResourceId("name");
+        p1.setSampleYaml(Util.readFromFile("src/test/resources/PetObject.yml"));
+        String schema1 = jo.createSchema(p1);
+        Util.writeStringToData("output",schema1,"testOutputSchema_Object.yml");
+        
         parameter.setSampleYaml(Util.readFromFile("src/test/resources/Pet.yml"));
         String schema = jo.createSchema(parameter);
         Util.writeStringToData("output",schema,fileName);

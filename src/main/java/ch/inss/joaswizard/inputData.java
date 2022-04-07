@@ -1,6 +1,6 @@
 package ch.inss.joaswizard;
 
-public class SampleData {
+public class inputData {
 
     private String key;
     private String value;
@@ -15,7 +15,7 @@ public class SampleData {
         this.type = type;
     }
 
-    public SampleData(String key, String value) {
+    public inputData(String key, String value) {
         this.key = key;
         this.value = value;
     }
