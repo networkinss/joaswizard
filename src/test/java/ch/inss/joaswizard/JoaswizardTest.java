@@ -163,6 +163,7 @@ class JoaswizardTest {
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx", null, null);
         Assertions.assertEquals(3,integerListHashMap.keySet().size());
         Assertions.assertEquals(6,integerListHashMap.keySet().iterator().next().length());
+        Util.getYamlAsString(integerListHashMap);
         
         
 //        String schema1 = jo.createSchema(p1);
