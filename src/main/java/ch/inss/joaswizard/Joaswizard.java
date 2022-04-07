@@ -41,6 +41,59 @@ public class Joaswizard implements Constants {
         Joaswizard joaswizard = new Joaswizard();
         joaswizard.createCrudFile(parameter);
     }
+    
+    public void createGetFile(Parameter parameter){
+        String resultSchema = this.fromGetTemplate(parameter);
+        boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, resultSchema, parameter.getOutputFile());
+        if (ok == false) {
+            System.out.println("Could not write file " + Constants.DATA_FOLDER + parameter.getOutputFile());
+        }
+    }
+
+    private String fromGetTemplate(Parameter parameter) {
+        if (parameter.getOutputFile() == null || parameter.getOutputFile().equals("")) {
+            parameter.setOutputFile("get_" + Constants.DEFAULT_OUTPUT_FILE);
+        }
+//        if (parameter.getInputFile() == null || parameter.getInputFile().equals("")) {
+//            parameter.setInputFile("src/test/resources/Pet.yml");
+//        }
+        String dStr = null;
+        if (parameter.getSourceType() != null && parameter.getSourceType().equals("file")) {
+            dStr = Util.readFromFile(parameter.getInputFile());
+            parameter.setSampleYaml(dStr);
+        }
+//        if (parameter.getSampleYaml() == null || parameter.getSampleYaml().length() < 3) {
+//            System.out.println("No sample yaml with data. Please define input file or set sample yaml.");
+//            System.exit(1);
+//        }
+        System.out.println(parameter);
+
+        MustacheFactory mf = new DefaultMustacheFactory();
+        Mustache mBasic = mf.compile(getTemplate);
+        Mustache mSchema = mf.compile(schemaTemplate);
+        Mustache mInfo = mf.compile(infoTemplate);
+
+        StringWriter writerPaths = new StringWriter();
+        StringWriter writerSchema = new StringWriter();
+        StringWriter writerInfo = new StringWriter();
+        /** Read input data sample. */
+        //TODO YamlWrapper yamlWrapper = getYamlAsMap(parameter.getSampleYaml());
+        //TODO HashMap sampleMap = yamlWrapper.getMap();
+        
+        
+//        if (yamlWrapper.getName().equals("") == false ){
+//            parameter.setResource(yamlWrapper.getName());
+//        }
+//        sampleMap.put("objectName", new PropertyData("objectName", parameter.getCapResource()));
+        try {
+            mBasic.execute(writerPaths, parameter).flush();
+            mInfo.execute(writerInfo, parameter).flush();
+//            mSchema.execute(writerSchema, sampleMap).flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return writerInfo + "\n" + writerPaths + "\n" + writerSchema;
+    }
 
     /** Create all CRUD operations for one object. */
     public void createCrudFile(Parameter parameter) {
@@ -51,7 +104,7 @@ public class Joaswizard implements Constants {
         }
     }
 
-    public String fromCrudTemplate(Parameter parameter) {
+    private String fromCrudTemplate(Parameter parameter) {
         if (parameter.getOutputFile() == null || parameter.getOutputFile().equals("")) {
             parameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
@@ -70,7 +123,7 @@ public class Joaswizard implements Constants {
         System.out.println(parameter);
 
         MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache mBasic = mf.compile(crudTemplate);
+        Mustache mBasic = mf.compile(fullCrudTemplate);
         Mustache mSchema = mf.compile(schemaTemplate);
 
         StringWriter writer = new StringWriter();
@@ -81,7 +134,7 @@ public class Joaswizard implements Constants {
         if (yamlWrapper.getName().equals("") == false ){
             parameter.setResource(yamlWrapper.getName());
         }
-        sampleMap.put("objectName", new inputData("objectName", parameter.getCapResource()));
+        sampleMap.put("objectName", new PropertyData("objectName", parameter.getCapResource()));
         try {
             mBasic.execute(writer, parameter).flush();
             mSchema.execute(writerSchema, sampleMap).flush();
@@ -102,7 +155,7 @@ public class Joaswizard implements Constants {
             parameter.setResource(yamlWrapper.getName());
         }
         
-        sampleMap.put("objectName", new inputData("objectName", parameter.getCapResource()));
+        sampleMap.put("objectName", new PropertyData("objectName", parameter.getCapResource()));
         try {
             mSchema.execute(writerSchema, sampleMap).flush();
         } catch (IOException e) {
@@ -129,12 +182,12 @@ public class Joaswizard implements Constants {
             yamlWrapper.setName(firstKey);   
         }
 
-        List<inputData> list = new ArrayList<>();
+        List<PropertyData> list = new ArrayList<>();
         
         for (String key : map.keySet()) {
 //            Object o = map.get(key);
             String value = map.get(key).toString();
-            inputData sampleData = new inputData(key, value);
+            PropertyData sampleData = new PropertyData(key, value);
             sampleData.setMinlength(!Util.isNumber(value));
             sampleData.setType(Util.isNumber(value) ? "number" : "string");
             list.add(sampleData);

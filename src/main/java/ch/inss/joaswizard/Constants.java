@@ -6,7 +6,10 @@ public interface Constants {
     String DEFAULT_OUTPUT_FILE = "openapi.yaml";
     String UNDEFINED = "undefined";
     String FROMFILE = "file";
-    String crudTemplate = "crud.yaml";
+    String fullCrudTemplate = "fullCrud.yaml";
+    String pathComponentCrudTemplate = "pathComponentCrud.yaml";
+    String getTemplate = "getIdgetAll.yaml";
     String schemaTemplate = "schema.yaml";
+    String infoTemplate = "info.yaml";
 
 }

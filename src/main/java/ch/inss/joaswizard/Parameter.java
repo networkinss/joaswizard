@@ -7,14 +7,13 @@ import java.util.Base64;
 public class Parameter {
 
     private String resource;
-    private String resourceId;
+    private String resourceId = "ID";
     private String sampleYaml;
     private String inputFile;
     private String outputFile;
     private String sourceType;
     private final String openCurlyBrace = "{";
     private final String closeCurlyBrace = "}";
-
 
     public String getCapResource() {
         return StringUtils.capitalize(resource);

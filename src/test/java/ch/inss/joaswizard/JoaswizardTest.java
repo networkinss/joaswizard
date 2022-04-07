@@ -25,6 +25,7 @@ class JoaswizardTest {
     private final String referenceString = "src/test/resources/testReferenceString.yml";
     
     private static Joaswizard jo = null;
+    private static boolean cleanUp = false;
     
     @BeforeAll
     private static void  beforeAll() throws Exception{
@@ -43,8 +44,11 @@ class JoaswizardTest {
             assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
         }
         File file1 = new File(output + outputContact);
-        file1.delete();
-        assertTrue(file1.isFile() == false);
+        if (cleanUp){
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
+        
     }
 
     @Test
@@ -57,8 +61,10 @@ class JoaswizardTest {
         assertTrue(file2.isFile());
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
 
-        file1.delete();
-        assertTrue(file1.isFile() == false);
+        if (cleanUp){
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
     }
 
     @Test
@@ -102,8 +108,11 @@ class JoaswizardTest {
         
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file3, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
-        file1.delete();
-        assertTrue(file1.isFile() == false);
+        if (cleanUp){
+            file1.delete();
+            file3.delete();
+            assertTrue(file1.isFile() == false);
+        }
     }
 
     @Test
@@ -114,8 +123,10 @@ class JoaswizardTest {
         assertTrue(file1.isFile());
         assertTrue(file2.isFile());
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
-        file1.delete();
-        assertTrue(file1.isFile() == false);
+        if (cleanUp){
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
     }
 
     @Test
@@ -144,38 +155,44 @@ class JoaswizardTest {
         }
         
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
-        file1.delete();
-        assertTrue(file1.isFile() == false);
+        if (cleanUp){
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
     }
 
     @Test
     @Order(7)
     void testExcel() throws Exception {
 //        String fileName = ;
-        Parameter parameter = new Parameter();
-        parameter.setResourceId("name");
-        parameter.setResource("pet");
+//        Parameter parameter = new Parameter();
+//        parameter.setResourceId("name");
+//        parameter.setResource("pet");
 
-        Parameter p1 = new Parameter();
+//        Parameter p1 = new Parameter();
 //        p1.setResource("PetObject");
-        p1.setResourceId("name");
+//        p1.setResourceId("name");
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx", null, null);
         Assertions.assertEquals(3,integerListHashMap.keySet().size());
-        Assertions.assertEquals(6,integerListHashMap.keySet().iterator().next().length());
-        Util.getYamlAsString(integerListHashMap);
+        Assertions.assertEquals(3,integerListHashMap.keySet().iterator().next().length());
         
+        List<Parameter> parameterList = Util.getParameterList(integerListHashMap);
+        Parameter p1 = parameterList.get(0);
+        p1.setOutputFile("testOutputExcelsheet0.yml");
+        jo.createGetFile(p1);
         
-//        String schema1 = jo.createSchema(p1);
-//        Util.writeStringToData("output",schema1,"testOutputSchema_Object.yml");
+//        Util.writeStringToData("output",schema1,"testOutputExcelsheet0.yml");
 //
-//        File file1 = new File(output + "testOutputSchema.yml");
+        File file1 = new File(output + "testOutputExcelsheet0.yml");
 //        File file2 = new File("src/test/resources/testReferenceSchemaPet.yml");
-//        assertTrue(file1.isFile());
+        assertTrue(file1.isFile());
 //        assertTrue(file2.isFile());
 //
 //        Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
-//        file1.delete();
-//        assertTrue(file1.isFile() == false);
+//        if (cleanUp){
+//            file1.delete();
+//            assertTrue(file1.isFile() == false);
+//        }
     }
 }
