@@ -78,7 +78,9 @@ public class Joaswizard implements Constants {
         /** Read input data sample. */
         YamlWrapper yamlWrapper = getYamlAsMap(parameter.getSampleYaml());
         HashMap sampleMap = yamlWrapper.getMap();
-        
+        if (yamlWrapper.getName().equals("") == false ){
+            parameter.setResource(yamlWrapper.getName());
+        }
         sampleMap.put("objectName", new inputData("objectName", parameter.getCapResource()));
         try {
             mBasic.execute(writer, parameter).flush();
@@ -96,6 +98,9 @@ public class Joaswizard implements Constants {
         StringWriter writerSchema = new StringWriter();
         YamlWrapper yamlWrapper = getYamlAsMap(parameter.getSampleYaml());
         HashMap sampleMap = yamlWrapper.getMap();
+        if (yamlWrapper.getName().equals("") == false ){
+            parameter.setResource(yamlWrapper.getName());
+        }
         
         sampleMap.put("objectName", new inputData("objectName", parameter.getCapResource()));
         try {
@@ -116,11 +121,12 @@ public class Joaswizard implements Constants {
         if (map == null || map.isEmpty()){
             return yamlWrapper;
         }
-        Object ob = map.get(map.keySet().iterator().next());
+        String firstKey = map.keySet().iterator().next();
+        Object ob = map.get(firstKey);
         String cl = ob.getClass().toString(); 
         if ( cl.equals("class java.util.LinkedHashMap") == true){
             map = (LinkedHashMap<String, Object>) ob;
-            
+            yamlWrapper.setName(firstKey);   
         }
 
         List<inputData> list = new ArrayList<>();
