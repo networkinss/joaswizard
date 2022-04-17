@@ -14,9 +14,9 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class JoaswizardTest {
+class JoaswizardTest implements Constants{
 
-    private final String output = "output/";
+    private final String output = "output" + sep;
     private final String outputPet = "testOutputPet.yml";
     private final String outputContact = "testOutputContact.yml";
     private final String outputString = "testOutputString.yml";
@@ -29,7 +29,7 @@ class JoaswizardTest {
     
     @BeforeAll
     private static void  beforeAll() throws Exception{
-        jo = new Joaswizard();        
+        jo = new Joaswizard();
     }
 
     
@@ -84,19 +84,19 @@ class JoaswizardTest {
     @Order(4)
     void testSchemaPet() throws Exception {
 //        String fileName = ;
-        Parameter parameter = new Parameter();
-        parameter.setResourceId("name");
-        parameter.setResource("pet");
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setResourceId("name");
+        inputParameter.setResource("pet");
         
-        Parameter p1 = new Parameter();
+        InputParameter p1 = new InputParameter();
 //        p1.setResource("PetObject");
         p1.setResourceId("name");
         p1.setSampleYaml(Util.readFromFile("src/test/resources/PetObject.yml"));
         String schema1 = jo.createSchema(p1);
         Util.writeStringToData("output",schema1,"testOutputSchema_Object.yml");
         
-        parameter.setSampleYaml(Util.readFromFile("src/test/resources/Pet.yml"));
-        String schema = jo.createSchema(parameter);
+        inputParameter.setSampleYaml(Util.readFromFile("src/test/resources/Pet.yml"));
+        String schema = jo.createSchema(inputParameter);
         Util.writeStringToData("output",schema,"testOutputSchema.yml");
 
         File file1 = new File(output + "testOutputSchema.yml");
@@ -117,12 +117,20 @@ class JoaswizardTest {
 
     @Test
     @Order(5)
-    void testFullPet() throws Exception {
-        File file1 = new File(output + outputPet);
-        File file2 = new File(referencePet);
+    void testGetPet() throws Exception {
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setResourceId("name");
+        inputParameter.setResource("pet");
+        jo.createMethodsFile(inputParameter);
+        File file1 = new File(output + "get_openapi.yaml");
         assertTrue(file1.isFile());
-        assertTrue(file2.isFile());
-        Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
+        
+        final List<String> list = new ArrayList<>();
+        list.add("title: Pet API");
+        list.add("$ref: '#/components/schemas/Pet'");
+        try (Stream<String> lines = Files.lines(Paths.get(output + "get_openapi.yaml"))) {
+            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+        }
         if (cleanUp){
             file1.delete();
             assertTrue(file1.isFile() == false);
@@ -133,14 +141,14 @@ class JoaswizardTest {
     @Order(6)
     void testCreateFromString() throws Exception {
         String debug = "Zmlyc3RuYW1lOiBNYXgKbmFtZTogTXVzdGVybWFubgpwaG9uZTogMTIzNDU2Nzg5CmVtYWlsOiAibWF4QGV4YW1wbGUuY29tIg==";
-        Parameter parameter = new Parameter();
-        parameter.setSourceType("string");
-        parameter.setSampleYamlBase64(debug);
-        parameter.setOutputFile(outputString);
-        parameter.setResourceId("name");
-        parameter.setResource("contact");
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setSourceType("string");
+        inputParameter.setSampleYamlBase64(debug);
+        inputParameter.setOutputFile(outputString);
+        inputParameter.setResourceId("name");
+        inputParameter.setResource("contact");
         
-        jo.createCrudFile(parameter);
+        jo.createCrudFile(inputParameter);
 
         File file1 = new File(output + outputString);
         File file2 = new File(referenceString);
@@ -160,7 +168,7 @@ class JoaswizardTest {
             assertTrue(file1.isFile() == false);
         }
     }
-
+    
     @Test
     @Order(7)
     void testExcel() throws Exception {
@@ -177,10 +185,10 @@ class JoaswizardTest {
         Assertions.assertEquals(3,integerListHashMap.keySet().size());
         Assertions.assertEquals(3,integerListHashMap.keySet().iterator().next().length());
         
-        List<Parameter> parameterList = Util.getParameterList(integerListHashMap);
-        Parameter p1 = parameterList.get(0);
+        List<InputParameter> inputParameterList = Util.getParameterList(integerListHashMap);
+        InputParameter p1 = inputParameterList.get(0);
         p1.setOutputFile("testOutputExcelsheet0.yml");
-        jo.createGetFile(p1);
+        jo.createMethodsFile(p1);
         
 //        Util.writeStringToData("output",schema1,"testOutputExcelsheet0.yml");
 //

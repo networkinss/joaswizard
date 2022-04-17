@@ -2,9 +2,13 @@ package ch.inss.joaswizard;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.management.MemoryType;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
+import java.util.Locale;
 
-public class Parameter {
+public class InputParameter {
 
     private String resource;
     private String resourceId = "ID";
@@ -14,6 +18,15 @@ public class Parameter {
     private String sourceType;
     private final String openCurlyBrace = "{";
     private final String closeCurlyBrace = "}";
+    private final List<Method> methods = new ArrayList<>();
+    
+    public List<Method> getMethodList() {
+        return methods;
+    }
+    public void addMethod(String method){
+        Method m = Method.valueOf(method.toUpperCase());
+        this.methods.add(m);
+    }
 
     public String getCapResource() {
         return StringUtils.capitalize(resource);
@@ -102,5 +115,13 @@ public class Parameter {
                 ", outputFile='" + outputFile + '\'' +
                 ", source='" + sourceType + '\'' +
                 '}';
+    }
+    
+    public static enum Method{
+        POST,
+        PUT,
+        GET,
+        DELTE,
+        PATCH
     }
 }

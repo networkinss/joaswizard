@@ -81,13 +81,13 @@ public class Util implements Constants {
         return str != null && str.matches("[0-9.]+");
     }
 
-    public static List<Parameter> getParameterList(HashMap<String, List<Map<String, String>>> map) {
-        List<Parameter> result = new ArrayList<>();
+    public static List<InputParameter> getParameterList(HashMap<String, List<Map<String, String>>> map) {
+        List<InputParameter> result = new ArrayList<>();
         for (String index : map.keySet()) {
             List<Map<String, String>> mapList = map.get(index);
             StringBuilder yaml = new StringBuilder(index + ": " + "´\n");
-            Parameter parameter = new Parameter();
-            parameter.setResource(index);
+            InputParameter inputParameter = new InputParameter();
+            inputParameter.setResource(index);
 //            for (Map<String, String> sheetMap : mapList) {
 //                String name = sheetMap.get("Name");
 //                String dataType = sheetMap.get("Datatype");
@@ -103,7 +103,7 @@ public class Util implements Constants {
 //                yaml.append("  ").append(sheetMap.get("Name")).append(": ").append(sheetMap.get("key")).append("\n");
 //            }
 //            parameter.setSampleYaml(yaml.toString());
-            result.add(parameter);
+            result.add(inputParameter);
         }
         return result;
     }
