@@ -1,0 +1,5 @@
+Pet:
+  name: Underdog
+  price: 12.05
+  status: "available"
+  tags: [ dog,4paws ]

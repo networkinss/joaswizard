@@ -10,13 +10,16 @@ import java.util.*;
 
 public class Util implements Constants {
 
-    public static boolean writeStringToData(String userFolder, String data, String file) {
+    static boolean writeStringToData(String userFolder, String data, String file) {
+        if (userFolder == null) userFolder = DATA_FOLDER;
+        if (file == null) file = DEFAULT_OUTPUT_FILE;        
         File folder = new File(userFolder);
         if (folder.mkdirs() == false && folder.isDirectory() == false) {
             return false;
         }
         FileOutputStream fos = null;
         BufferedOutputStream bos = null;
+        
         try {
             fos = new FileOutputStream(folder + S + file);
             bos = new BufferedOutputStream(fos);
@@ -38,7 +41,7 @@ public class Util implements Constants {
         return true;
     }
 
-    public static String readFromFile(String file) {
+    static String readFromFile(String file) {
         File filePath = new File(file);
         if (filePath.isFile() == false) {
             System.out.println("File not found: " + filePath);
@@ -54,14 +57,14 @@ public class Util implements Constants {
         return result;
     }
 
-    public static HashMap<String, Object> readYamlFromString(String strYaml) {
+    static LinkedHashMap<String, Object> readYamlFromString(String strYaml) {
         Yaml yaml = new Yaml();
-        HashMap<String, Object> result = yaml.load(strYaml);
+        LinkedHashMap<String, Object> result = yaml.load(strYaml);
 
         return result;
     }
 
-    public static HashMap<String, Object> readYamlFile(String inputFile) {
+    static HashMap<String, Object> readYamlFile(String inputFile) {
         if (inputFile == null) {
             inputFile = "src/test/resources/Pet.yml";
         }
@@ -77,21 +80,9 @@ public class Util implements Constants {
         return yaml.load(isr);
     }
 
-    public static boolean isNumber(String str) {
+    static boolean isNumber(String str) {
         return str != null && str.matches("[0-9.]+");
     }
 
-    public static List<String> getYamlAsString(HashMap<String, List<Map<String, String>>> map){
-        List<String> result = new ArrayList<>();
-        for ( String index : map.keySet() ){
-            List<Map<String, String>> mapList = map.get(index);
-            String yaml = new String();
-            for ( Map<String, String> sheetMap : mapList){
-                Set keys = sheetMap.keySet();
-                
-            }
-            
-        }
-        return result;
-    }
+
 }
