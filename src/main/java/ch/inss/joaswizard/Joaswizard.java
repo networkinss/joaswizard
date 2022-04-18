@@ -101,7 +101,7 @@ public class Joaswizard implements Constants {
      */
     public String createSchema(InputParameter inputParameter) {
         logger.info("Starting create schema.");
-        System.out.println(inputParameter);
+        logger.info("Input parameter: \n" + inputParameter);
         MustacheFactory mf = new DefaultMustacheFactory();
         Mustache mSchema = mf.compile(schemaTemplate);
         StringWriter writerSchema = new StringWriter();
@@ -111,11 +111,13 @@ public class Joaswizard implements Constants {
             inputParameter.setResource(yamlWrapper.getName());
         }
 
-        sampleMap.put("objectName", new PropertyData("objectName", inputParameter.getCapResource()));
+//        sampleMap.put("objectName", new PropertyData("objectName", inputParameter.getCapResource()));
+        sampleMap.put("objectName", inputParameter.getCapResource());
         try {
             mSchema.execute(writerSchema, sampleMap).flush();
         } catch (IOException e) {
             e.printStackTrace();
+            logger.severe(e.getLocalizedMessage());
         }
         return writerSchema.toString();
     }
@@ -166,9 +168,9 @@ public class Joaswizard implements Constants {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
-        if (inputParameter.getInputFile() == null || inputParameter.getInputFile().equals("")) {
-            inputParameter.setInputFile("src/test/resources/Pet.yml");
-        }
+//        if (inputParameter.getInputFile() == null || inputParameter.getInputFile().equals("")) {
+//            inputParameter.setInputFile("src/test/resources/Pet.yml");
+//        }
         if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.YAML)) {
             inputParameter.setSampleData(Util.readFromFile(inputParameter.getInputFile()));
         }
@@ -180,25 +182,25 @@ public class Joaswizard implements Constants {
 
         MustacheFactory mf = new DefaultMustacheFactory();
         Mustache mBasic = mf.compile(fullCrudTemplate);
-        Mustache mSchema = mf.compile(schemaTemplate);
+//        Mustache mSchema = mf.compile(schemaTemplate);
 
         StringWriter writer = new StringWriter();
-        StringWriter writerSchema = new StringWriter();
+//        StringWriter writerSchema = new StringWriter();
         /** Read input data sample. */
         YamlWrapper yamlWrapper = getYamlAsMap(inputParameter.getSampleData());
-        HashMap sampleMap = yamlWrapper.getMap();
+//        HashMap sampleMap = yamlWrapper.getMap();
         if (yamlWrapper.getName().equals("") == false) {
             inputParameter.setResource(yamlWrapper.getName());
         }
-        sampleMap.put("objectName", inputParameter.getCapResource());
+//        sampleMap.put("objectName", inputParameter.getCapResource());
         
         try {
             mBasic.execute(writer, inputParameter).flush();
-            mSchema.execute(writerSchema, sampleMap).flush();
+//            mSchema.execute(writerSchema, sampleMap).flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return writer + "\n" + writerSchema;
+        return writer + "\n" + this.createSchema(inputParameter);
     }
 
 

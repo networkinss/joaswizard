@@ -60,7 +60,6 @@ class JoaswizardTest implements Constants{
         assertTrue(file1.isFile());
         assertTrue(file2.isFile());
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
-
         if (cleanUp){
             file1.delete();
             assertTrue(file1.isFile() == false);
@@ -70,14 +69,16 @@ class JoaswizardTest implements Constants{
     @Test
     @Order(3)
     void testPet() throws Exception {
-        Main.main(new String[]{"src/test/resources/Pet.yml", outputPet, "pet", "name", "file"});
-
+        Main.main(new String[]{"src/test/resources/Pet.yml", outputPet, "pet", "name", "yaml"});
         final List<String> list = new ArrayList<>();
         list.add("title: Pet API");
         list.add("$ref: '#/components/schemas/Pet'");
         try (Stream<String> lines = Files.lines(Paths.get(output + outputPet))) {
-            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+            Stream<String> f = lines.filter(l -> list.contains(l.trim()));
+            long x = f.count();
+            assertEquals(5.0,x);
         }
+
     }
 
     @Test
@@ -146,7 +147,7 @@ class JoaswizardTest implements Constants{
     void testCreateFromString() throws Exception {
         String debug = "Zmlyc3RuYW1lOiBNYXgKbmFtZTogTXVzdGVybWFubgpwaG9uZTogMTIzNDU2Nzg5CmVtYWlsOiAibWF4QGV4YW1wbGUuY29tIg==";
         InputParameter inputParameter = new InputParameter();
-        inputParameter.setSourceType("string");
+        inputParameter.setSourceType(InputParameter.Sourcetype.STRING);
         inputParameter.setSampleYamlBase64(debug);
         inputParameter.setOutputFile(outputString);
         inputParameter.setResourceId("name");
