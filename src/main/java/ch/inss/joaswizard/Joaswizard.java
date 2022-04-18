@@ -111,7 +111,7 @@ public class Joaswizard implements Constants {
         MustacheFactory mf = new DefaultMustacheFactory();
         Mustache mSchema = mf.compile(schemaTemplate);
         StringWriter writerSchema = new StringWriter();
-        if (inputParameter.getSourceType().equals(InputParameter.Sourcetype.YAMLFILE)) {
+        if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
             this.createMustacheDataFromYaml(inputParameter);
         }
         HashMap sampleMap = inputParameter.getDataMap();
@@ -260,16 +260,16 @@ public class Joaswizard implements Constants {
         List<PropertyData> list = new ArrayList<>();
         for (Map<String, String> mapSheet : mapList) {
             String key = mapSheet.get("Name");
+            if (key == null || key.equals("")) key = "undefined";
             String value = mapSheet.get("SampleValues");
-
             PropertyData sampleData = new PropertyData(key, value);
             sampleData.setMinlength(!Util.isNumber(value));
             sampleData.setType(Util.isNumber(value) ? "number" : "string");
             sampleData.setDescription(mapSheet.get("Beschreibung"));
+            if (mapSheet.containsKey("Format")){
+                sampleData.setFormat(mapSheet.get("Format"));
+            }
             list.add(sampleData);
-            
-
-//            resultMap.put(inputParameter.getResource(),map);
         }
         resultMap.put("data", list);
 //        sampleMap.put("objectName", new inputData("objectName", parameter.getCapResource()));
@@ -282,10 +282,7 @@ public class Joaswizard implements Constants {
 //        petMap.put("minlength","1234566789");
 //        petMap.put("type","xxl");
 
-        if (resultMap == null || resultMap.isEmpty()) {
-            return;
-        }
-        this.createMustacheData(inputParameter, resultMap);
+//        this.createMustacheData(inputParameter, resultMap);
     }
 
 

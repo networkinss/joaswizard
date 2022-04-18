@@ -7,6 +7,7 @@
       
           minLength: 1{{/minlength}}
           example: {{exampleValue}}{{#description}}
+      
           description: {{description}}{{/description}}
         {{/data}}
       required:

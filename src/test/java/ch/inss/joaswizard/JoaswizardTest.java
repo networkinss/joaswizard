@@ -68,7 +68,7 @@ class JoaswizardTest implements Constants{
     @Test
     @Order(3)
     void testPet() throws Exception {
-        Main.main(new String[]{"src/test/resources/Pet.yml", outputPet, "pet", "name", "yaml"});
+        Main.main(new String[]{"src/test/resources/Pet.yml", outputPet, "pet", "name", "yamlfile"});
         final List<String> list = new ArrayList<>();
         list.add("title: Pet API");
         list.add("$ref: '#/components/schemas/Pet'");
