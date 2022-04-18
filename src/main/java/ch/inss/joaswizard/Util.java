@@ -84,30 +84,5 @@ public class Util implements Constants {
         return str != null && str.matches("[0-9.]+");
     }
 
-    public static List<InputParameter> getParameterList(HashMap<String, List<Map<String, String>>> map) {
-        List<InputParameter> result = new ArrayList<>();
-        for (String index : map.keySet()) {
-            List<Map<String, String>> mapList = map.get(index);
-            StringBuilder yaml = new StringBuilder(index + ": " + "´\n");
-            InputParameter inputParameter = new InputParameter();
-            inputParameter.setResource(index);
-//            for (Map<String, String> sheetMap : mapList) {
-//                String name = sheetMap.get("Name");
-//                String dataType = sheetMap.get("Datatype");
-//                String example = sheetMap.get("Example");
-//                if (dataType != null) {
-//                    if (dataType.equalsIgnoreCase("integer") || dataType.equalsIgnoreCase("number")) {
-//
-//                    }
-//                    if (isNumber(example)) {
-//
-//                    }
-//                }
-//                yaml.append("  ").append(sheetMap.get("Name")).append(": ").append(sheetMap.get("key")).append("\n");
-//            }
-//            parameter.setSampleYaml(yaml.toString());
-            result.add(inputParameter);
-        }
-        return result;
-    }
+
 }

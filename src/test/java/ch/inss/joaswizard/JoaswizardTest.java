@@ -190,11 +190,15 @@ class JoaswizardTest implements Constants{
         Assertions.assertEquals(3,integerListHashMap.keySet().size());
         Assertions.assertEquals(3,integerListHashMap.keySet().iterator().next().length());
         
-        List<InputParameter> inputParameterList = Util.getParameterList(integerListHashMap);
-        InputParameter p1 = inputParameterList.get(0);
-        p1.setOutputFile("testOutputExcelsheet0.yml");
-        jo.createMethodsFile(p1);
+        List<InputParameter> inputParameterList = jo.getParameterList(integerListHashMap);
+        InputParameter inputParameter = inputParameterList.get(0);
+        inputParameter.setOutputFile("testOutputExcelsheet0.yml");
+        inputParameter.addMethod("get");
+//        inputParameter.setResourceId("ID");
+//        inputParameter.setResource("ID");
         
+        int exitCode = jo.createMethodsFile(inputParameter);
+        assertEquals(0,exitCode);
 //        Util.writeStringToData("output",schema1,"testOutputExcelsheet0.yml");
 //
         File file1 = new File(output + "testOutputExcelsheet0.yml");

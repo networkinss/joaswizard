@@ -25,7 +25,7 @@ public class Main {
         }
         logger.addHandler(fileHandler);
     }
-
+    /** Create OAS3 document with all CRUD operations for one object. */
     public static void main(String[] args) {
         logger.info("Starting main.");
         if (args.length < 3) {
