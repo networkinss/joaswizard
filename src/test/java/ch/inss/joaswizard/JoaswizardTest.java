@@ -2,7 +2,6 @@ package ch.inss.joaswizard;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -92,11 +91,12 @@ class JoaswizardTest implements Constants{
         InputParameter p1 = new InputParameter();
 //        p1.setResource("PetObject");
         p1.setResourceId("name");
-        p1.setSampleData(Util.readFromFile("src/test/resources/PetObject.yml"));
+//        p1.setSampleYamlData(Util.readFromFile("src/test/resources/PetObject.yml"));
+        p1.setInputFile("src/test/resources/PetObject.yml");
         String schema1 = jo.createSchema(p1);
         Util.writeStringToData("output",schema1,"testOutputSchema_Object.yml");
         
-        inputParameter.setSampleData(Util.readFromFile("src/test/resources/Pet.yml"));
+        inputParameter.setInputFile("src/test/resources/Pet.yml");
         String schema = jo.createSchema(inputParameter);
         Util.writeStringToData("output",schema,"testOutputSchema.yml");
 
@@ -124,7 +124,7 @@ class JoaswizardTest implements Constants{
         inputParameter.setResource("pet");
         inputParameter.addMethod("GET");
         inputParameter.setInputFile("src/test/resources/Pet.yml");
-        inputParameter.setSourceType(InputParameter.Sourcetype.YAML.toString());
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
         jo.createMethodsFile(inputParameter);
         
         File file1 = new File(output + "get_openapi.yaml");
@@ -147,7 +147,7 @@ class JoaswizardTest implements Constants{
     void testCreateFromString() throws Exception {
         String debug = "Zmlyc3RuYW1lOiBNYXgKbmFtZTogTXVzdGVybWFubgpwaG9uZTogMTIzNDU2Nzg5CmVtYWlsOiAibWF4QGV4YW1wbGUuY29tIg==";
         InputParameter inputParameter = new InputParameter();
-        inputParameter.setSourceType(InputParameter.Sourcetype.STRING);
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLSTRING);
         inputParameter.setSampleYamlBase64(debug);
         inputParameter.setOutputFile(outputString);
         inputParameter.setResourceId("name");
@@ -190,7 +190,7 @@ class JoaswizardTest implements Constants{
         Assertions.assertEquals(3,integerListHashMap.keySet().size());
         Assertions.assertEquals(3,integerListHashMap.keySet().iterator().next().length());
         
-        List<InputParameter> inputParameterList = jo.getParameterList(integerListHashMap);
+        List<InputParameter> inputParameterList = jo.createParameterList(integerListHashMap);
         InputParameter inputParameter = inputParameterList.get(0);
         inputParameter.setOutputFile("testOutputExcelsheet0.yml");
         inputParameter.addMethod("get");

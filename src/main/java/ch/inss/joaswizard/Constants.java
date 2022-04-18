@@ -12,5 +12,5 @@ public interface Constants {
     String schemaTemplate = "schema.yaml";
     String infoTemplate = "info.yaml";
     String sep = System.getProperty("file.separator");
-
+    String nexLine = System.getProperty("line.separator");
 }

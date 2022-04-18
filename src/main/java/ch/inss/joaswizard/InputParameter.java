@@ -11,7 +11,7 @@ public class InputParameter {
 
     private String resource;
     private String resourceId = "ID";
-    private String sampleData;
+    private String sampleYamlData;
     private String inputFile;
     private String outputFile;
     private Sourcetype sourceType;
@@ -72,16 +72,16 @@ public class InputParameter {
     public void setSampleYamlBase64(String sampleYaml) {
         Base64.Decoder decoder = Base64.getDecoder();
         // Decoding string  
-        this.sampleData = new String(decoder.decode(sampleYaml));
+        this.sampleYamlData = new String(decoder.decode(sampleYaml));
     }
 
-    public String getSampleData() {
-        return sampleData;
+    public String getSampleYamlData() {
+        return sampleYamlData;
     }
 
     /** The sample data frm which the output will be generated.*/
-    public void setSampleData(String sampleData) {
-        this.sampleData = sampleData;
+    public void setSampleYamlData(String sampleYamlData) {
+        this.sampleYamlData = sampleYamlData;
     }
 
     public String getInputFile() {
@@ -93,7 +93,7 @@ public class InputParameter {
         int pos = inputFile.lastIndexOf(".");
         String suffix = inputFile.substring(pos);
         if (suffix.equalsIgnoreCase(".yml") || suffix.equalsIgnoreCase(".yaml")){
-            this.setSourceType(Sourcetype.YAML);
+            this.setSourceType(Sourcetype.YAMLFILE);
         }else if (suffix.equalsIgnoreCase(".xls") || suffix.equalsIgnoreCase(".xlsx")){
             this.setSourceType(Sourcetype.EXCEL);
         }else{
@@ -134,7 +134,7 @@ public class InputParameter {
         return "Parameter{" +
                 "resource='" + resource + '\'' +
                 ", resourceId='" + resourceId + '\'' +
-                ", sampleYaml='" + sampleData + '\'' +
+                ", sampleYaml='" + sampleYamlData + '\'' +
                 ", inputFile='" + inputFile + '\'' +
                 ", outputFile='" + outputFile + '\'' +
                 ", source='" + sourceType + '\'' +
@@ -174,9 +174,9 @@ public class InputParameter {
     }
     
     public  static enum Sourcetype{
-        YAML,
+        YAMLFILE,
         EXCEL,
-        STRING, 
+        YAMLSTRING, 
         UNDEFINED
     }
 }
