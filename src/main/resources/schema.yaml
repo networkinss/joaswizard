@@ -7,9 +7,9 @@
 
           format: {{format}}{{/format}}{{#minlength}}
       
-          minLength: {{minlength}}{{/minlength}}{{#maxlength}}
+          minLength: {{minlength}}{{/minlength}}{{#maxLength}}
 
-          maxLength: {{maxlength}}{{/maxlength}}
+          maxLength: {{maxLength}}{{/maxLength}}
           example: {{exampleValue}}{{#description}}
       
           description: {{description}}{{/description}}

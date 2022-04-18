@@ -270,7 +270,7 @@ public class Joaswizard implements Constants {
                 String max = mapSheet.get("Max");
                 if ( Util.isNumber(max)){
                     sampleData.setMaxLength(Integer.parseInt(max));
-                }else{
+                }else if (max != null && max.equals("") == false ){
                     logger.warning("Value for maxLength is not a number: " + max);
                 }
             }
