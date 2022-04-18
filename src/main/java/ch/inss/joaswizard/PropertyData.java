@@ -8,20 +8,28 @@ public class PropertyData {
     private String key;
     private String exampleValue;
     private String type;
-    private Boolean minlength;
-    private Boolean maxLength;
+    private Integer minlength;
+    private Integer maxLength;
     private String format;
     private String pattern;
     private List<String> enumValues;
     private Boolean required;
     private String description;
 
-    public Boolean getMaxLength() {
+    public Integer getMaxLength() {
         return maxLength;
     }
 
-    public void setMaxLength(Boolean maxLength) {
+    public void setMaxLength(Integer maxLength) {
         this.maxLength = maxLength;
+    }
+
+    public Integer getMinlength() {
+        return minlength;
+    }
+
+    public void setMinlength(Integer minlength) {
+        this.minlength = minlength;
     }
 
     public String getFormat() {
@@ -93,11 +101,5 @@ public class PropertyData {
         this.exampleValue = exampleValue;
     }
 
-    public Boolean getMinlength() {
-        return minlength;
-    }
 
-    public void setMinlength(Boolean minlength) {
-        this.minlength = minlength;
-    }
 }

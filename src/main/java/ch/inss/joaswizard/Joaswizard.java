@@ -145,7 +145,6 @@ public class Joaswizard implements Constants {
                 return null;
             }
         }
-
         logger.info(inputParameter.toString());
 
         MustacheFactory mf = new DefaultMustacheFactory();
@@ -157,7 +156,7 @@ public class Joaswizard implements Constants {
         StringWriter writerSchema = new StringWriter();
         StringWriter writerInfo = new StringWriter();
         /** Read input data sample. */
-        if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
+        if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
             this.createMustacheDataFromYaml(inputParameter);
         }
         HashMap sampleMap = inputParameter.getDataMap();
@@ -244,7 +243,7 @@ public class Joaswizard implements Constants {
 //            Object o = map.get(key);
             String value = map.get(key).toString();
             PropertyData sampleData = new PropertyData(key, value);
-            sampleData.setMinlength(!Util.isNumber(value));
+            if (!Util.isNumber(value))  sampleData.setMinlength(1);
             sampleData.setType(Util.isNumber(value) ? "number" : "string");
             list.add(sampleData);
         }
@@ -263,26 +262,25 @@ public class Joaswizard implements Constants {
             if (key == null || key.equals("")) key = "undefined";
             String value = mapSheet.get("SampleValues");
             PropertyData sampleData = new PropertyData(key, value);
-            sampleData.setMinlength(!Util.isNumber(value));
-            sampleData.setType(Util.isNumber(value) ? "number" : "string");
+            if ( !Util.isNumber(value) ) sampleData.setMinlength(1);
+            if (mapSheet.containsKey("OASDatatype")) sampleData.setType(mapSheet.get("OASDatatype"));
+            else sampleData.setType(Util.isNumber(value) ? "number" : "string");
             sampleData.setDescription(mapSheet.get("Beschreibung"));
             if (mapSheet.containsKey("Format")){
                 sampleData.setFormat(mapSheet.get("Format"));
             }
+            if (mapSheet.containsKey("Max")){
+                String max = mapSheet.get("Max");
+                if ( Util.isNumber(max)){
+                    sampleData.setMaxLength(Integer.parseInt(max));
+                }else{
+                    logger.warning("Value for maxLength is not a number: " + max);
+                }
+            }
             list.add(sampleData);
         }
         resultMap.put("data", list);
-//        sampleMap.put("objectName", new inputData("objectName", parameter.getCapResource()));
-//        yamlWrapper.setMap(resultMap);
         inputParameter.setDataMap(resultMap);
-
-
-//        LinkedHashMap<String, Object> petMap = new LinkedHashMap<>();
-//        petMap.put("examplevalue","fromexcel1");
-//        petMap.put("minlength","1234566789");
-//        petMap.put("type","xxl");
-
-//        this.createMustacheData(inputParameter, resultMap);
     }
 
 

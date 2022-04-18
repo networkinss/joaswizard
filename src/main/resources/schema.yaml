@@ -3,9 +3,13 @@
       properties:
       {{#data}}
         {{key}}:
-          type: {{type}}{{#minlength}}
+          type: {{type}}{{#format}}
+
+          format: {{format}}{{/format}}{{#minlength}}
       
-          minLength: 1{{/minlength}}
+          minLength: {{minlength}}{{/minlength}}{{#maxlength}}
+
+          maxLength: {{maxlength}}{{/maxlength}}
           example: {{exampleValue}}{{#description}}
       
           description: {{description}}{{/description}}

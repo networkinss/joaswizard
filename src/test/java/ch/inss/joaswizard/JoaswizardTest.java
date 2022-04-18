@@ -177,14 +177,6 @@ class JoaswizardTest implements Constants{
     @Test
     @Order(7)
     void testExcel() throws Exception {
-//        String fileName = ;
-//        Parameter parameter = new Parameter();
-//        parameter.setResourceId("name");
-//        parameter.setResource("pet");
-
-//        Parameter p1 = new Parameter();
-//        p1.setResource("PetObject");
-//        p1.setResourceId("name");
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx", null, null);
         Assertions.assertEquals(3,integerListHashMap.keySet().size());
