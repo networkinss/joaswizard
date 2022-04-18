@@ -11,12 +11,15 @@ import java.util.*;
 public class Util implements Constants {
 
     public static boolean writeStringToData(String userFolder, String data, String file) {
+        if (userFolder == null) userFolder = DATA_FOLDER;
+        if (file == null) file = DEFAULT_OUTPUT_FILE;        
         File folder = new File(userFolder);
         if (folder.mkdirs() == false && folder.isDirectory() == false) {
             return false;
         }
         FileOutputStream fos = null;
         BufferedOutputStream bos = null;
+        
         try {
             fos = new FileOutputStream(folder + S + file);
             bos = new BufferedOutputStream(fos);

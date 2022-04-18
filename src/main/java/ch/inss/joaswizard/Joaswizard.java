@@ -23,10 +23,6 @@ public class Joaswizard implements Constants {
     private static Logger logger = null;
 
     public Joaswizard() {
-
-    }
-
-    static {
         FileHandler fileHandler = null;
         try {
             InputStream stream = Joaswizard.class.getClassLoader().getResourceAsStream("logging.properties");
@@ -43,7 +39,7 @@ public class Joaswizard implements Constants {
         logger.addHandler(fileHandler);
     }
 
-    
+
 
     /**
      * Create all CRUD operations for one object.
@@ -173,16 +169,14 @@ public class Joaswizard implements Constants {
         if (inputParameter.getInputFile() == null || inputParameter.getInputFile().equals("")) {
             inputParameter.setInputFile("src/test/resources/Pet.yml");
         }
-        String dStr = null;
-        if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals("file")) {
-            dStr = Util.readFromFile(inputParameter.getInputFile());
-            inputParameter.setSampleData(dStr);
+        if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.YAML)) {
+            inputParameter.setSampleData(Util.readFromFile(inputParameter.getInputFile()));
         }
         if (inputParameter.getSampleData() == null || inputParameter.getSampleData().length() < 3) {
             System.out.println("No sample yaml with data. Please define input file or set sample yaml.");
             System.exit(1);
         }
-        System.out.println(inputParameter);
+        logger.info(inputParameter.toString());
 
         MustacheFactory mf = new DefaultMustacheFactory();
         Mustache mBasic = mf.compile(fullCrudTemplate);

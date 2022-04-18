@@ -46,7 +46,7 @@ public class Main {
         if (args.length >= 5) {
             inputParameter.setSourceType(args[4]);
         } else {
-            inputParameter.setSourceType("file");
+            inputParameter.setSourceType("YAML");
         }
         Joaswizard joaswizard = new Joaswizard();
         joaswizard.createCrudFile(inputParameter);
