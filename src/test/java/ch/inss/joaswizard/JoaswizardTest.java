@@ -24,19 +24,14 @@ class JoaswizardTest implements Constants{
     private final String referencePet = "src/test/resources/testReferencePet.yml";
     private final String referenceString = "src/test/resources/testReferenceString.yml";
     
-    private static Joaswizard jo = null;
+    private static Joaswizard jo = new Joaswizard();
     private static boolean cleanUp = false;
     
-    @BeforeAll
-    private static void  beforeAll() throws Exception{
-        jo = new Joaswizard();
-    }
-
-    
+   
     @Test
     @Order(1)
     void testContact() throws Exception {
-        Joaswizard.main(new String[]{"src/test/resources/Contact.yml", outputContact, "contact"});
+        Main.main(new String[]{"src/test/resources/Contact.yml", outputContact, "contact"});
         final List<String> list = new ArrayList<>();
         list.add("title: Contact API");
         list.add("$ref: '#/components/schemas/Contact'");
@@ -54,7 +49,7 @@ class JoaswizardTest implements Constants{
     @Test
     @Order(2)
     void testFullContact() throws Exception {
-        Joaswizard.main(new String[]{"src/test/resources/Contact.yml", outputContact, "contact"});
+        Main.main(new String[]{"src/test/resources/Contact.yml", outputContact, "contact"});
         File file1 = new File(output + outputContact);
         File file2 = new File(referenceContact);
         assertTrue(file1.isFile());
@@ -70,7 +65,7 @@ class JoaswizardTest implements Constants{
     @Test
     @Order(3)
     void testPet() throws Exception {
-        Joaswizard.main(new String[]{"src/test/resources/Pet.yml", outputPet, "pet", "name", "file"});
+        Main.main(new String[]{"src/test/resources/Pet.yml", outputPet, "pet", "name", "file"});
 
         final List<String> list = new ArrayList<>();
         list.add("title: Pet API");
@@ -91,11 +86,11 @@ class JoaswizardTest implements Constants{
         InputParameter p1 = new InputParameter();
 //        p1.setResource("PetObject");
         p1.setResourceId("name");
-        p1.setSampleYaml(Util.readFromFile("src/test/resources/PetObject.yml"));
+        p1.setSampleData(Util.readFromFile("src/test/resources/PetObject.yml"));
         String schema1 = jo.createSchema(p1);
         Util.writeStringToData("output",schema1,"testOutputSchema_Object.yml");
         
-        inputParameter.setSampleYaml(Util.readFromFile("src/test/resources/Pet.yml"));
+        inputParameter.setSampleData(Util.readFromFile("src/test/resources/Pet.yml"));
         String schema = jo.createSchema(inputParameter);
         Util.writeStringToData("output",schema,"testOutputSchema.yml");
 
@@ -121,7 +116,11 @@ class JoaswizardTest implements Constants{
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
         inputParameter.setResource("pet");
+        inputParameter.addMethod("GET");
+        inputParameter.setInputFile("src/test/resources/Pet.yml");
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAML.toString());
         jo.createMethodsFile(inputParameter);
+        
         File file1 = new File(output + "get_openapi.yaml");
         assertTrue(file1.isFile());
         
