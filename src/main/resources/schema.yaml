@@ -1,4 +1,4 @@
-    {{objectName.value}}:
+    {{objectName}}:
       type: object
       properties:
       {{#data}}
@@ -6,7 +6,7 @@
           type: {{type}}{{#minlength}}
       
           minLength: 1{{/minlength}}
-          example: {{value}}
+          example: {{exampleValue}}
         {{/data}}
       required:
 {{#data}}      - {{key}}

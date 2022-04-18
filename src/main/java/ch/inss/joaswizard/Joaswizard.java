@@ -190,7 +190,8 @@ public class Joaswizard implements Constants {
         if (yamlWrapper.getName().equals("") == false) {
             inputParameter.setResource(yamlWrapper.getName());
         }
-        sampleMap.put("objectName", new PropertyData("objectName", inputParameter.getCapResource()));
+        sampleMap.put("objectName", inputParameter.getCapResource());
+        
         try {
             mBasic.execute(writer, inputParameter).flush();
             mSchema.execute(writerSchema, sampleMap).flush();

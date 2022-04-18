@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JoaswizardTest implements Constants{
@@ -35,9 +36,13 @@ class JoaswizardTest implements Constants{
         final List<String> list = new ArrayList<>();
         list.add("title: Contact API");
         list.add("$ref: '#/components/schemas/Contact'");
+        list.add("Contact:");
         try (Stream<String> lines = Files.lines(Paths.get(output + outputContact))) {
-            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+            Stream<String> f = lines.filter(l -> list.contains(l.trim()));
+            long x = f.count();
+            assertEquals(6.0,x);
         }
+        
         File file1 = new File(output + outputContact);
         if (cleanUp){
             file1.delete();
