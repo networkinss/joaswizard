@@ -72,9 +72,9 @@ public class PropertyData {
         this.type = type;
     }
 
-    public PropertyData(String key, String value) {
+    public PropertyData(String key, String exampleValue) {
         this.key = key;
-        this.exampleValue = value;
+        this.exampleValue = exampleValue;
     }
 
     public String getKey() {

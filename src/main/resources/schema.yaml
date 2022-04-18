@@ -6,7 +6,8 @@
           type: {{type}}{{#minlength}}
       
           minLength: 1{{/minlength}}
-          example: {{exampleValue}}
+          example: {{exampleValue}}{{#description}}
+          description: {{description}}{{/description}}
         {{/data}}
       required:
 {{#data}}      - {{key}}
