@@ -15,7 +15,7 @@ public class InputParameter {
     private String sampleYaml;
     private String inputFile;
     private String outputFile;
-    private String sourceType;
+    private Sourcetype sourceType;
     private final String openCurlyBrace = "{";
     private final String closeCurlyBrace = "}";
     private final List<Method> methods = new ArrayList<>();
@@ -97,12 +97,12 @@ public class InputParameter {
         this.outputFile = outputFile;
     }
 
-    public String getSourceType() {
+    public Sourcetype getSourceType() {
         return sourceType;
     }
 
     public void setSourceType(String sourceType) {
-        this.sourceType = sourceType;
+        this.sourceType = Sourcetype.valueOf(sourceType.toUpperCase());
     }
 
     @Override
@@ -121,7 +121,12 @@ public class InputParameter {
         POST,
         PUT,
         GET,
-        DELTE,
+        DELETE,
         PATCH
+    }
+    
+    public  static enum Sourcetype{
+        YAML,
+        EXCEL
     }
 }
