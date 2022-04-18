@@ -240,7 +240,6 @@ public class Joaswizard implements Constants {
 
         List<PropertyData> list = new ArrayList<>();
         for (String key : map.keySet()) {
-//            Object o = map.get(key);
             String value = map.get(key).toString();
             PropertyData sampleData = new PropertyData(key, value);
             if (!Util.isNumber(value))  sampleData.setMinlength(1);
@@ -248,8 +247,6 @@ public class Joaswizard implements Constants {
             list.add(sampleData);
         }
         resultMap.put("data", list);
-//        sampleMap.put("objectName", new inputData("objectName", parameter.getCapResource()));
-//        yamlWrapper.setMap(resultMap);
         inputParameter.setDataMap(resultMap);
     }
 
@@ -293,22 +290,6 @@ public class Joaswizard implements Constants {
             inputParameter.setResource(index);
             inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
             this.createMustacheDataFromExcel(inputParameter, mapList);
-
-//            for (Map<String, String> sheetMap : mapList) {
-//                String name = sheetMap.get("Name");
-//                String dataType = sheetMap.get("Datatype");
-//                String example = sheetMap.get("Example");
-//                if (dataType != null) {
-//                    if (dataType.equalsIgnoreCase("integer") || dataType.equalsIgnoreCase("number")) {
-//
-//                    }
-//                    if (isNumber(example)) {
-//
-//                    }
-//                }
-//                yaml.append("  ").append(sheetMap.get("Name")).append(": ").append(sheetMap.get("key")).append("\n");
-//            }
-//            parameter.setSampleYaml(yaml.toString());
             result.add(inputParameter);
         }
         return result;
