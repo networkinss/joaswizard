@@ -2,19 +2,26 @@ package ch.inss.joaswizard;
 
 import java.util.List;
 
-/** Properties of a components/schemas object. */
+/**
+ * Properties of a components/schemas object.
+ */
 public class PropertyData {
 
     private String key;
-    private String exampleValue;
+    private String examplevalue;
     private String type;
     private Integer minlength;
     private Integer maxLength;
     private String format;
     private String pattern;
-    private List<String> enumValues;
+    private String enumvalues;
     private Boolean required;
     private String description;
+
+    public PropertyData(String key, String type) {
+        this.key = key;
+        this.type = type;
+    }
 
     public Integer getMaxLength() {
         return maxLength;
@@ -48,16 +55,16 @@ public class PropertyData {
         this.pattern = pattern;
     }
 
-    public List<String> getEnumValues() {
-        return enumValues;
-    }
-
-    public void setEnumValues(List<String> enumValues) {
-        this.enumValues = enumValues;
-    }
-
     public Boolean getRequired() {
         return required;
+    }
+
+    public String getEnumvalues() {
+        return enumvalues;
+    }
+
+    public void setEnumvalues(String enumvalues) {
+        this.enumvalues = enumvalues;
     }
 
     public void setRequired(Boolean required) {
@@ -80,11 +87,6 @@ public class PropertyData {
         this.type = type;
     }
 
-    public PropertyData(String key, String exampleValue) {
-        this.key = key;
-        this.exampleValue = exampleValue;
-    }
-
     public String getKey() {
         return key;
     }
@@ -93,13 +95,27 @@ public class PropertyData {
         this.key = key;
     }
 
-    public String getExampleValue() {
-        return exampleValue;
+    public String getExamplevalue() {
+        return examplevalue;
     }
 
-    public void setExampleValue(String exampleValue) {
-        this.exampleValue = exampleValue;
+    public void setExamplevalue(String examplevalue) {
+        this.examplevalue = examplevalue;
     }
 
-
+    @Override
+    public String toString() {
+        return "PropertyData{" +
+                "key='" + key + '\'' +
+                ", exampleValue='" + examplevalue + '\'' +
+                ", type='" + type + '\'' +
+                ", minlength=" + minlength +
+                ", maxLength=" + maxLength +
+                ", format='" + format + '\'' +
+                ", pattern='" + pattern + '\'' +
+                ", enumValues='" + enumvalues + '\'' +
+                ", required=" + required +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

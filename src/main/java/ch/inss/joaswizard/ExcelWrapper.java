@@ -74,12 +74,16 @@ public class ExcelWrapper {
             case CELL_TYPE_BLANK:
                 return "";
             case CELL_TYPE_BOOLEAN:
-                return Boolean.toString(cell.getBooleanCellValue());
+                return Boolean.toString(cell.getBooleanCellValue()); 
+            case CELL_TYPE_FORMULA:
+                return cell.getStringCellValue();
+            case CELL_TYPE_ERROR:
+                return cell.getStringCellValue();
             case CELL_TYPE_NUMERIC:
                 final DataFormatter formatter = new DataFormatter();
                 return formatter.formatCellValue(cell);
             default:
-                throw new RuntimeException("unknown cell type " + cell.getCellType());
+                throw new RuntimeException("unknown cell type: " + cell.getCellType());
         }
 
     }

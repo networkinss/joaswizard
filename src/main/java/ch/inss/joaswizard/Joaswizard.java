@@ -3,6 +3,7 @@ package ch.inss.joaswizard;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -242,7 +243,7 @@ public class Joaswizard implements Constants {
         for (String key : map.keySet()) {
             String value = map.get(key).toString();
             PropertyData sampleData = new PropertyData(key, value);
-            if (!Util.isNumber(value))  sampleData.setMinlength(1);
+            if (!Util.isNumber(value)) sampleData.setMinlength(1);
             sampleData.setType(Util.isNumber(value) ? "number" : "string");
             list.add(sampleData);
         }
@@ -254,30 +255,66 @@ public class Joaswizard implements Constants {
     private void createMustacheDataFromExcel(InputParameter inputParameter, List<Map<String, String>> mapList) {
         LinkedHashMap<String, Object> resultMap = new LinkedHashMap<>();
         List<PropertyData> list = new ArrayList<>();
+        int idx = 0;
+        /** Define each property of one object. */
         for (Map<String, String> mapSheet : mapList) {
-            String key = mapSheet.get("Name");
+            CaseInsensitiveMap<String, String> propertyMap = new CaseInsensitiveMap(mapSheet);
+            idx++;
+            String key = propertyMap.get(Header.NAME);
             if (key == null || key.equals("")) key = "undefined";
-            String value = mapSheet.get("SampleValues");
-            PropertyData sampleData = new PropertyData(key, value);
-            if ( !Util.isNumber(value) ) sampleData.setMinlength(1);
-            if (mapSheet.containsKey("OASDatatype")) sampleData.setType(mapSheet.get("OASDatatype"));
-            else sampleData.setType(Util.isNumber(value) ? "number" : "string");
-            sampleData.setDescription(mapSheet.get("Beschreibung"));
-            if (mapSheet.containsKey("Format")){
-                sampleData.setFormat(mapSheet.get("Format"));
+            String value = propertyMap.get(Header.SAMPLEVALUE);
+            String type = null;
+            if (propertyMap.containsKey(Header.DATATYPE)) type = propertyMap.get(Header.DATATYPE);
+            if (key.equals("undefined") && (value == null || value.equals("") && (type == null || type.equals("")))){
+                logger.warning("Not enough data to build an OAS3 schema object (index: " + idx + ").");
+                continue;
             }
-            if (mapSheet.containsKey("Max")){
-                String max = mapSheet.get("Max");
-                if ( Util.isNumber(max)){
-                    sampleData.setMaxLength(Integer.parseInt(max));
-                }else if (max != null && max.equals("") == false ){
-                    logger.warning("Value for maxLength is not a number: " + max);
+            if (type == null || type.equals("")) type = (Util.isNumber(value) ? "number" : "string");
+            PropertyData sampleData = new PropertyData(key, type);
+            
+            sampleData.setExamplevalue(value);
+            if (propertyMap.containsKey(Header.MIN)){
+                if (Util.isNumber(propertyMap.get(Header.MIN))){
+                    sampleData.setMinlength(Integer.parseInt(propertyMap.get(Header.MIN)));    
                 }
+            }else if (!Util.isNumber(value)){
+                sampleData.setMinlength(1);
+            }
+
+            sampleData.setDescription(propertyMap.get("Description"));
+            sampleData.setFormat(propertyMap.get("Format"));
+            sampleData.setPattern(propertyMap.get("Pattern"));
+            sampleData.setRequired(Boolean.parseBoolean(propertyMap.get("Required")));
+            sampleData.setEnumvalues(getOasEnum(propertyMap.get(Header.ENUMVALUES)));
+            String max = propertyMap.get("Max");
+            if (Util.isNumber(max)) {
+                sampleData.setMaxLength(Integer.parseInt(max));
+            } else if (max != null && max.equals("") == false) {
+                logger.warning("Value for maxLength is not a number: " + max);
             }
             list.add(sampleData);
         }
         resultMap.put("data", list);
         inputParameter.setDataMap(resultMap);
+    }
+
+    private String getOasEnum(String e) {
+        StringBuilder b = null;
+        if (e != null && e.equals("") == false){
+            b = new StringBuilder();
+            String []s = e.split(",");
+            
+            boolean notfirst = false;
+            for (String item : s){
+                if (notfirst) b.append("          ");
+                notfirst = true;
+                b.append("- ").append(item).append(nexLine);
+            }
+            b.deleteCharAt(b.length()-1);
+//            sampleData.setEnumvalues(b.toString());
+        }
+        if (b == null) return null;
+        return b.toString();
     }
 
 

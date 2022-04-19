@@ -5,15 +5,18 @@
         {{key}}:
           type: {{type}}{{#format}}
 
-          format: {{format}}{{/format}}{{#minlength}}
+          format: {{format}}{{/format}}{{#enumvalues}}
+
+          enum:
+          {{{enumvalues}}}{{/enumvalues}}{{#minlength}}
       
           minLength: {{minlength}}{{/minlength}}{{#maxLength}}
 
           maxLength: {{maxLength}}{{/maxLength}}
-          example: {{exampleValue}}{{#description}}
+          example: {{examplevalue}}{{#description}}
       
           description: {{description}}{{/description}}
         {{/data}}
       required:
-{{#data}}      - {{key}}
-            {{/data}}
+{{#data}}{{#required}}      - {{key}}
+   {{/required}}{{/data}}
