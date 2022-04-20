@@ -178,19 +178,25 @@ class JoaswizardTest implements Constants{
     @Order(7)
     void testExcel() throws Exception {
         ExcelWrapper excelWrapper = new ExcelWrapper();
-        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx", null, null);
+        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx");
         Assertions.assertEquals(3,integerListHashMap.keySet().size());
         Assertions.assertEquals(3,integerListHashMap.keySet().iterator().next().length());
-        
-        List<InputParameter> inputParameterList = jo.createParameterList(integerListHashMap);
-        InputParameter inputParameter = inputParameterList.get(0);
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
+        inputParameter.setInputFile("src/test/resources/objectimport.xlsx");
         inputParameter.setOutputFile("testOutputExcelsheet0.yml");
         inputParameter.addMethod("get");
+        jo.createFromExcel(inputParameter);
+        
+//        List<InputParameter> inputParameterList = jo.createParameterList(integerListHashMap);
+//        InputParameter inputParameter = inputParameterList.get(0);
+//        inputParameter.setOutputFile("testOutputExcelsheet0.yml");
+//        inputParameter.addMethod("get");
 //        inputParameter.setResourceId("ID");
 //        inputParameter.setResource("ID");
         
-        int exitCode = jo.createMethodsFile(inputParameter);
-        assertEquals(0,exitCode);
+//        int exitCode = jo.createMethodsFile(inputParameter);
+//        assertEquals(0,exitCode);
 //        Util.writeStringToData("output",schema1,"testOutputExcelsheet0.yml");
 //
         File file1 = new File(output + "testOutputExcelsheet0.yml");
