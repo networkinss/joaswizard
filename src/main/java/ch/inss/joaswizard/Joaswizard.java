@@ -5,6 +5,7 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
 public class Joaswizard implements Constants {
 
     private static Logger logger = null;
+    private Data data = null;
 
     public Joaswizard() {
         FileHandler fileHandler = null;
@@ -113,9 +115,13 @@ public class Joaswizard implements Constants {
         Mustache mSchema = mf.compile(schemaTemplate);
         StringWriter writerSchema = new StringWriter();
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
-            this.createMustacheDataFromYaml(inputParameter);
+           this.createMustacheDataFromYaml(inputParameter);
         }
-        HashMap sampleMap = inputParameter.getDataMap();
+        if (this.data == null || this.data.getDataMap() == null || this.data.getDataMap().size() == 0) {
+            logger.severe("No data. Please define input file or set sample yaml.");
+            return "Error";
+        }
+        HashMap sampleMap = data.getDataMap();
 //        if (yamlWrapper.getName().equals("") == false) {
 //            inputParameter.setResource(yamlWrapper.getName());
 //        }
@@ -127,6 +133,21 @@ public class Joaswizard implements Constants {
             logger.severe(e.getLocalizedMessage());
         }
         return writerSchema.toString();
+    }
+
+    public void createFromExcel(InputParameter input){
+        ExcelWrapper excelWrapper = new ExcelWrapper();
+        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx");
+
+        List<InputParameter> inputParameterList = this.createParameterList(integerListHashMap);
+        InputParameter inputParameter = inputParameterList.get(0);
+        inputParameter.setOutputFile("testOutputExcelsheet0.yml");
+        inputParameter.addMethod("get");
+
+        int exitCode = this.createMethodsFile(inputParameter);
+//        Util.writeStringToData("output",schema1,"testOutputExcelsheet0.yml");
+//
+
     }
 
     private String fromGetTemplate(InputParameter inputParameter) {
@@ -141,7 +162,9 @@ public class Joaswizard implements Constants {
             }
         }
         if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL)) {
-            if (inputParameter.getDataMap() == null || inputParameter.getDataMap().size() == 0) {
+            
+            if (this.data == null || this.data.getDataMap() == null || this.data.getDataMap().size() == 0) {
+//            if (inputParameter.getDataMap() == null || inputParameter.getDataMap().size() == 0) {
                 logger.severe("No data. Please define input file or set sample yaml.");
                 return null;
             }
@@ -158,9 +181,17 @@ public class Joaswizard implements Constants {
         StringWriter writerInfo = new StringWriter();
         /** Read input data sample. */
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
-            this.createMustacheDataFromYaml(inputParameter);
+           this.createMustacheDataFromYaml(inputParameter);
         }
-        HashMap sampleMap = inputParameter.getDataMap();
+        if (this.data == null || this.data.getDataMap() == null || this.data.getDataMap().size() == 0) {
+            logger.severe("No data. Please define input file or set sample yaml.");
+            return "Error";
+        }
+        HashMap sampleMap = data.getDataMap();
+        if ( sampleMap == null || sampleMap.isEmpty()){
+            logger.severe("No data to process.");;
+            return "Error";
+        }
 
         sampleMap.put("objectName", inputParameter.getCapResource());
         try {
@@ -190,7 +221,6 @@ public class Joaswizard implements Constants {
                 System.exit(1);
             }
         }
-
         logger.info(inputParameter.toString());
 
         MustacheFactory mf = new DefaultMustacheFactory();
@@ -223,7 +253,8 @@ public class Joaswizard implements Constants {
     }
 
     /**
-     * Providing HashMap with input data for the Mustache engine.
+     * Providing HashMap this.data with input data for the Mustache engine.
+     *    
      */
     private void createMustacheData(InputParameter inputParameter, LinkedHashMap<String, Object> map) {
         /** Read input data sample. */
@@ -242,16 +273,21 @@ public class Joaswizard implements Constants {
         List<PropertyData> list = new ArrayList<>();
         for (String key : map.keySet()) {
             String value = map.get(key).toString();
-            PropertyData sampleData = new PropertyData(key, value);
+            PropertyData sampleData = new PropertyData(key, Util.isNumber(value) ? "number" : "string");
             if (!Util.isNumber(value)) sampleData.setMinlength(1);
-            sampleData.setType(Util.isNumber(value) ? "number" : "string");
+            sampleData.setExamplevalue(value);
+            sampleData.setRequired(true);
             list.add(sampleData);
         }
         resultMap.put("data", list);
-        inputParameter.setDataMap(resultMap);
+        this.data =  new Data(resultMap);
+//        inputParameter.setDataMap(resultMap);
     }
 
-
+    /**
+     * Providing HashMap this.data with input data for the Mustache engine.
+     *
+     */
     private void createMustacheDataFromExcel(InputParameter inputParameter, List<Map<String, String>> mapList) {
         LinkedHashMap<String, Object> resultMap = new LinkedHashMap<>();
         List<PropertyData> list = new ArrayList<>();
@@ -295,7 +331,8 @@ public class Joaswizard implements Constants {
             list.add(sampleData);
         }
         resultMap.put("data", list);
-        inputParameter.setDataMap(resultMap);
+        this.data = new Data(resultMap);
+//        inputParameter.setDataMap(resultMap);
     }
 
     private String getOasEnum(String e) {
@@ -318,7 +355,7 @@ public class Joaswizard implements Constants {
     }
 
 
-    public List<InputParameter> createParameterList(HashMap<String, List<Map<String, String>>> map) {
+    private List<InputParameter> createParameterList(HashMap<String, List<Map<String, String>>> map) {
         List<InputParameter> result = new ArrayList<>();
         for (String index : map.keySet()) {
             List<Map<String, String>> mapList = map.get(index);

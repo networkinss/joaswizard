@@ -18,7 +18,7 @@ public class InputParameter {
     private boolean doInfo = true;
     private boolean doPaths = true;
     private boolean doSchemas = true;
-    private HashMap<String, Object> dataMap;
+//    private HashMap<String, Object> dataMap;
 
     private final String openCurlyBrace = "{";
     private final String closeCurlyBrace = "}";
@@ -120,13 +120,13 @@ public class InputParameter {
     public void setSourceType(Sourcetype sourceType) {
         this.sourceType = sourceType;
     }
-    public HashMap<String, Object> getDataMap() {
-        return dataMap;
-    }
-
-    public void setDataMap(HashMap<String, Object> dataMap) {
-        this.dataMap = dataMap;
-    }
+//    public HashMap<String, Object> getDataMap() {
+//        return dataMap;
+//    }
+//
+//    public void setDataMap(HashMap<String, Object> dataMap) {
+//        this.dataMap = dataMap;
+//    }
 
 
     @Override

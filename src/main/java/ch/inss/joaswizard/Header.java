@@ -12,6 +12,6 @@ public enum Header {
     ENUMVALUES,
     REQUIRED,
     NULLABLE,
-    BESCHREIBUNG
+    DESCRIPTION
 
     }

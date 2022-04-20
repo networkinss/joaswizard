@@ -6,32 +6,65 @@ import org.apache.poi.xssf.usermodel.XSSFName;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
+import java.util.logging.FileHandler;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 //import com.google.common.collect.Lists;
 
 import static org.apache.poi.ss.usermodel.Cell.*;
 
 public class ExcelWrapper {
-    public HashMap<String, List<Map<String, String>>>  readExcel(String file, String sheetPrefix, String sheetPostfix){
+    private static Logger logger = null;
+
+    public ExcelWrapper() {
+        FileHandler fileHandler = null;
         try {
-            HashMap<String, List<Map<String, String>>> map = new HashMap<>();
-            final XSSFWorkbook workbook = new XSSFWorkbook(file);
+            InputStream stream = Joaswizard.class.getClassLoader().getResourceAsStream("logging.properties");
+            try {
+                LogManager.getLogManager().readConfiguration(stream);
+                logger = Logger.getLogger(Joaswizard.class.getName());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            fileHandler = new FileHandler("joaswizard.log");
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.severe(e.getLocalizedMessage());
+        }
+        logger.addHandler(fileHandler);
+    }
+
+    public HashMap<String, List<Map<String, String>>>  readExcel(String file){
+        InputStream fileStream = null;
+        File initialFile = null;
+        try {
+            initialFile = new File(file);
+            fileStream = new FileInputStream(initialFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            logger.severe(e.getLocalizedMessage());
+            logger.severe("Parse excel failed. Filename: " + initialFile.getAbsolutePath());
+        }
+        return this.readExcel(fileStream);
+    }
+    
+    public HashMap<String, List<Map<String, String>>>  readExcel(InputStream fileStream){
+        HashMap<String, List<Map<String, String>>> map = new HashMap<>();
+        try {
+            final XSSFWorkbook workbook = new XSSFWorkbook(fileStream);
             List<XSSFName> allNames = workbook.getAllNames();
             Iterator it = workbook.iterator();
             while ( it.hasNext() ){
                 final XSSFSheet sheet = (XSSFSheet) it.next();
-                
                 List<Map<String, String>> list = sheetContent(sheet);
                 map.put(sheet.getSheetName(),list);
             }
-            
-            
-            return map;
         } catch (IOException e) {
-//            LOG.error("parse excel failed. name: {}", file.getOriginalFilename(), e);
-            throw new RuntimeException("Parsing excel failed.");
+            logger.severe("Parsing excel failed.");
         }
+        return map;
     }
 
     private List<Map<String, String>> sheetContent(XSSFSheet sheet) {
