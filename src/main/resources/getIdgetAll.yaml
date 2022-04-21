@@ -90,16 +90,3 @@
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-components:
-  schemas:
-    ErrorModel:
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          format: int32
-        message:
-          type: string

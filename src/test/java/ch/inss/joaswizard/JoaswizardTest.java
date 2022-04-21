@@ -125,7 +125,9 @@ class JoaswizardTest implements Constants{
         inputParameter.addMethod("GET");
         inputParameter.setInputFile("src/test/resources/Pet.yml");
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
-        jo.createMethodsFile(inputParameter);
+        List<InputParameter> inputList = new ArrayList<>();
+        inputList.add(inputParameter);
+        jo.createMethodsFile(inputList);
         
         File file1 = new File(output + "get_openapi.yaml");
         assertTrue(file1.isFile());
@@ -181,6 +183,7 @@ class JoaswizardTest implements Constants{
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx");
         Assertions.assertEquals(3,integerListHashMap.keySet().size());
         Assertions.assertEquals(3,integerListHashMap.keySet().iterator().next().length());
+        
         InputParameter inputParameter = new InputParameter();
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
         inputParameter.setInputFile("src/test/resources/objectimport.xlsx");

@@ -15,15 +15,31 @@ public class InputParameter {
     private String inputFile;
     private String outputFile;
     private Sourcetype sourceType;
+    private List<Method> methods = new ArrayList<>();
+    
     private boolean doInfo = true;
     private boolean doPaths = true;
     private boolean doSchemas = true;
-//    private HashMap<String, Object> dataMap;
-
     private final String openCurlyBrace = "{";
     private final String closeCurlyBrace = "}";
-    private final List<Method> methods = new ArrayList<>();
     
+
+    public InputParameter(String inputFile, String outputFile, Sourcetype sourceType, List<Method> methods) {
+        this.inputFile = inputFile;
+        this.outputFile = outputFile;
+        this.sourceType = sourceType;
+        this.methods = methods;
+    }
+    public InputParameter(){
+        
+    }
+
+    public InputParameter(String inputFile, String outputFile, Sourcetype sourceType) {
+        this.inputFile = inputFile;
+        this.outputFile = outputFile;
+        this.sourceType = sourceType;
+    }
+
     public List<Method> getMethodList() {
         return methods;
     }

@@ -5,7 +5,6 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -55,54 +54,46 @@ public class Joaswizard implements Constants {
     /**
      * Create all methods as defined in input parameter object.
      */
-    public int createMethodsFile(InputParameter inputParameter) {
+    public String createMethodsFile(List<InputParameter> list) {
         logger.info("Starting create methods.");
         int count = 0;
-        int exitCode = 0;
-        String pathGet = "";
-        String pathPost = "";
-        String pathDelete = "";
-        String pathPut = "";
-        String pathPatch = "";
-        if (inputParameter.getMethodList().contains(InputParameter.Method.GET)) {
-            pathGet = this.fromGetTemplate(inputParameter);
-            count++;
+        StringBuilder result = new StringBuilder();
+        if (list == null || list.isEmpty()) return "Error";
+        for (InputParameter inputParameter : list) {
+            String pathGet = "";
+            String pathPost = "";
+            String pathDelete = "";
+            String pathPut = "";
+            String pathPatch = "";
+            if (inputParameter.getMethodList().contains(InputParameter.Method.GET)) {
+                pathGet = this.fromGetTemplate(inputParameter);
+                count++;
+            }
+            if (inputParameter.getMethodList().contains(InputParameter.Method.POST)) {
+                System.out.println("POST not implemented (yet).");
+                count++;
+            }
+            if (inputParameter.getMethodList().contains(InputParameter.Method.PUT)) {
+                System.out.println("PUT not implemented (yet).");
+                count++;
+            }
+            if (inputParameter.getMethodList().contains(InputParameter.Method.DELETE)) {
+                System.out.println("DELETE not implemented (yet).");
+                count++;
+            }
+            if (inputParameter.getMethodList().contains(InputParameter.Method.PATCH)) {
+                System.out.println("PATCH not implemented (yet).");
+                count++;
+            }
+            result.append(pathGet).append(nexLine);
         }
-        if (inputParameter.getMethodList().contains(InputParameter.Method.POST)) {
-            System.out.println("POST not implemented (yet).");
-            count++;
-        }
-        if (inputParameter.getMethodList().contains(InputParameter.Method.PUT)) {
-            System.out.println("PUT not implemented (yet).");
-            count++;
-        }
-        if (inputParameter.getMethodList().contains(InputParameter.Method.DELETE)) {
-            System.out.println("DELETE not implemented (yet).");
-            count++;
-        }
-        if (inputParameter.getMethodList().contains(InputParameter.Method.PATCH)) {
-            System.out.println("PATCH not implemented (yet).");
-            count++;
-        }
-        String result = pathGet;
-        if (count > 0 && result != null) {
-            boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, result, inputParameter.getOutputFile());
-            if (ok) {
-                logger.info("Found " + count + " methods. Create method finished.");
-            } else {
-                exitCode = 1;
-                logger.severe("Could not write file " + Constants.DATA_FOLDER + inputParameter.getOutputFile());
+        if (count > 0) {
 
-            }
+            logger.info("Processed " + count + " methods for " + list.size() + " objects.");
         } else {
-            if (count == 0) {
-                logger.warning("No methods found. Please define rest methods.");
-            } else {
-                logger.warning("No data could be processed. Check input data.");
-            }
-            exitCode = 1;
+            logger.warning("No methods found. Please define rest api methods.");
         }
-        return exitCode;
+        return result.toString();
     }
 
     /**
@@ -115,7 +106,7 @@ public class Joaswizard implements Constants {
         Mustache mSchema = mf.compile(schemaTemplate);
         StringWriter writerSchema = new StringWriter();
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
-           this.createMustacheDataFromYaml(inputParameter);
+            this.createMustacheDataFromYaml(inputParameter);
         }
         if (this.data == null || this.data.getDataMap() == null || this.data.getDataMap().size() == 0) {
             logger.severe("No data. Please define input file or set sample yaml.");
@@ -134,20 +125,54 @@ public class Joaswizard implements Constants {
         }
         return writerSchema.toString();
     }
+    /**
+     * Creates one components schema as defined in input paramter.
+     */
+    public String createInfo(InputParameter inputParameter) {
+        logger.info("Start creating info.");
+        logger.info("Input parameter: \n" + inputParameter);
+        MustacheFactory mf = new DefaultMustacheFactory();
+        Mustache mSchema = mf.compile(infoTemplate);
+        StringWriter writerSchema = new StringWriter();
 
-    public void createFromExcel(InputParameter input){
+        if (inputParameter.getResource() == null || inputParameter.getResource().length() == 0) {
+            logger.severe("No resource defined.");
+            return "Error";
+        }
+        try {
+            mSchema.execute(writerSchema, inputParameter).flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.severe(e.getLocalizedMessage());
+        }
+        return writerSchema.toString();
+    }
+
+    public void createFromExcel(InputParameter input) {
         ExcelWrapper excelWrapper = new ExcelWrapper();
-        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx");
+        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel(input.getInputFile());
+        input.setSourceType(InputParameter.Sourcetype.EXCEL);
+        List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, input);
 
-        List<InputParameter> inputParameterList = this.createParameterList(integerListHashMap);
-        InputParameter inputParameter = inputParameterList.get(0);
-        inputParameter.setOutputFile("testOutputExcelsheet0.yml");
-        inputParameter.addMethod("get");
-
-        int exitCode = this.createMethodsFile(inputParameter);
-//        Util.writeStringToData("output",schema1,"testOutputExcelsheet0.yml");
-//
-
+        String paths = this.createMethodsFile(inputParameterList);
+        StringBuilder resouces = new StringBuilder();
+        StringBuilder schemas = new StringBuilder();
+        for ( InputParameter parameter : inputParameterList){
+            resouces.append( parameter.getResource()).append(", ");
+            schemas.append(this.createSchema(parameter)).append(nexLine);
+        }
+        resouces.delete(resouces.length()-2,resouces.length());
+        input.setResource(resouces.toString());
+        
+        String info = this.createInfo(input);
+        
+        String result = info + paths + schemas;
+        boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, result, input.getOutputFile());
+        if (ok) {
+            logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
+        } else {
+            logger.severe("Could not write file " + Constants.DATA_FOLDER + input.getOutputFile());
+        }
     }
 
     private String fromGetTemplate(InputParameter inputParameter) {
@@ -162,7 +187,7 @@ public class Joaswizard implements Constants {
             }
         }
         if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL)) {
-            
+
             if (this.data == null || this.data.getDataMap() == null || this.data.getDataMap().size() == 0) {
 //            if (inputParameter.getDataMap() == null || inputParameter.getDataMap().size() == 0) {
                 logger.severe("No data. Please define input file or set sample yaml.");
@@ -173,35 +198,36 @@ public class Joaswizard implements Constants {
 
         MustacheFactory mf = new DefaultMustacheFactory();
         Mustache mBasic = mf.compile(getTemplate);
-        Mustache mSchema = mf.compile(schemaTemplate);
-        Mustache mInfo = mf.compile(infoTemplate);
+//        Mustache mSchema = mf.compile(schemaTemplate);
+//        Mustache mInfo = mf.compile(infoTemplate);
 
         StringWriter writerPaths = new StringWriter();
-        StringWriter writerSchema = new StringWriter();
-        StringWriter writerInfo = new StringWriter();
+//        StringWriter writerSchema = new StringWriter();
+//        StringWriter writerInfo = new StringWriter();
         /** Read input data sample. */
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
-           this.createMustacheDataFromYaml(inputParameter);
+            this.createMustacheDataFromYaml(inputParameter);
         }
         if (this.data == null || this.data.getDataMap() == null || this.data.getDataMap().size() == 0) {
             logger.severe("No data. Please define input file or set sample yaml.");
             return "Error";
         }
         HashMap sampleMap = data.getDataMap();
-        if ( sampleMap == null || sampleMap.isEmpty()){
-            logger.severe("No data to process.");;
+        if (sampleMap == null || sampleMap.isEmpty()) {
+            logger.severe("No data to process.");
+            ;
             return "Error";
         }
 
         sampleMap.put("objectName", inputParameter.getCapResource());
         try {
             mBasic.execute(writerPaths, inputParameter).flush();
-            mInfo.execute(writerInfo, inputParameter).flush();
-            mSchema.execute(writerSchema, sampleMap).flush();
+//            mInfo.execute(writerInfo, inputParameter).flush();
+//            mSchema.execute(writerSchema, sampleMap).flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return writerInfo + nexLine + writerPaths + nexLine + writerSchema;
+        return nexLine + writerPaths;
     }
 
 
@@ -254,7 +280,6 @@ public class Joaswizard implements Constants {
 
     /**
      * Providing HashMap this.data with input data for the Mustache engine.
-     *    
      */
     private void createMustacheData(InputParameter inputParameter, LinkedHashMap<String, Object> map) {
         /** Read input data sample. */
@@ -280,13 +305,12 @@ public class Joaswizard implements Constants {
             list.add(sampleData);
         }
         resultMap.put("data", list);
-        this.data =  new Data(resultMap);
+        this.data = new Data(resultMap);
 //        inputParameter.setDataMap(resultMap);
     }
 
     /**
      * Providing HashMap this.data with input data for the Mustache engine.
-     *
      */
     private void createMustacheDataFromExcel(InputParameter inputParameter, List<Map<String, String>> mapList) {
         LinkedHashMap<String, Object> resultMap = new LinkedHashMap<>();
@@ -301,19 +325,19 @@ public class Joaswizard implements Constants {
             String value = propertyMap.get(Header.SAMPLEVALUE);
             String type = null;
             if (propertyMap.containsKey(Header.DATATYPE)) type = propertyMap.get(Header.DATATYPE);
-            if (key.equals("undefined") && (value == null || value.equals("") && (type == null || type.equals("")))){
+            if (key.equals("undefined") && (value == null || value.equals("") && (type == null || type.equals("")))) {
                 logger.warning("Not enough data to build an OAS3 schema object (index: " + idx + ").");
                 continue;
             }
             if (type == null || type.equals("")) type = (Util.isNumber(value) ? "number" : "string");
             PropertyData sampleData = new PropertyData(key, type);
-            
+
             sampleData.setExamplevalue(value);
-            if (propertyMap.containsKey(Header.MIN)){
-                if (Util.isNumber(propertyMap.get(Header.MIN))){
-                    sampleData.setMinlength(Integer.parseInt(propertyMap.get(Header.MIN)));    
+            if (propertyMap.containsKey(Header.MIN)) {
+                if (Util.isNumber(propertyMap.get(Header.MIN))) {
+                    sampleData.setMinlength(Integer.parseInt(propertyMap.get(Header.MIN)));
                 }
-            }else if (!Util.isNumber(value)){
+            } else if (!Util.isNumber(value)) {
                 sampleData.setMinlength(1);
             }
 
@@ -337,17 +361,17 @@ public class Joaswizard implements Constants {
 
     private String getOasEnum(String e) {
         StringBuilder b = null;
-        if (e != null && e.equals("") == false){
+        if (e != null && e.equals("") == false) {
             b = new StringBuilder();
-            String []s = e.split(",");
-            
+            String[] s = e.split(",");
+
             boolean notfirst = false;
-            for (String item : s){
+            for (String item : s) {
                 if (notfirst) b.append("          ");
                 notfirst = true;
                 b.append("- ").append(item).append(nexLine);
             }
-            b.deleteCharAt(b.length()-1);
+            b.deleteCharAt(b.length() - 1);
 //            sampleData.setEnumvalues(b.toString());
         }
         if (b == null) return null;
@@ -355,14 +379,14 @@ public class Joaswizard implements Constants {
     }
 
 
-    private List<InputParameter> createParameterList(HashMap<String, List<Map<String, String>>> map) {
+    private List<InputParameter> createInputParameterList(HashMap<String, List<Map<String, String>>> map, InputParameter in) {
         List<InputParameter> result = new ArrayList<>();
         for (String index : map.keySet()) {
             List<Map<String, String>> mapList = map.get(index);
             StringBuilder yaml = new StringBuilder(index + ": " + "´\n");
-            InputParameter inputParameter = new InputParameter();
+            InputParameter inputParameter = new InputParameter(in.getInputFile(), in.getOutputFile(), in.getSourceType(), in.getMethodList());
             inputParameter.setResource(index);
-            inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
+//            inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
             this.createMustacheDataFromExcel(inputParameter, mapList);
             result.add(inputParameter);
         }

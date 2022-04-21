@@ -83,6 +83,19 @@ public class Util implements Constants {
     static boolean isNumber(String str) {
         return str != null && str.matches("[0-9.]+");
     }
-
+    
+    /** Splits a String like a filename into the part before the file extension (like .yml) and the extension itself without dot. */
+    static String[] splitExtension(String name){
+        int pos = 0;
+        String[] result = new String[2];
+        pos = name.lastIndexOf(".");
+        if ( pos <= 1 ){
+            result[0] = name;
+            return result;
+        }
+        result[0] = name.substring(0,pos);
+        result[1] = name.substring(pos+1,name.length());
+        return result;
+    }
 
 }
