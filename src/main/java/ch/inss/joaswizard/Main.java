@@ -2,6 +2,7 @@ package ch.inss.joaswizard;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -12,17 +13,19 @@ public class Main {
     static {
         FileHandler fileHandler = null;
         try {
-            InputStream stream = Joaswizard.class.getClassLoader().getResourceAsStream("logging.properties");
-            try {
-                LogManager.getLogManager().readConfiguration(stream);
-                logger = Logger.getLogger(Joaswizard.class.getName());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            InputStream stream = Main.class.getClassLoader().getResourceAsStream("logging.properties");
+            LogManager.getLogManager().readConfiguration(stream);
+            logger = Logger.getLogger(Main.class.getName());
+
             fileHandler = new FileHandler("joaswizard.log");
+
+            //adding custom handler
+
         } catch (IOException e) {
             e.printStackTrace();
+            logger.severe(e.getLocalizedMessage());
         }
+        logger.addHandler(new ConsoleHandler());
         logger.addHandler(fileHandler);
     }
     /** Create OAS3 document with all CRUD operations for one object. */
