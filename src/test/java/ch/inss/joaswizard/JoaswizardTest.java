@@ -25,7 +25,7 @@ class JoaswizardTest implements Constants{
     private final String referenceString = "src/test/resources/testReferenceString.yml";
     
     private static Joaswizard jo = new Joaswizard();
-    private static boolean cleanUp = false;
+    private static boolean cleanUp = true;
     
    
     @Test

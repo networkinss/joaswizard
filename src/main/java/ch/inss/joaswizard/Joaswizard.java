@@ -188,7 +188,7 @@ public class Joaswizard implements Constants {
         }
     }
 
-    public String fromGetTemplate(InputParameter inputParameter) {
+    private String fromGetTemplate(InputParameter inputParameter) {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile("get_" + Constants.DEFAULT_OUTPUT_FILE);
         }
@@ -342,35 +342,36 @@ public class Joaswizard implements Constants {
                 continue;
             }
             if (type == null || type.equals("")) type = (Util.isNumber(value) ? "number" : "string");
-            PropertyData sampleData = new PropertyData(key, type);
-
-            sampleData.setExamplevalue(value);
+            PropertyData propertyData = new PropertyData(key.trim(), type.trim());
+            propertyData.setExamplevalue(value);
             if (propertyMap.containsKey(Header.MIN)) {
                 if (Util.isNumber(propertyMap.get(Header.MIN))) {
-                    sampleData.setMinlength(Integer.parseInt(propertyMap.get(Header.MIN)));
+                    propertyData.setMinlength(Integer.parseInt(propertyMap.get(Header.MIN)));
                 }
             } else if (!Util.isNumber(value)) {
-                sampleData.setMinlength(1);
+                propertyData.setMinlength(1);
             }
 
-            sampleData.setDescription(propertyMap.get("Description"));
-            sampleData.setFormat(propertyMap.get("Format"));
-            sampleData.setPattern(propertyMap.get("Pattern"));
-            sampleData.setRequired(Boolean.parseBoolean(propertyMap.get("Required")));
-            sampleData.setEnumvalues(getOasEnum(propertyMap.get(Header.ENUMVALUES)));
+            propertyData.setDescription(propertyMap.get("Description"));
+            propertyData.setFormat(propertyMap.get("Format"));
+            propertyData.setPattern(propertyMap.get("Pattern"));
+            propertyData.setRequired(Boolean.parseBoolean(propertyMap.get("Required")));
+            
+            propertyData.setEnumvalues(this.getOasEnum(propertyMap.get(Header.ENUMVALUES), propertyData.getType()));
+            
             String max = propertyMap.get("Max");
             if (Util.isNumber(max)) {
-                sampleData.setMaxLength(Integer.parseInt(max));
+                propertyData.setMaxLength(Integer.parseInt(max));
             } else if (max != null && max.equals("") == false) {
                 logger.warning("Value for maxLength is not a number: " + max);
             }
-            list.add(sampleData);
+            list.add(propertyData);
         }
         resultMap.put("data", list);
         this.data.addDataMap(inputParameter.getResource(), resultMap);
     }
 
-    private String getOasEnum(String e) {
+    private String getOasEnum(String e, String type) {
         StringBuilder b = null;
         if (e != null && e.equals("") == false) {
             b = new StringBuilder();
@@ -380,6 +381,12 @@ public class Joaswizard implements Constants {
             for (String item : s) {
                 if (notfirst) b.append("          ");
                 notfirst = true;
+                /* Numbers need an enclosing apostrophe. */
+                if ( type.equalsIgnoreCase("string")){
+                    if (Util.isNumber(item)){
+                        item = "'" + item + "'";
+                    }
+                }
                 b.append("- ").append(item).append(nexLine);
             }
             b.deleteCharAt(b.length() - 1);
