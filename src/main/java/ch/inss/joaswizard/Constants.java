@@ -14,4 +14,5 @@ public interface Constants {
     String infoTemplate = "info.yaml";
     String sep = System.getProperty("file.separator");
     String nexLine = System.getProperty("line.separator");
+    String OBJECTNAME = "objectName";
 }

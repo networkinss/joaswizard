@@ -1,4 +1,4 @@
-  /{{resources}}:
+  /{{lowerResources}}:
     get:
       description: Returns all {{resources}}
       operationId: getAll{{capResources}}
@@ -42,7 +42,7 @@
               schema:
                 $ref: '#/components/schemas/ErrorModel'
    
-  /{{resources}}/{{openCurlyBrace}}{{resourceId}}{{closeCurlyBrace}}:
+  /{{lowerResource}}/{{openCurlyBrace}}{{resourceId}}{{closeCurlyBrace}}:
     get:
       description: Returns a {{resource}} by {{resourceId}}
       operationId: find{{capResource}}By{{resourceId}}

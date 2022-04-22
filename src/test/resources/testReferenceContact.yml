@@ -55,7 +55,7 @@ paths:
               $ref: '#/components/schemas/Contact'
         description: Contact to be created
         required: true
-  /contacts/{id}:
+  /contact/{id}:
     get:
       description: >-
         Returns a contact by id

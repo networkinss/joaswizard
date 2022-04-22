@@ -2,10 +2,7 @@ package ch.inss.joaswizard;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class InputParameter {
 
@@ -49,15 +46,17 @@ public class InputParameter {
     }
 
     public String getCapResource() {
-        return StringUtils.capitalize(resource);
+        return StringUtils.capitalize(resource.toLowerCase());
     }
-
     public String getCapResources() {
         return StringUtils.capitalize(resource) + "s";
     }
 
     public String getResource() {
         return resource;
+    }
+    public String getLowerResource(){
+        return this.resource.toLowerCase(Locale.ROOT);
     }
 
     public void setResource(String resource) {
@@ -66,6 +65,9 @@ public class InputParameter {
 
     public String getResources() {
         return resource + "s";
+    }
+    public String getLowerResources(){
+        return resource.toLowerCase() + "s";
     }
 
     public String getResourceId() {

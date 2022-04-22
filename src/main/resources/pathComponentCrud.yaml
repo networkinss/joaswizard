@@ -1,4 +1,4 @@
-  /{{resources}}:
+  /{{lowerResources}}:
     get:
       description: Returns all {{resources}}
       operationId: get{{capResources}}
@@ -37,7 +37,7 @@
               $ref: '#/components/schemas/{{capResource}}'
         description: {{capResource}} to be created
         required: true
-  /{{resources}}/{{openCurlyBrace}}{{resourceId}}{{closeCurlyBrace}}:
+  /{{lowerResource}}/{{openCurlyBrace}}{{resourceId}}{{closeCurlyBrace}}:
     get:
       description: >-
         Returns a {{resource}} by {{resourceId}}

@@ -4,6 +4,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -127,7 +128,7 @@ public class Joaswizard implements Constants {
 //        if (yamlWrapper.getName().equals("") == false) {
 //            inputParameter.setResource(yamlWrapper.getName());
 //        }
-        sampleMap.put("objectName", inputParameter.getCapResource());
+        sampleMap.put(OBJECTNAME, inputParameter.getCapResource());
         try {
             mSchema.execute(writerSchema, sampleMap).flush();
         } catch (IOException e) {

@@ -16,7 +16,7 @@ servers:
   - url: http://localhost:8080/v1
     description: Local environment.
 paths:
-  /{{resources}}:
+  /{{lowerResources}}:
     get:
       description: Returns all {{resources}}
       operationId: get{{capResources}}
@@ -55,7 +55,7 @@ paths:
               $ref: '#/components/schemas/{{capResource}}'
         description: {{capResource}} to be created
         required: true
-  /{{resources}}/{{openCurlyBrace}}{{resourceId}}{{closeCurlyBrace}}:
+  /{{lowerResource}}/{{openCurlyBrace}}{{resourceId}}{{closeCurlyBrace}}:
     get:
       description: >-
         Returns a {{resource}} by {{resourceId}}

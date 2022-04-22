@@ -77,16 +77,22 @@ class JoaswizardTest implements Constants{
             long x = f.count();
             assertEquals(5.0,x);
         }
+        File file1 = new File(output + outputPet);
+        assertTrue(file1.isFile());
+        if (cleanUp){
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
 
     }
-
+    //TODO two tests.
     @Test
     @Order(4)
     void testSchemaPet() throws Exception {
 //        String fileName = ;
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
-        inputParameter.setResource("pet");
+        inputParameter.setResource("PET");
         
         InputParameter p1 = new InputParameter();
 //        p1.setResource("PetObject");
@@ -108,7 +114,7 @@ class JoaswizardTest implements Constants{
         assertTrue(file3.isFile());
         
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
-//        Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file3, "utf-8"), "There is a breaking change, outputfile is not equal to " + file3.getCanonicalPath());
+        Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file3, "utf-8"), "There is a breaking change, outputfile is not equal to " + file3.getCanonicalPath());
         if (cleanUp){
             file1.delete();
             file3.delete();
@@ -116,41 +122,10 @@ class JoaswizardTest implements Constants{
         }
     }
 
-    @Test
-    @Order(5)
-    void testGetPet() throws Exception {
-        InputParameter inputParameter = new InputParameter();
-        inputParameter.setResourceId("name");
-        inputParameter.setResource("pet");
-        inputParameter.addMethod("GET");
-        inputParameter.setInputFile("src/test/resources/Pet.yml");
-        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
-        List<InputParameter> inputList = new ArrayList<>();
-        inputList.add(inputParameter);
-        String result = jo.createMethodsFile(inputList);
-        boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, result, inputParameter.getOutputFile());
-        assertTrue(ok);
-        
-        File file1 = new File(output + "get_openapi.yaml");
-        assertTrue(file1.isFile());
-        
-        final List<String> list = new ArrayList<>();
-        list.add("/pets/{name}:");
-        list.add("description: Returns all pets");
-        list.add("$ref: '#/components/schemas/Pet'");
-        try (Stream<String> lines = Files.lines(Paths.get(output + "get_openapi.yaml"))) {
-            Stream<String> f = lines.filter(l -> list.contains(l.trim()));
-            long x = f.count();
-            assertEquals(4.0,x);
-        }
-        if (cleanUp){
-            file1.delete();
-            assertTrue(file1.isFile() == false);
-        }
-    }
+
 
     @Test
-    @Order(6)
+    @Order(5)
     void testCreateFromString() throws Exception {
         String debug = "Zmlyc3RuYW1lOiBNYXgKbmFtZTogTXVzdGVybWFubgpwaG9uZTogMTIzNDU2Nzg5CmVtYWlsOiAibWF4QGV4YW1wbGUuY29tIg==";
         InputParameter inputParameter = new InputParameter();
@@ -175,6 +150,39 @@ class JoaswizardTest implements Constants{
         }
         
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
+        if (cleanUp){
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
+    }
+    
+    @Test
+    @Order(6)
+    void testGetPet() throws Exception {
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setResourceId("name");
+        inputParameter.setResource("pet");
+        inputParameter.addMethod("GET");
+        inputParameter.setInputFile("src/test/resources/Pet.yml");
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
+        List<InputParameter> inputList = new ArrayList<>();
+        inputList.add(inputParameter);
+        String result = jo.createMethodsFile(inputList);
+        boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, result, inputParameter.getOutputFile());
+        assertTrue(ok);
+
+        File file1 = new File(output + "get_openapi.yaml");
+        assertTrue(file1.isFile());
+
+        final List<String> list = new ArrayList<>();
+        list.add("/pet/{name}:");
+        list.add("description: Returns all pets");
+        list.add("$ref: '#/components/schemas/Pet'");
+        try (Stream<String> lines = Files.lines(Paths.get(output + "get_openapi.yaml"))) {
+            Stream<String> f = lines.filter(l -> list.contains(l.trim()));
+            long x = f.count();
+            assertEquals(4.0,x);
+        }
         if (cleanUp){
             file1.delete();
             assertTrue(file1.isFile() == false);
