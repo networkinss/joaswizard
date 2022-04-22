@@ -1,5 +1,7 @@
 package ch.inss.joaswizard;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 
 /**
@@ -90,10 +92,16 @@ public class PropertyData {
     public String getKey() {
         return key;
     }
-
-    public void setKey(String key) {
-        this.key = key;
+    public String getCapKey() {
+        return StringUtils.capitalize(key.toLowerCase());
     }
+    public String getLowKey(){
+        return key.toLowerCase();
+    }
+
+//    public void setKey(String key) {
+//        this.key = key;
+//    }
 
     public String getExamplevalue() {
         return examplevalue;

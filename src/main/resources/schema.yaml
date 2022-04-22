@@ -2,7 +2,7 @@
       type: object
       properties:
       {{#data}}
-        {{key}}:
+        {{lowKey}}:
           type: {{type}}{{#format}}
 
           format: {{format}}{{/format}}{{#enumvalues}}
