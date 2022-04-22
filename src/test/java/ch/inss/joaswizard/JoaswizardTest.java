@@ -93,11 +93,11 @@ class JoaswizardTest implements Constants{
         p1.setResourceId("name");
 //        p1.setSampleYamlData(Util.readFromFile("src/test/resources/PetObject.yml"));
         p1.setInputFile("src/test/resources/PetObject.yml");
-        String schema1 = jo.createSchema(p1);
+        String schema1 = jo.createSchemaObjects(p1);
         Util.writeStringToData("output",schema1,"testOutputSchema_Object.yml");
         
         inputParameter.setInputFile("src/test/resources/Pet.yml");
-        String schema = jo.createSchema(inputParameter);
+        String schema = jo.createSchemaObjects(inputParameter);
         Util.writeStringToData("output",schema,"testOutputSchema.yml");
 
         File file1 = new File(output + "testOutputSchema.yml");
@@ -127,16 +127,21 @@ class JoaswizardTest implements Constants{
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
         List<InputParameter> inputList = new ArrayList<>();
         inputList.add(inputParameter);
-        jo.createMethodsFile(inputList);
+        String result = jo.createMethodsFile(inputList);
+        boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, result, inputParameter.getOutputFile());
+        assertTrue(ok);
         
         File file1 = new File(output + "get_openapi.yaml");
         assertTrue(file1.isFile());
         
         final List<String> list = new ArrayList<>();
-        list.add("title: Pet API");
+        list.add("/pets/{name}:");
+        list.add("description: Returns all pets");
         list.add("$ref: '#/components/schemas/Pet'");
         try (Stream<String> lines = Files.lines(Paths.get(output + "get_openapi.yaml"))) {
-            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+            Stream<String> f = lines.filter(l -> list.contains(l.trim()));
+            long x = f.count();
+            assertEquals(4.0,x);
         }
         if (cleanUp){
             file1.delete();

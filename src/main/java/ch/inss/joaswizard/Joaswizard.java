@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -19,23 +20,24 @@ import java.util.logging.Logger;
 public class Joaswizard implements Constants {
 
     private static Logger logger = null;
-    private Data data = null;
+    private Data data = new Data();
 
     public Joaswizard() {
         FileHandler fileHandler = null;
         try {
             InputStream stream = Joaswizard.class.getClassLoader().getResourceAsStream("logging.properties");
-            try {
-                LogManager.getLogManager().readConfiguration(stream);
-                logger = Logger.getLogger(Joaswizard.class.getName());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            LogManager.getLogManager().readConfiguration(stream);
+            logger = Logger.getLogger(Joaswizard.class.getName());
+
             fileHandler = new FileHandler("joaswizard.log");
+            
+            //adding custom handler
+            
         } catch (IOException e) {
             e.printStackTrace();
             logger.severe(e.getLocalizedMessage());
         }
+        logger.addHandler(new ConsoleHandler());
         logger.addHandler(fileHandler);
     }
 
@@ -96,10 +98,14 @@ public class Joaswizard implements Constants {
         return result.toString();
     }
 
+    private String createComponentsSchemas() {
+        return Util.readFromFile("src/main/resources/componentsError.yaml") + nexLine;
+    }
+
     /**
      * Creates one components schema as defined in input paramter.
      */
-    public String createSchema(InputParameter inputParameter) {
+    public String createSchemaObjects(InputParameter inputParameter) {
         logger.info("Starting create schema.");
         logger.info("Input parameter: \n" + inputParameter);
         MustacheFactory mf = new DefaultMustacheFactory();
@@ -108,11 +114,16 @@ public class Joaswizard implements Constants {
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
             this.createMustacheDataFromYaml(inputParameter);
         }
-        if (this.data == null || this.data.getDataMap() == null || this.data.getDataMap().size() == 0) {
+        if (this.data.size() == 0) {
             logger.severe("No data. Please define input file or set sample yaml.");
             return "Error";
         }
-        HashMap sampleMap = data.getDataMap();
+        HashMap sampleMap = data.getDataMap(inputParameter.getResource());
+        if (sampleMap == null || sampleMap.size() == 0) {
+            logger.severe("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");
+            return "Error";
+        }
+
 //        if (yamlWrapper.getName().equals("") == false) {
 //            inputParameter.setResource(yamlWrapper.getName());
 //        }
@@ -125,6 +136,7 @@ public class Joaswizard implements Constants {
         }
         return writerSchema.toString();
     }
+
     /**
      * Creates one components schema as defined in input paramter.
      */
@@ -156,17 +168,18 @@ public class Joaswizard implements Constants {
 
         String paths = this.createMethodsFile(inputParameterList);
         StringBuilder resouces = new StringBuilder();
-        StringBuilder schemas = new StringBuilder();
-        for ( InputParameter parameter : inputParameterList){
-            resouces.append( parameter.getResource()).append(", ");
-            schemas.append(this.createSchema(parameter)).append(nexLine);
+        StringBuilder objects = new StringBuilder();
+        for (InputParameter parameter : inputParameterList) {
+            resouces.append(parameter.getResource()).append(", ");
+            objects.append(this.createSchemaObjects(parameter)).append(nexLine);
         }
-        resouces.delete(resouces.length()-2,resouces.length());
+        resouces.delete(resouces.length() - 2, resouces.length());
         input.setResource(resouces.toString());
-        
+
         String info = this.createInfo(input);
-        
-        String result = info + paths + schemas;
+        String components = this.createComponentsSchemas();
+
+        String result = info + paths + components + objects;
         boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, result, input.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
@@ -175,7 +188,7 @@ public class Joaswizard implements Constants {
         }
     }
 
-    private String fromGetTemplate(InputParameter inputParameter) {
+    public String fromGetTemplate(InputParameter inputParameter) {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile("get_" + Constants.DEFAULT_OUTPUT_FILE);
         }
@@ -186,13 +199,18 @@ public class Joaswizard implements Constants {
                 return null;
             }
         }
+//        HashMap sampleMap = null;
         if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL)) {
-
-            if (this.data == null || this.data.getDataMap() == null || this.data.getDataMap().size() == 0) {
-//            if (inputParameter.getDataMap() == null || inputParameter.getDataMap().size() == 0) {
+            if (this.data == null || this.data.size() == 0) {
                 logger.severe("No data. Please define input file or set sample yaml.");
-                return null;
+                return "Error";
             }
+//            sampleMap = data.getDataMap(inputParameter.getResource());
+//            if (sampleMap == null || sampleMap.size() == 0) {
+//                logger.severe("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");
+//                return "Error";
+//            }
+
         }
         logger.info(inputParameter.toString());
 
@@ -208,18 +226,12 @@ public class Joaswizard implements Constants {
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
             this.createMustacheDataFromYaml(inputParameter);
         }
-        if (this.data == null || this.data.getDataMap() == null || this.data.getDataMap().size() == 0) {
-            logger.severe("No data. Please define input file or set sample yaml.");
-            return "Error";
-        }
-        HashMap sampleMap = data.getDataMap();
-        if (sampleMap == null || sampleMap.isEmpty()) {
-            logger.severe("No data to process.");
-            ;
-            return "Error";
-        }
+//        if (sampleMap == null || sampleMap.isEmpty()) {
+//            logger.severe("No data to process.");
+//            return "Error";
+//        }
 
-        sampleMap.put("objectName", inputParameter.getCapResource());
+//        sampleMap.put("objectName", inputParameter.getCapResource());
         try {
             mBasic.execute(writerPaths, inputParameter).flush();
 //            mInfo.execute(writerInfo, inputParameter).flush();
@@ -231,7 +243,7 @@ public class Joaswizard implements Constants {
     }
 
 
-    private String fromCrudTemplate(InputParameter inputParameter) {
+    public String fromCrudTemplate(InputParameter inputParameter) {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
@@ -263,7 +275,7 @@ public class Joaswizard implements Constants {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return writer + nexLine + this.createSchema(inputParameter);
+        return writer + nexLine + this.createSchemaObjects(inputParameter);
     }
 
     private void createMustacheDataFromYaml(InputParameter inputParameter) {
@@ -305,7 +317,7 @@ public class Joaswizard implements Constants {
             list.add(sampleData);
         }
         resultMap.put("data", list);
-        this.data = new Data(resultMap);
+        this.data.addDataMap(inputParameter.getResource(), resultMap);
 //        inputParameter.setDataMap(resultMap);
     }
 
@@ -355,8 +367,7 @@ public class Joaswizard implements Constants {
             list.add(sampleData);
         }
         resultMap.put("data", list);
-        this.data = new Data(resultMap);
-//        inputParameter.setDataMap(resultMap);
+        this.data.addDataMap(inputParameter.getResource(), resultMap);
     }
 
     private String getOasEnum(String e) {

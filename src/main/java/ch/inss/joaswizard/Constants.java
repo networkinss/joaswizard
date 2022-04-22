@@ -10,6 +10,7 @@ public interface Constants {
     String pathComponentCrudTemplate = "pathComponentCrud.yaml";
     String getTemplate = "getIdgetAll.yaml";
     String schemaTemplate = "schema.yaml";
+    String componentsErrorTemplate = "componentsError.yaml";
     String infoTemplate = "info.yaml";
     String sep = System.getProperty("file.separator");
     String nexLine = System.getProperty("line.separator");
