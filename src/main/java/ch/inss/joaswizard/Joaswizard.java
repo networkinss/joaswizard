@@ -342,6 +342,7 @@ public class Joaswizard implements Constants {
                 continue;
             }
             if (type == null || type.equals("")) type = (Util.isNumber(value) ? "number" : "string");
+            
             PropertyData propertyData = new PropertyData(key.trim(), type.trim());
             propertyData.setExamplevalue(value);
             if (propertyMap.containsKey(Header.MIN)) {
@@ -351,11 +352,16 @@ public class Joaswizard implements Constants {
             } else if (!Util.isNumber(value)) {
                 propertyData.setMinlength(1);
             }
-
             propertyData.setDescription(propertyMap.get("Description"));
             propertyData.setFormat(propertyMap.get("Format"));
             propertyData.setPattern(propertyMap.get("Pattern"));
-            propertyData.setRequired(Boolean.parseBoolean(propertyMap.get("Required")));
+            if ( propertyMap.containsKey("Required")){
+                propertyData.setRequired(Boolean.parseBoolean(propertyMap.get("Required")));
+            }else if ( propertyMap.containsKey("Nullable")){
+                propertyData.setRequired(!Boolean.parseBoolean(propertyMap.get("Nullable")));
+            }else{
+                propertyData.setRequired(true);
+            }
             
             propertyData.setEnumvalues(this.getOasEnum(propertyMap.get(Header.ENUMVALUES), propertyData.getType()));
             
