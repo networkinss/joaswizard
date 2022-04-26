@@ -335,6 +335,7 @@ public class Joaswizard implements Constants {
             idx++;
             String key = propertyMap.get(Header.NAME);
             if (key == null || key.equals("")) key = "undefined";
+            else key = key.trim();
             String value = propertyMap.get(Header.SAMPLEVALUE);
             String type = null;
             if (propertyMap.containsKey(Header.DATATYPE)) type = propertyMap.get(Header.DATATYPE);
@@ -342,9 +343,21 @@ public class Joaswizard implements Constants {
                 logger.warning("Not enough data to build an OAS3 schema object (index: " + idx + ").");
                 continue;
             }
-            if (type == null || type.equals("")) type = (Util.isNumber(value) ? "number" : "string");
-            
-            PropertyData propertyData = new PropertyData(key.trim(), type.trim());
+            if (value == null) value = "";
+            else value = value.trim();
+            PropertyData propertyData = new PropertyData(key, type);
+            String format = propertyMap.get("Format");
+            if (type == null || type.equals("")) {
+                type = (Util.isNumber(value) ? "number" : "string");
+                if ( format != null ){
+                    logger.warning("Format not set because type is not defined.");
+                }
+            }else{
+                if((type.equalsIgnoreCase("number") || type.equalsIgnoreCase("integer")) && format.equalsIgnoreCase("string")){
+                    logger.warning("Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);;
+                }
+                propertyData.setFormat(format.trim());
+            }
             propertyData.setExamplevalue(value);
             if (propertyMap.containsKey(Header.MIN)) {
                 if (Util.isNumber(propertyMap.get(Header.MIN))) {
@@ -354,7 +367,7 @@ public class Joaswizard implements Constants {
                 propertyData.setMinlength(1);
             }
             propertyData.setDescription(propertyMap.get("Description"));
-            propertyData.setFormat(propertyMap.get("Format"));
+            
             propertyData.setPattern(propertyMap.get("Pattern"));
             if ( propertyMap.containsKey("Required")){
                 propertyData.setRequired(Boolean.parseBoolean(propertyMap.get("Required")));
