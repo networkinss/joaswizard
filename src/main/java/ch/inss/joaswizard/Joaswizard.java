@@ -330,56 +330,73 @@ public class Joaswizard implements Constants {
         List<PropertyData> list = new ArrayList<>();
         int idx = 0;
         /** Define each property of one object. */
-        for (Map<String, String> mapSheet : mapList) {
-            CaseInsensitiveMap<String, String> propertyMap = new CaseInsensitiveMap(mapSheet);
+        for (Map<String, String> sheetMap : mapList) {
+            CaseInsensitiveMap<String, String> sheetCIMap = new CaseInsensitiveMap(sheetMap);
             idx++;
-            String key = propertyMap.get(Header.NAME);
+            String key = sheetCIMap.get(Header.NAME);
             if (key == null || key.equals("")) key = "undefined";
             else key = key.trim();
-            String value = propertyMap.get(Header.SAMPLEVALUE);
+            String sampleValue = sheetCIMap.get(Header.SAMPLEVALUE);
             String type = null;
-            if (propertyMap.containsKey(Header.DATATYPE)) type = propertyMap.get(Header.DATATYPE);
-            if (key.equals("undefined") && (value == null || value.equals("") && (type == null || type.equals("")))) {
-                logger.warning("Not enough data to build an OAS3 schema object (index: " + idx + ").");
+            if (sheetCIMap.containsKey(Header.DATATYPE)) type = sheetCIMap.get(Header.DATATYPE);
+            if (key.equals("undefined") && (sampleValue == null || sampleValue.equals("") && (type == null || type.equals("")))) {
+                logger.warning("Not enough data to build an OAS3 schema object (at index: " + idx + ").");
                 continue;
             }
-            if (value == null) value = "";
-            else value = value.trim();
-            PropertyData propertyData = new PropertyData(key, type);
-            String format = propertyMap.get("Format");
+  
             if (type == null || type.equals("")) {
-                type = (Util.isNumber(value) ? "number" : "string");
-                if ( format != null ){
-                    logger.warning("Format not set because type is not defined.");
-                }
+                type = (Util.isNumber(sampleValue) ? "number" : "string");
             }else{
+                type = type.trim().toLowerCase();
+                if (Arrays.asList(DATATYPELIST).contains(type) == false){
+                    logger.warning("Type not valid: " + type + ". Type is changed to string.");
+                    type = "string";
+                }
+            }
+            if (sampleValue == null) {
+                if (type.equals("string")) sampleValue = "string";
+                if (type.equals("integer")) sampleValue = "1";
+                if (type.equals("number")) sampleValue = "1.0";
+            } else {
+                sampleValue = sampleValue.trim();
+            }
+            
+            PropertyData propertyData = new PropertyData(key, type);
+            String format = sheetCIMap.get(Header.FORMAT);
+            if ( format != null ){
                 if((type.equalsIgnoreCase("number") || type.equalsIgnoreCase("integer")) && format.equalsIgnoreCase("string")){
                     logger.warning("Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);;
                 }
                 propertyData.setFormat(format.trim());
-            }
-            propertyData.setExamplevalue(value);
-            if (propertyMap.containsKey(Header.MIN)) {
-                if (Util.isNumber(propertyMap.get(Header.MIN))) {
-                    propertyData.setMinlength(Integer.parseInt(propertyMap.get(Header.MIN)));
+            }else{
+                // If datatype had to be change and format is not defined, define format as former datatype.
+                if (sheetCIMap.containsKey(Header.DATATYPE) && sheetCIMap.get(Header.DATATYPE).equalsIgnoreCase(type) == false){
+                    propertyData.setFormat(sheetCIMap.get(Header.DATATYPE).toLowerCase());
                 }
-            } else if (!Util.isNumber(value)) {
+            }
+            
+            propertyData.setExamplevalue(sampleValue);
+            if (sheetCIMap.containsKey(Header.MIN)) {
+                if (Util.isNumber(sheetCIMap.get(Header.MIN))) {
+                    propertyData.setMinlength(Integer.parseInt(sheetCIMap.get(Header.MIN)));
+                }
+            } else if (!Util.isNumber(sampleValue)) {
                 propertyData.setMinlength(1);
             }
-            propertyData.setDescription(propertyMap.get("Description"));
+            propertyData.setDescription(sheetCIMap.get("Description"));
             
-            propertyData.setPattern(propertyMap.get("Pattern"));
-            if ( propertyMap.containsKey("Required")){
-                propertyData.setRequired(Boolean.parseBoolean(propertyMap.get("Required")));
-            }else if ( propertyMap.containsKey("Nullable")){
-                propertyData.setRequired(!Boolean.parseBoolean(propertyMap.get("Nullable")));
+            propertyData.setPattern(sheetCIMap.get("Pattern"));
+            if ( sheetCIMap.containsKey("Required")){
+                propertyData.setRequired(Boolean.parseBoolean(sheetCIMap.get("Required")));
+            }else if ( sheetCIMap.containsKey("Nullable")){
+                propertyData.setRequired(!Boolean.parseBoolean(sheetCIMap.get("Nullable")));
             }else{
                 propertyData.setRequired(true);
             }
             
-            propertyData.setEnumvalues(this.getOasEnum(propertyMap.get(Header.ENUMVALUES), propertyData.getType()));
+            propertyData.setEnumvalues(this.getOasEnum(sheetCIMap.get(Header.ENUMVALUES), propertyData.getType()));
             
-            String max = propertyMap.get("Max");
+            String max = sheetCIMap.get("Max");
             if (Util.isNumber(max)) {
                 propertyData.setMaxLength(Integer.parseInt(max));
             } else if (max != null && max.equals("") == false) {

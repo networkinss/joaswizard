@@ -15,4 +15,5 @@ public interface Constants {
     String sep = System.getProperty("file.separator");
     String nexLine = System.getProperty("line.separator");
     String OBJECTNAME = "objectName";
+    String[] DATATYPELIST = {"integer","number","string","boolean"};
 }
