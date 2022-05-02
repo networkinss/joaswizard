@@ -11,6 +11,7 @@ public class InputParameter {
     private String sampleYamlData;
     private String inputFile;
     private String outputFile;
+    private String internalid;
     private Sourcetype sourceType;
     private List<Method> methods = new ArrayList<>();
     
@@ -138,14 +139,14 @@ public class InputParameter {
     public void setSourceType(Sourcetype sourceType) {
         this.sourceType = sourceType;
     }
-//    public HashMap<String, Object> getDataMap() {
-//        return dataMap;
-//    }
-//
-//    public void setDataMap(HashMap<String, Object> dataMap) {
-//        this.dataMap = dataMap;
-//    }
 
+    public String getInternalid() {
+        return internalid;
+    }
+
+    public void setInternalid(String internalid) {
+        this.internalid = internalid;
+    }
 
     @Override
     public String toString() {

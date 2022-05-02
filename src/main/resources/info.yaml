@@ -15,4 +15,5 @@ info:
 servers:
   - url: http://localhost:8080/v1
     description: Local environment.
+{{x-internal-id}}    
 paths:

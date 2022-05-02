@@ -243,7 +243,7 @@ public class Joaswizard implements Constants {
         return nexLine + writerPaths;
     }
 
-
+    /** Create an OAS3 document string from input parameter which define sample properties for an object. */
     public String fromCrudTemplate(InputParameter inputParameter) {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
@@ -333,6 +333,25 @@ public class Joaswizard implements Constants {
         for (Map<String, String> sheetMap : mapList) {
             CaseInsensitiveMap<String, String> sheetCIMap = new CaseInsensitiveMap(sheetMap);
             idx++;
+            List<Header> unused = new ArrayList<>();
+//            for ( Header col : Header.values() ){
+//                if(sheetCIMap.containsKey(col.toString()) == false ){
+//                    unused.add(col);
+//                }
+//            }
+//            List<String> unknownFieldlist = new ArrayList<>();
+//            for ( String sheetHeader : sheetCIMap.keySet()){
+//                boolean found = false;
+//                for ( Header h : Header.values() ){
+//                    if (h.name().equalsIgnoreCase(sheetHeader))
+//                        found = true;
+//                }
+//                if (found == false){
+//                    unknownFieldlist.add(sheetHeader);
+//                }
+//            }
+//            logger.info("Unused possible headerr: " + unused.toString());
+//            logger.info("Unknown header in sheet: " + unknownFieldlist.toString());
             String key = sheetCIMap.get(Header.NAME);
             if (key == null || key.equals("")) key = "undefined";
             else key = key.trim();
