@@ -4,32 +4,61 @@
   <groupId>ch.inss.joaswizard</groupId>
   <artifactId>joaswizard</artifactId>
   <packaging>jar</packaging>
-  <version>0.2.1</version>
+  <version>0.2.3</version>
   <name>Jo as wizard</name>
-  <url>https://inss.ch</url>
+  <description>Jo as wizard helps to create a complete OAS3 specification from object properties only.</description>
+  <url>https://github.com/networkinss/joaswizard</url>
   <properties>
     <java.version>11</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <springdoc.version>1.6.4</springdoc.version>
-    <swagger-ui.version>4.4.1-1</swagger-ui.version>
   </properties>
   <scm>
     <connection>scm:git:ssh://git@github.com:networkinss/joaswizard.git</connection>
     <developerConnection>scm:git:ssh://git@github.com:networkinss/joaswizard.git</developerConnection>
-    <url>https://github.com/networkinss/joaswizard.git</url>
-    <tag>v0.2.1</tag>
+    <url>https://github.com/networkinss/joaswizard/tree/master</url>
   </scm>
+ 
   <developers>
     <developer>
       <id>networkinss</id>
       <name>Oliver Glas</name>
       <email>oliver.glas@inss.ch</email>
+      <organization>inss.ch</organization>
+      <organizationUrl>http://inss.ch</organizationUrl>
     </developer>
   </developers>
-  <build>
-    <plugins>
+  <issueManagement>
+    <system>github</system>
+    <url>https://github.com/networkinss/joaswizard/issues</url>
+  </issueManagement>
 
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
+  <licenses>
+    <license>
+      <name>Apache License 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <profiles>
+    <profile>
+      <id>dev</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+      <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -53,6 +82,18 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>1.6.7</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
+      
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.21.0</version>
@@ -69,11 +110,136 @@
           </dependency>
         </dependencies>
       </plugin>
+      </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>release</id>
+      
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>3.2.4</version>
+            <executions>
+              <!-- Run shade goal on package phase -->
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
+                <configuration>
+                  <transformers>
+                    <!-- add Main-Class to manifest file -->
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                      <mainClass>ch.inss.joaswizard.Joaswizard</mainClass>
+                    </transformer>
+                  </transformers>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.7</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.2.0</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.2.0</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.21.0</version>
+            <dependencies>
+              <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-surefire-provider</artifactId>
+                <version>1.2.0-M1</version>
+              </dependency>
+              <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>5.2.0-M1</version>
+              </dependency>
+            </dependencies>
+          </plugin>
 
+          <plugin>
+            <groupId>net.nicoulaj.maven.plugins</groupId>
+            <artifactId>checksum-maven-plugin</artifactId>
+            <version>1.10</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>artifacts</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <!-- put your configurations here -->
+            </configuration>
+          </plugin>
 
-    </plugins>
-  </build>
-
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.6</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+    
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>2.5.3</version>
+            <configuration>
+              <localCheckout>true</localCheckout>
+              <pushChanges>false</pushChanges>
+            </configuration>
+          </plugin>
+    
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
   <dependencies>
     <dependency>
       <groupId>com.github.spullara.mustache.java</groupId>

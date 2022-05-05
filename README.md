@@ -1,7 +1,6 @@
 # Jo as wizard
 
-Jo as wizard (short: Jo, coming from J OAS wizard) shall help to create a complete OAS3 specification without knowing
-OpenAPI.    
+Jo as wizard (short: Jo, coming from J OAS wizard) helps to create a complete OAS3 specification without having to know OpenAPI.      
 All you need to do is to define the properties of an object in Yaml format, the name of the object and the field name
 used for the ID.  
 Only with that information will Jo as wizard create a complete OpenAPi specification which includes:

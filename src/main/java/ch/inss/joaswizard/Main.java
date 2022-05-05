@@ -1,5 +1,6 @@
 package ch.inss.joaswizard;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.ConsoleHandler;
@@ -14,13 +15,14 @@ public class Main {
         FileHandler fileHandler = null;
         try {
             InputStream stream = Main.class.getClassLoader().getResourceAsStream("logging.properties");
-            LogManager.getLogManager().readConfiguration(stream);
+            if (stream == null){
+                File file = new File(".");
+                System.out.println("Missing logging.properties file.");
+            }else{
+                LogManager.getLogManager().readConfiguration(stream);
+            }
             logger = Logger.getLogger(Main.class.getName());
-
             fileHandler = new FileHandler("joaswizard.log");
-
-            //adding custom handler
-
         } catch (IOException e) {
             e.printStackTrace();
             logger.severe(e.getLocalizedMessage());

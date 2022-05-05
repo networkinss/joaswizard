@@ -191,12 +191,16 @@ class JoaswizardTest implements Constants{
     
     @Test
     @Order(7)
-    void testExcel() throws Exception {
+    void testExcelWrapper() throws Exception {
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx");
-        Assertions.assertEquals(3,integerListHashMap.keySet().size());
-        Assertions.assertEquals(3,integerListHashMap.keySet().iterator().next().length());
-        
+        Assertions.assertEquals(3, integerListHashMap.keySet().size());
+        Assertions.assertEquals(3, integerListHashMap.keySet().iterator().next().length());
+    }
+    
+    @Test
+    @Order(8)
+    void testExcel() throws Exception {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
         inputParameter.setInputFile("src/test/resources/objectimport.xlsx");

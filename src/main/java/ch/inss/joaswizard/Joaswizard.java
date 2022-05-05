@@ -6,6 +6,7 @@ import com.github.mustachejava.MustacheFactory;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -27,13 +28,14 @@ public class Joaswizard implements Constants {
         FileHandler fileHandler = null;
         try {
             InputStream stream = Joaswizard.class.getClassLoader().getResourceAsStream("logging.properties");
-            LogManager.getLogManager().readConfiguration(stream);
+            if (stream == null){
+                File file = new File(".");
+                System.out.println("Missing logging.properties file.");
+            }else{
+                LogManager.getLogManager().readConfiguration(stream);
+            }
             logger = Logger.getLogger(Joaswizard.class.getName());
-
             fileHandler = new FileHandler("joaswizard.log");
-            
-            //adding custom handler
-            
         } catch (IOException e) {
             e.printStackTrace();
             logger.severe(e.getLocalizedMessage());
@@ -94,13 +96,14 @@ public class Joaswizard implements Constants {
 
             logger.info("Processed " + count + " methods for " + list.size() + " objects.");
         } else {
-            logger.warning("No methods found. Please define rest api methods.");
+            logger.severe("No methods found. Please define rest api methods.");
         }
         return result.toString();
     }
 
     private String createComponentsSchemas() {
-        return Util.readFromFile("src/main/resources/componentsError.yaml") + nexLine;
+//        return Util.readFromFile("src/main/resources/componentsError.yaml") + nexLine;
+        return new Util().readFromClasspath("componentsError.yaml") + nexLine;
     }
 
     /**

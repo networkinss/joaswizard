@@ -1,5 +1,6 @@
 package ch.inss.joaswizard;
 
+import org.apache.commons.io.IOUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -12,14 +13,14 @@ public class Util implements Constants {
 
     static boolean writeStringToData(String userFolder, String data, String file) {
         if (userFolder == null) userFolder = DATA_FOLDER;
-        if (file == null) file = DEFAULT_OUTPUT_FILE;        
+        if (file == null) file = DEFAULT_OUTPUT_FILE;
         File folder = new File(userFolder);
         if (folder.mkdirs() == false && folder.isDirectory() == false) {
             return false;
         }
         FileOutputStream fos = null;
         BufferedOutputStream bos = null;
-        
+
         try {
             fos = new FileOutputStream(folder + S + file);
             bos = new BufferedOutputStream(fos);
@@ -57,6 +58,18 @@ public class Util implements Constants {
         return result;
     }
 
+    String readFromClasspath(String file) {
+        File filePath = new File(file);
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream("componentsError.yaml");
+        StringWriter writer = new StringWriter();
+        try {
+            IOUtils.copy(in, writer, "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return writer.toString();
+    }
+
     static LinkedHashMap<String, Object> readYamlFromString(String strYaml) {
         Yaml yaml = new Yaml();
         LinkedHashMap<String, Object> result = yaml.load(strYaml);
@@ -83,18 +96,20 @@ public class Util implements Constants {
     static boolean isNumber(String str) {
         return str != null && str.matches("[0-9.]+");
     }
-    
-    /** Splits a String like a filename into the part before the file extension (like .yml) and the extension itself without dot. */
-    static String[] splitExtension(String name){
+
+    /**
+     * Splits a String like a filename into the part before the file extension (like .yml) and the extension itself without dot.
+     */
+    static String[] splitExtension(String name) {
         int pos = 0;
         String[] result = new String[2];
         pos = name.lastIndexOf(".");
-        if ( pos <= 1 ){
+        if (pos <= 1) {
             result[0] = name;
             return result;
         }
-        result[0] = name.substring(0,pos);
-        result[1] = name.substring(pos+1,name.length());
+        result[0] = name.substring(0, pos);
+        result[1] = name.substring(pos + 1, name.length());
         return result;
     }
 
