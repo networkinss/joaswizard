@@ -24,7 +24,7 @@ public class Sample {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setInputFile("./objectimport.xlsx");
         inputParameter.setOutputFile("openapi_fromexcel.yaml");
-        inputParameter.setResource("pet");
+//        inputParameter.setResource("pet");
         inputParameter.setResourceId("id");
         /* Define the input to come from an Excel file. */
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);

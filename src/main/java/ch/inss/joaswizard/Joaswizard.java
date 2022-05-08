@@ -4,7 +4,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,11 +44,11 @@ public class Joaswizard implements Constants {
     }
 
     /**
-     * Create all CRUD operations for one object.
+     * Create all CRUD operations for one object and stores it in a file..
      */
     public void createCrudFile(InputParameter inputParameter) {
         logger.info("Starting create crud file.");
-        String resultSchema = this.fromCrudTemplate(inputParameter);
+        String resultSchema = this.createCrud(inputParameter);
         boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, resultSchema, inputParameter.getOutputFile());
         if (ok == false) {
             logger.severe("Could not write file " + Constants.DATA_FOLDER + inputParameter.getOutputFile());
@@ -57,51 +56,56 @@ public class Joaswizard implements Constants {
     }
 
     /**
-     * Create all methods as defined in input parameter object.
+     * Create all methods as defined in input parameter object list.
      */
-    public String createMethodsFile(List<InputParameter> list) {
-        logger.info("Starting create methods.");
-        int count = 0;
-        StringBuilder result = new StringBuilder();
-        if (list == null || list.isEmpty()) return "Error";
+    public String createMethodsFromList(List<InputParameter> list) {
+        logger.info("Starting to create methods.");
+        String result = new String();
+        if (list == null || list.isEmpty()) return "Error: no data.";
         for (InputParameter inputParameter : list) {
-            String pathGet = "";
-            String pathPost = "";
-            String pathDelete = "";
-            String pathPut = "";
-            String pathPatch = "";
-            if (inputParameter.getMethodList().contains(InputParameter.Method.GET)) {
-                pathGet = this.fromGetTemplate(inputParameter);
-                count++;
-            }
-            if (inputParameter.getMethodList().contains(InputParameter.Method.POST)) {
-                System.out.println("POST not implemented (yet).");
-                count++;
-            }
-            if (inputParameter.getMethodList().contains(InputParameter.Method.PUT)) {
-                System.out.println("PUT not implemented (yet).");
-                count++;
-            }
-            if (inputParameter.getMethodList().contains(InputParameter.Method.DELETE)) {
-                System.out.println("DELETE not implemented (yet).");
-                count++;
-            }
-            if (inputParameter.getMethodList().contains(InputParameter.Method.PATCH)) {
-                System.out.println("PATCH not implemented (yet).");
-                count++;
-            }
-            result.append(pathGet).append(nexLine);
+            result = result + createMethods(  inputParameter);
         }
-        if (count > 0) {
+        return result;
+    }
 
-            logger.info("Processed " + count + " methods for " + list.size() + " objects.");
+    public String createMethods(InputParameter inputParameter) {
+        int count = 0;
+        String pathGet = "";
+        String pathPost = "";
+        String pathDelete = "";
+        String pathPut = "";
+        String pathPatch = "";
+        StringBuilder builder = new StringBuilder();
+        if (inputParameter.getMethodList().contains(InputParameter.Method.GET)) {
+            pathGet = this.fromGetTemplate(inputParameter);
+            count++;
+        }
+        if (inputParameter.getMethodList().contains(InputParameter.Method.POST)) {
+            System.out.println("POST not implemented (yet).");
+            count++;
+        }
+        if (inputParameter.getMethodList().contains(InputParameter.Method.PUT)) {
+            System.out.println("PUT not implemented (yet).");
+            count++;
+        }
+        if (inputParameter.getMethodList().contains(InputParameter.Method.DELETE)) {
+            System.out.println("DELETE not implemented (yet).");
+            count++;
+        }
+        if (inputParameter.getMethodList().contains(InputParameter.Method.PATCH)) {
+            System.out.println("PATCH not implemented (yet).");
+            count++;
+        }
+        builder.append(pathGet).append(nexLine);
+        if (count > 0) {
+            logger.info("Processed " + count + " methods.");
         } else {
             logger.severe("No methods found. Please define rest api methods.");
         }
-        return result.toString();
+        return builder.toString();
     }
 
-    private String createComponentsSchemas() {
+    public String createComponentsSchemas() {
 //        return Util.readFromFile("src/main/resources/componentsError.yaml") + nexLine;
         return new Util().readFromClasspath("componentsError.yaml") + nexLine;
     }
@@ -170,7 +174,10 @@ public class Joaswizard implements Constants {
         input.setSourceType(InputParameter.Sourcetype.EXCEL);
         List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, input);
 
-        String paths = this.createMethodsFile(inputParameterList);
+        String paths = this.createMethodsFromList(inputParameterList);
+        if(paths.startsWith("Error")){
+            logger.severe("Could not process data for OAS paths. " + paths);
+        }
         StringBuilder resouces = new StringBuilder();
         StringBuilder objects = new StringBuilder();
         for (InputParameter parameter : inputParameterList) {
@@ -184,6 +191,22 @@ public class Joaswizard implements Constants {
         String components = this.createComponentsSchemas();
 
         String result = info + paths + components + objects;
+        boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, result, input.getOutputFile());
+        if (ok) {
+            logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
+        } else {
+            logger.severe("Could not write file " + Constants.DATA_FOLDER + input.getOutputFile());
+        }
+    }
+    
+    /** Creates defined methods from a yaml string for a single object. */
+    public void createMethodsFromSingleYamlObject(InputParameter input) {
+        String oasPaths = this.createMethods(input);
+        StringBuilder objects = new StringBuilder();
+        objects.append(this.createSchemaObjects(input)).append(nexLine);
+        String info = this.createInfo(input);
+        String components = this.createComponentsSchemas();
+        String result = info + oasPaths + components + objects;
         boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, result, input.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
@@ -226,7 +249,7 @@ public class Joaswizard implements Constants {
         StringWriter writerPaths = new StringWriter();
 //        StringWriter writerSchema = new StringWriter();
 //        StringWriter writerInfo = new StringWriter();
-        /** Read input data sample. */
+        /* Read input data sample. */
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
             this.createMustacheDataFromYaml(inputParameter);
         }
@@ -246,8 +269,8 @@ public class Joaswizard implements Constants {
         return nexLine + writerPaths;
     }
 
-    /** Create an OAS3 document string from input parameter which define sample properties for an object. */
-    public String fromCrudTemplate(InputParameter inputParameter) {
+    /** Create an OAS3 document string from input parameter which define sample properties for one object. */
+    public String createCrud(InputParameter inputParameter) {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
