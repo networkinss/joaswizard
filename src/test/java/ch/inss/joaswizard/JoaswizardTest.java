@@ -25,7 +25,7 @@ class JoaswizardTest implements Constants {
     private final String referenceString = "src/test/resources/testReferenceString.yml";
 
     private static Joaswizard jo = new Joaswizard();
-    private static boolean cleanUp = true;
+    private static boolean cleanUp = false;
 
 
     @Test
@@ -85,19 +85,15 @@ class JoaswizardTest implements Constants {
 
     }
 
-    //TODO two tests.
     @Test
     @Order(4)
     void testSchemaPet() throws Exception {
-//        String fileName = ;
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
         inputParameter.setResource("PET");
 
         InputParameter p1 = new InputParameter();
-//        p1.setResource("PetObject");
         p1.setResourceId("name");
-//        p1.setSampleYamlData(Util.readFromFile("src/test/resources/PetObject.yml"));
         p1.setInputFile("src/test/resources/PetObject.yml");
         String schema1 = jo.createSchemaObjects(p1);
         Util.writeStringToData("output", schema1, "testOutputSchema_Object.yml");
@@ -153,6 +149,7 @@ class JoaswizardTest implements Constants {
         }
     }
 
+    /** Tests only the path section with get methods. */
     @Test
     @Order(6)
     void testGetPet() throws Exception {
@@ -222,7 +219,6 @@ class JoaswizardTest implements Constants {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
         inputParameter.setResource("pet");
-        
         inputParameter.setInputFile("src/test/resources/Pet.yml");
         inputParameter.setOutputFile("testOutputSingleYamlObject.yml");
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
@@ -232,6 +228,33 @@ class JoaswizardTest implements Constants {
         jo.createMethodsFromSingleYamlObject(inputParameter);
         File file1 = new File(output + "testOutputSingleYamlObject.yml");
         File file2 = new File("src/test/resources/testReferenceSingleYamlObject.yml");
+        assertTrue(file1.isFile());
+
+        Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
+        if (cleanUp) {
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
+    }
+
+    @Test
+    @Order(10)
+    void testCreateCrudFromSingleYamlObject()throws Exception {
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setResourceId("name");
+        inputParameter.setResource("pet");
+        inputParameter.setInputFile("src/test/resources/Pet.yml");
+        inputParameter.setOutputFile("testOutputCrudSingleYamlObject.yml");
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
+        inputParameter.setCrud();
+        inputParameter.addMethod("put");
+        inputParameter.addMethod("get");
+        inputParameter.addMethod("post");
+        inputParameter.addMethod("delete");
+
+        jo.createMethodsFromSingleYamlObject(inputParameter);
+        File file1 = new File(output + "testOutputCrudSingleYamlObject.yml");
+        File file2 = new File("src/test/resources/testReferenceCrudSingleYamlObject.yml");
         assertTrue(file1.isFile());
 
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());

@@ -13,7 +13,7 @@ public class InputParameter {
     private String outputFile;
     private String internalid;
     private Sourcetype sourceType;
-    private List<Method> methods = new ArrayList<>();
+    private Set<Method> methods = new HashSet<>();
     
     private boolean doInfo = true;
     private boolean doPaths = true;
@@ -22,7 +22,7 @@ public class InputParameter {
     private final String closeCurlyBrace = "}";
     
 
-    public InputParameter(String inputFile, String outputFile, Sourcetype sourceType, List<Method> methods) {
+    public InputParameter(String inputFile, String outputFile, Sourcetype sourceType, Set<Method> methods) {
         this.inputFile = inputFile;
         this.outputFile = outputFile;
         this.sourceType = sourceType;
@@ -38,17 +38,38 @@ public class InputParameter {
         this.sourceType = sourceType;
     }
 
-    public List<Method> getMethodList() {
+    public Set<Method> getMethodList() {
         return methods;
     }
     public void addMethod(String method){
         Method m = Method.valueOf(method.toUpperCase());
         this.methods.add(m);
     }
-//    public boolean hasMethod(String method){
-//        Method m = Method.valueOf(method.toUpperCase());
-//        return this.methods.contains(m);
-//    }
+    public void addMethod(Method method){
+        this.methods.add(method);
+    }
+    public void setCrud(){
+        this.addMethod(Method.GET);
+        this.addMethod(Method.PUT);
+        this.addMethod(Method.POST);
+        this.addMethod(Method.DELETE);
+    }
+    public boolean isGet(){
+        return this.methods.contains(Method.GET);
+    }
+    public boolean isPost(){
+        return this.methods.contains(Method.POST);
+    }
+    public boolean isPut(){
+        return this.methods.contains(Method.PUT);
+    }
+    public boolean isPatch(){
+        return this.methods.contains(Method.PATCH);
+    }
+    public boolean isDelete(){
+        return this.methods.contains(Method.DELETE);
+    }
+    
 
     public String getCapResource() {
         return StringUtils.capitalize(resource.toLowerCase());
@@ -87,7 +108,7 @@ public class InputParameter {
         return openCurlyBrace;
     }
 
-
+    
     public String getCloseCurlyBrace() {
         return closeCurlyBrace;
     }

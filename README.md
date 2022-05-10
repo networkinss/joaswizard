@@ -34,10 +34,22 @@ Implemented so far:
 It is a normal Maven project. You will need Java SDK 11 and Maven to build it.  
 `mvn clean install`
 
-## Integration
+## Maven Integration
+
+Add dependency to pom.xml.  
+`<dependency>     
+    <groupId>ch.inss.joaswizard</groupId>     
+    <artifactId>joaswizard</artifactId>   
+    <version>0.2.3</version>   
+</dependency>`  
+
+## Usage
 
 For integration as a library you only need to instantiate Joaswizard, fill out the Parameter object and execute
 joaswizard.createCrudFile(parameter).
+
+There are several public methods in the Joaswizard class.  
+Some give back a string, some write to a file.
 
 ## Execution
 

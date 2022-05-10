@@ -1,0 +1,188 @@
+  /{{lowerResources}}:{{#if get}}
+    get:
+      description: Returns all {{resources}}
+      operationId: getAll{{capResources}}
+      responses:
+        '200':
+          description: {{capResource}} List
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/{{capResource}}'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'{{/if}}{{#if post}}
+    post:
+      description: Creates a new {{resource}}
+      operationId: add{{capResource}}
+      responses:
+        '201':
+          description: {{resource}} created
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      requestBody:
+        x-name: {{resource}}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/{{capResource}}'
+        description: {{capResource}} to be created
+        required: true{{/if}}{{#if get}}
+  /{{lowerResource}}/{{openCurlyBrace}}{{resourceId}}{{closeCurlyBrace}}:
+    get:
+      description: Returns a {{resource}} by {{resourceId}}
+      operationId: find{{capResource}}By{{resourceId}}
+      parameters:
+        - name: {{resourceId}}
+          in: path
+          description: {{resourceId}} of {{resource}} to fetch
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: {{capResource}} returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/{{capResource}}'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: Data with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'{{/if}}{{#if delete}}
+
+    delete:
+      description: deletes a single {{resource}} based on the {{resourceId}}
+      operationId: delete{{capResource}}
+      parameters:
+        - name: {{resourceId}}
+          in: path
+          description: ID of {{resource}} to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: {{resource}} deleted
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: Data with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'{{/if}}{{#if put}}
+    put:
+      description: Update a {{resource}} based on its {{resourceId}}
+      operationId: update{{capResource}}
+      parameters:
+        - name: {{resourceId}}
+          in: path
+          description: ID of {{resource}} to put
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: {{resource}} updated
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: Data with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      requestBody:
+        x-name: {{resource}}
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/{{capResource}}'
+        description: {{capResource}} to be updated
+        required: true{{/if}}

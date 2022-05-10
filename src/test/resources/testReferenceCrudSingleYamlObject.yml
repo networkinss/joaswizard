@@ -47,6 +47,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
+    post:
+      description: Creates a new pet
+      operationId: addPet
+      responses:
+        '201':
+          description: pet created
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      requestBody:
+        x-name: pet
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pet'
+        description: Pet to be created
+        required: true
   /pet/{name}:
     get:
       description: Returns a pet by name
@@ -65,6 +97,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pet'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: Data with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
+    delete:
+      description: deletes a single pet based on the name
+      operationId: deletePet
+      parameters:
+        - name: name
+          in: path
+          description: ID of pet to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: pet deleted
         '400':
           description: Bad request.
           content:
