@@ -71,7 +71,6 @@ public class Joaswizard implements Constants {
      */
     public String createMethods(InputParameter inputParameter) {
         String paths = null;
-
         StringBuilder builder = new StringBuilder();
         if (inputParameter.getMethodList().contains(InputParameter.Method.GET)) {
             paths = this.fromGetTemplate(inputParameter);
@@ -86,8 +85,10 @@ public class Joaswizard implements Constants {
         return builder.toString();
     }
 
+    /**
+     * Creates only error model and the start of components schemas.
+     */
     public String createComponentsSchemas() {
-//        return Util.readFromFile("src/main/resources/componentsError.yaml") + nexLine;
         return new Util().readFromClasspath("componentsError.yaml.hbs") + nexLine;
     }
 
@@ -113,10 +114,6 @@ public class Joaswizard implements Constants {
                 logger.severe("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");
                 return "Error";
             }
-
-//        if (yamlWrapper.getName().equals("") == false) {
-//            inputParameter.setResource(yamlWrapper.getName());
-//        }
             sampleMap.put(OBJECTNAME, inputParameter.getCapResource());
 
             result = template.apply(sampleMap);
@@ -134,14 +131,10 @@ public class Joaswizard implements Constants {
     public String createInfo(InputParameter inputParameter) {
         logger.info("Start creating info.");
         logger.info("Input parameter: \n" + inputParameter);
-//        MustacheFactory mf = new DefaultMustacheFactory();
         Handlebars mf = new Handlebars();
         String result = null;
         try {
             Template template = mf.compile(infoTemplate);
-//        Mustache mSchema = mf.compile(infoTemplate);
-//        StringWriter writerSchema = new StringWriter();
-
             if (inputParameter.getResource() == null || inputParameter.getResource().length() == 0) {
                 logger.severe("No resource defined.");
                 return "Error";
@@ -152,7 +145,6 @@ public class Joaswizard implements Constants {
             logger.severe(e.getLocalizedMessage());
         }
         return result;
-//        return writerSchema.toString();
     }
 
     public void createFromExcel(InputParameter input) {
@@ -262,18 +254,11 @@ public class Joaswizard implements Constants {
         String result = null;
         try {
             Template template = mf.compile(fullCrudTemplate);
-//        MustacheFactory mf = new DefaultMustacheFactory();
-//        Mustache mBasic = mf.compile(fullCrudTemplate);
-
-//        StringWriter writer = new StringWriter();
             /** Read input data sample. */
             if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
                 this.createMustacheDataFromYaml(inputParameter);
             }
-
-//        try {
             result = template.apply(inputParameter);
-//            mBasic.execute(writer, inputParameter).flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -334,25 +319,8 @@ public class Joaswizard implements Constants {
         for (Map<String, String> sheetMap : mapList) {
             CaseInsensitiveMap<String, String> sheetCIMap = new CaseInsensitiveMap(sheetMap);
             idx++;
-            List<Header> unused = new ArrayList<>();
-//            for ( Header col : Header.values() ){
-//                if(sheetCIMap.containsKey(col.toString()) == false ){
-//                    unused.add(col);
-//                }
-//            }
-//            List<String> unknownFieldlist = new ArrayList<>();
-//            for ( String sheetHeader : sheetCIMap.keySet()){
-//                boolean found = false;
-//                for ( Header h : Header.values() ){
-//                    if (h.name().equalsIgnoreCase(sheetHeader))
-//                        found = true;
-//                }
-//                if (found == false){
-//                    unknownFieldlist.add(sheetHeader);
-//                }
-//            }
-//            logger.info("Unused possible headerr: " + unused.toString());
-//            logger.info("Unknown header in sheet: " + unknownFieldlist.toString());
+//            List<Header> unused = new ArrayList<>();
+
             String key = sheetCIMap.get(Header.NAME);
             if (key == null || key.equals("")) key = "undefined";
             else key = key.trim();

@@ -1,6 +1,5 @@
 package ch.inss.joaswizard;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.ConsoleHandler;
@@ -16,7 +15,7 @@ public class Main {
         try {
             InputStream stream = Main.class.getClassLoader().getResourceAsStream("logging.properties");
             if (stream == null){
-                File file = new File(".");
+//                File file = new File(".");
                 System.out.println("Missing logging.properties file.");
             }else{
                 LogManager.getLogManager().readConfiguration(stream);
