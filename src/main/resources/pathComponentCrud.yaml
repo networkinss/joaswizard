@@ -1,3 +1,4 @@
+paths:
   /{{lowerResources}}:
     get:
       description: Returns all {{resources}}
@@ -11,8 +12,20 @@
                 type: array
                 items:
                   $ref: '#/components/schemas/{{capResource}}'
-        default:
-          description: unexpected error
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
           content:
             application/json:
               schema:
@@ -23,8 +36,20 @@
       responses:
         '201':
           description: {{resource}} created
-        default:
-          description: unexpected error
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
           content:
             application/json:
               schema:
@@ -56,12 +81,31 @@
             application/json:
               schema:
                 $ref: '#/components/schemas/{{capResource}}'
-        default:
-          description: unexpected error
+        '400':
+          description: Bad request.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: Data with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
     delete:
       description: deletes a single {{resource}} based on the {{resourceId}}
       operationId: delete{{capResource}}
@@ -75,8 +119,26 @@
       responses:
         '204':
           description: {{resource}} deleted
-        default:
-          description: unexpected error
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: Data with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
           content:
             application/json:
               schema:
@@ -94,8 +156,26 @@
       responses:
         '204':
           description: {{resource}} updated
-        default:
-          description: unexpected error
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Authorization information is missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: Data with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Unexpected internal server error.
           content:
             application/json:
               schema:
@@ -108,16 +188,3 @@
               $ref: '#/components/schemas/{{capResource}}'
         description: {{capResource}} to be updated
         required: true
-components:
-  schemas:
-    ErrorModel:
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          format: int32
-        message:
-          type: string

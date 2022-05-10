@@ -45,6 +45,10 @@ public class InputParameter {
         Method m = Method.valueOf(method.toUpperCase());
         this.methods.add(m);
     }
+//    public boolean hasMethod(String method){
+//        Method m = Method.valueOf(method.toUpperCase());
+//        return this.methods.contains(m);
+//    }
 
     public String getCapResource() {
         return StringUtils.capitalize(resource.toLowerCase());

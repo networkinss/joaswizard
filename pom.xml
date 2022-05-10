@@ -4,7 +4,7 @@
   <groupId>ch.inss.joaswizard</groupId>
   <artifactId>joaswizard</artifactId>
   <packaging>jar</packaging>
-  <version>0.2.4</version>
+  <version>0.3.0</version>
   <name>Jo as wizard</name>
   <description>Jo as wizard helps to create a complete OAS3 specification from object properties only.</description>
   <url>https://github.com/networkinss/joaswizard</url>
@@ -242,9 +242,20 @@
   </profiles>
   <dependencies>
     <dependency>
-      <groupId>com.github.spullara.mustache.java</groupId>
-      <artifactId>compiler</artifactId>
-      <version>0.9.4</version>
+      <groupId>com.github.jknack</groupId>
+      <artifactId>handlebars</artifactId>
+      <version>4.1.2</version>
+    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>com.github.spullara.mustache.java</groupId>-->
+<!--      <artifactId>compiler</artifactId>-->
+<!--      <version>0.9.4</version>-->
+<!--    </dependency>-->
+    <dependency>
+      <!-- https://www.baeldung.com/java-picocli-create-command-line-program -->
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
+      <version>3.9.6</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>

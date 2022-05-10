@@ -278,24 +278,24 @@ components:
           type: integer
           format: int32
           maxLength: 2
-          example: 1      
+          example: 1
           description: signed 32 bits
         zweitername:
           type: integer
           format: int64
           maxLength: 3
-          example: 2      
+          example: 2
           description: signed 64 bits (a.k.a long)
         dritter name:
           type: number
           format: float
           maxLength: 4
-          example: 1.0      
+          example: 1.0
           description: Die dritte Beschreibung.
         einenum:
           type: number
           format: double
-          example: 2.0      
+          example: 2.0
           description: Ein Enum Beispiel.
         eins:
           type: string
@@ -304,12 +304,12 @@ components:
         zwei:
           type: string
           format: byte
-          example: byte      
+          example: byte
           description: base64 encoded characters
         drei:
           type: string
           format: binary
-          example: binary      
+          example: binary
           description: any sequence of octets
         vier:
           type: boolean
@@ -318,17 +318,17 @@ components:
         fünf:
           type: string
           format: date
-          example: date      
+          example: date
           description: As defined by full-date - RFC3339
         sechs:
           type: string
           format: date-time
-          example: Date-time      
+          example: Date-time
           description: As defined by date-time - RFC3339
         sieben:
           type: string
           format: password
-          example: password      
+          example: password
           description: A hint to UIs to obscure input.
         acht:
           type: string
@@ -337,7 +337,7 @@ components:
           - Yes
           - No
           - '0'
-          example: [eins,zwei,drei]      
+          example: [eins,zwei,drei]
           description: Der Array
       required:
       - ID
@@ -349,7 +349,6 @@ components:
       - sechs
       - sieben
       - acht
-
     Fish:
       type: object
       properties:
@@ -358,18 +357,17 @@ components:
           example: 1
         zweitername3:
           type: string
-          format: date      
+          format: date
           minLength: 1
           example: string
         dritter name3:
           type: string
-          format: char      
+          format: char
           minLength: 1
           example: string
       required:
       - ID
       - zweiterName3
-
     Dog:
       type: object
       properties:
@@ -378,15 +376,14 @@ components:
           example: 1
         zweitername:
           type: string
-          format: date      
+          format: date
           minLength: 1
           example: string
         dritter name:
           type: string
-          format: char      
+          format: char
           minLength: 1
           example: string
       required:
       - ID
       - zweiterName
-

@@ -113,18 +113,18 @@ components:
       type: object
       properties:
         name:
-          type: string      
+          type: string
           minLength: 1
           example: Underdog
         price:
           type: number
           example: 12.05
         status:
-          type: string      
+          type: string
           minLength: 1
           example: available
         tags:
-          type: string      
+          type: string
           minLength: 1
           example: [dog, 4paws]
       required:
@@ -132,4 +132,3 @@ components:
       - price
       - status
       - tags
-

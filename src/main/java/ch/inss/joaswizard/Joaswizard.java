@@ -1,8 +1,10 @@
 package ch.inss.joaswizard;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
+//import com.github.mustachejava.DefaultMustacheFactory;
+//import com.github.mustachejava.Mustache;
+//import com.github.mustachejava.MustacheFactory;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
 import java.io.File;
@@ -116,9 +118,14 @@ public class Joaswizard implements Constants {
     public String createSchemaObjects(InputParameter inputParameter) {
         logger.info("Starting create schema.");
         logger.info("Input parameter: \n" + inputParameter);
-        MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache mSchema = mf.compile(schemaTemplate);
-        StringWriter writerSchema = new StringWriter();
+//        MustacheFactory mf = new DefaultMustacheFactory();
+        Handlebars mf = new Handlebars();
+        
+//        mf.prettyPrint(true);
+        String result = null;
+        try {
+        Template template = mf.compile(schemaTemplate);
+//        StringWriter writerSchema = new StringWriter();
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
             this.createMustacheDataFromYaml(inputParameter);
         }
@@ -136,13 +143,14 @@ public class Joaswizard implements Constants {
 //            inputParameter.setResource(yamlWrapper.getName());
 //        }
         sampleMap.put(OBJECTNAME, inputParameter.getCapResource());
-        try {
-            mSchema.execute(writerSchema, sampleMap).flush();
+        
+            result =  template.apply(sampleMap);
         } catch (IOException e) {
             e.printStackTrace();
             logger.severe(e.getLocalizedMessage());
         }
-        return writerSchema.toString();
+        return result;
+//        return writerSchema.toString();
     }
 
     /**
@@ -151,21 +159,25 @@ public class Joaswizard implements Constants {
     public String createInfo(InputParameter inputParameter) {
         logger.info("Start creating info.");
         logger.info("Input parameter: \n" + inputParameter);
-        MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache mSchema = mf.compile(infoTemplate);
-        StringWriter writerSchema = new StringWriter();
+//        MustacheFactory mf = new DefaultMustacheFactory();
+        Handlebars mf = new Handlebars();
+        String result = null;
+        try {
+            Template template = mf.compile(infoTemplate);
+//        Mustache mSchema = mf.compile(infoTemplate);
+//        StringWriter writerSchema = new StringWriter();
 
         if (inputParameter.getResource() == null || inputParameter.getResource().length() == 0) {
             logger.severe("No resource defined.");
             return "Error";
         }
-        try {
-            mSchema.execute(writerSchema, inputParameter).flush();
+           result = template.apply(inputParameter);
         } catch (IOException e) {
             e.printStackTrace();
             logger.severe(e.getLocalizedMessage());
         }
-        return writerSchema.toString();
+        return result;
+//        return writerSchema.toString();
     }
 
     public void createFromExcel(InputParameter input) {
@@ -241,12 +253,16 @@ public class Joaswizard implements Constants {
         }
         logger.info(inputParameter.toString());
 
-        MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache mBasic = mf.compile(getTemplate);
+//        MustacheFactory mf = new DefaultMustacheFactory();
+        Handlebars mf = new Handlebars();
+        String result = null;
+        try {
+            Template template = mf.compile(getTemplate);
+//        Mustache mBasic = mf.compile(getTemplate);
 //        Mustache mSchema = mf.compile(schemaTemplate);
 //        Mustache mInfo = mf.compile(infoTemplate);
 
-        StringWriter writerPaths = new StringWriter();
+//        StringWriter writerPaths = new StringWriter();
 //        StringWriter writerSchema = new StringWriter();
 //        StringWriter writerInfo = new StringWriter();
         /* Read input data sample. */
@@ -259,14 +275,15 @@ public class Joaswizard implements Constants {
 //        }
 
 //        sampleMap.put("objectName", inputParameter.getCapResource());
-        try {
-            mBasic.execute(writerPaths, inputParameter).flush();
+//        try {
+            result = template.apply( inputParameter);
+//            mBasic.execute(writerPaths, inputParameter).flush();
 //            mInfo.execute(writerInfo, inputParameter).flush();
 //            mSchema.execute(writerSchema, sampleMap).flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return nexLine + writerPaths;
+        return nexLine + result;
     }
 
     /** Create an OAS3 document string from input parameter which define sample properties for one object. */
@@ -287,22 +304,26 @@ public class Joaswizard implements Constants {
             }
         }
         logger.info(inputParameter.toString());
+        Handlebars mf = new Handlebars();
+        String result = null;
+        try {
+            Template template = mf.compile(fullCrudTemplate);
+//        MustacheFactory mf = new DefaultMustacheFactory();
+//        Mustache mBasic = mf.compile(fullCrudTemplate);
 
-        MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache mBasic = mf.compile(fullCrudTemplate);
-
-        StringWriter writer = new StringWriter();
+//        StringWriter writer = new StringWriter();
         /** Read input data sample. */
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
             this.createMustacheDataFromYaml(inputParameter);
         }
 
-        try {
-            mBasic.execute(writer, inputParameter).flush();
+//        try {
+            result = template.apply(inputParameter);
+//            mBasic.execute(writer, inputParameter).flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return writer + nexLine + this.createSchemaObjects(inputParameter);
+        return result + nexLine + this.createSchemaObjects(inputParameter);
     }
 
     private void createMustacheDataFromYaml(InputParameter inputParameter) {
