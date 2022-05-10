@@ -1,6 +1,5 @@
 package ch.inss.joaswizard;
 
-
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFName;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -11,7 +10,6 @@ import java.util.*;
 import java.util.logging.FileHandler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-//import com.google.common.collect.Lists;
 
 import static org.apache.poi.ss.usermodel.Cell.*;
 

@@ -1,9 +1,5 @@
 package ch.inss.joaswizard;
 
-//import com.github.mustachejava.DefaultMustacheFactory;
-//import com.github.mustachejava.Mustache;
-//import com.github.mustachejava.MustacheFactory;
-
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
@@ -11,7 +7,6 @@ import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.util.*;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
