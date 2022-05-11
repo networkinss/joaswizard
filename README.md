@@ -18,16 +18,19 @@ This is for better integration in Java applications, but also to be more flexibl
 
 This library will help you in case of:
 * You need to create OpenAPI specifications programmatically.
-* You have to process mass data like from an Excel file.
-* You need a head start without knowing OpenAPI.
+* You have to process mass object data like from an Excel file.
+* You want a head start without knowing OpenAPI.
 
 ## Status
 
-It is still in development and some features are still missing.  
-Implemented so far:
-* Create full OpenAPI document just from object properties.
-* Create REST CRUD operations for an object.
-* Create schemas from Excel data.
+It is still in development.  
+Implemented features:
+* Create OpenAPI document with all CRUD operations just from object properties.
+* Create OpenAPI document for several objects and defined methods from Excel data.
+* Create OpenAPI document from a Yaml object and defined methods.
+
+Missing:  
+Parameter to use custom Handlebar template files.
 
 ## Build
 
@@ -64,6 +67,11 @@ Sample is in src/test/resources/Contact.yml
 
 Example:  
 `java -jar joaswizard-*.jar pet-oas.yaml petSample.yaml pet name`
+
+## Library usage
+
+Simply define an object of the class InputParameter.  
+Use any of the public methods of the class Joaswizard.
 
 ## Template adjustment
 To fill in your own details into the info section just adjust the file src/main/resources/crud.yaml accordingly.
