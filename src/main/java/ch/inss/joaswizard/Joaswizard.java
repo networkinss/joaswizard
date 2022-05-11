@@ -89,7 +89,7 @@ public class Joaswizard implements Constants {
      * Creates only error model and the start of components schemas.
      */
     public String createComponentsSchemas() {
-        return new Util().readFromClasspath("componentsError.yaml.hbs") + nexLine;
+        return new Util().readFromClasspath(componentsErrorTemplate + ".hbs") + nexLine;
     }
 
     /**
@@ -322,12 +322,12 @@ public class Joaswizard implements Constants {
 //            List<Header> unused = new ArrayList<>();
 
             String key = sheetCIMap.get(Header.NAME);
-            if (key == null || key.equals("")) key = "undefined";
+            if (key == null || key.equals("")) key = UNDEFINED;
             else key = key.trim();
             String sampleValue = sheetCIMap.get(Header.SAMPLEVALUE);
             String type = null;
             if (sheetCIMap.containsKey(Header.DATATYPE)) type = sheetCIMap.get(Header.DATATYPE);
-            if (key.equals("undefined") && (sampleValue == null || sampleValue.equals("") && (type == null || type.equals("")))) {
+            if (key.equals(UNDEFINED) && (sampleValue == null || sampleValue.equals("") && (type == null || type.equals("")))) {
                 logger.warning("Not enough data to build an OAS3 schema object (at index: " + idx + ").");
                 continue;
             }

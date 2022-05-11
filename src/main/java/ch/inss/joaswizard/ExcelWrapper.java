@@ -1,6 +1,9 @@
 package ch.inss.joaswizard;
 
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFName;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -99,18 +102,19 @@ public class ExcelWrapper {
             return "";
         }
 
-        switch (cell.getCellType()) {
-            case CELL_TYPE_STRING:
+        switch (cell.getCellTypeEnum()) {
+            case STRING:
+//            case CELL_TYPE_STRING:
                 return cell.getStringCellValue();
-            case CELL_TYPE_BLANK:
+            case BLANK:
                 return "";
-            case CELL_TYPE_BOOLEAN:
+            case BOOLEAN:
                 return Boolean.toString(cell.getBooleanCellValue()); 
-            case CELL_TYPE_FORMULA:
+            case FORMULA:
                 return cell.getStringCellValue();
-            case CELL_TYPE_ERROR:
+            case ERROR:
                 return cell.getStringCellValue();
-            case CELL_TYPE_NUMERIC:
+            case NUMERIC:
                 final DataFormatter formatter = new DataFormatter();
                 return formatter.formatCellValue(cell);
             default:

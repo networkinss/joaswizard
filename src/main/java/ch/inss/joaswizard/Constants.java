@@ -5,12 +5,12 @@ public interface Constants {
     String DATA_FOLDER = "output" + S;
     String DEFAULT_OUTPUT_FILE = "openapi.yaml";
     String UNDEFINED = "undefined";
-    String FROMFILE = "file";
+//    String FROMFILE = "file";
     String fullCrudTemplate = "fullCrud.yaml";
-    String pathComponentCrudTemplate = "pathComponentCrud.yaml";
-    String getTemplate = "getIdgetAll.yaml";
+    String pathComponentCrudTemplate = "pathsCrud.yaml";
+//    String getTemplate = "getIdgetAll.yaml";
     String schemaTemplate = "schema.yaml";
-    String componentsErrorTemplate = "componentsError.yaml";
+    String componentsErrorTemplate = "componentsErrorModel.yaml";
     String infoTemplate = "info.yaml";
     String sep = System.getProperty("file.separator");
     String nexLine = System.getProperty("line.separator");

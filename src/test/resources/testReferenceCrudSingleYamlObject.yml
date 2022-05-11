@@ -204,7 +204,6 @@ paths:
               $ref: '#/components/schemas/Pet'
         description: Pet to be updated
         required: true
-
 components:
   schemas:
     ErrorModel:

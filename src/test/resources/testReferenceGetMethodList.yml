@@ -90,7 +90,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
 
-
   /fishs:
     get:
       description: Returns all Fishs
@@ -165,7 +164,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
 
-
   /dogs:
     get:
       description: Returns all Dogs
@@ -239,7 +237,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-
 components:
   schemas:
     ErrorModel:

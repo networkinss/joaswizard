@@ -59,7 +59,7 @@ public class Util implements Constants {
     }
 
     String readFromClasspath(String file) {
-        File filePath = new File(file);
+//        File filePath = new File(file);
         InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
         StringWriter writer = new StringWriter();
         try {
