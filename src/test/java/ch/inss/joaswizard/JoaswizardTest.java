@@ -8,7 +8,10 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +34,7 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(1)
     void testContact() throws Exception {
-        Main.main(new String[]{"src/test/resources/Contact.yml", outputContact, "contact"});
+        Main.createOpenApiFromYamlfile(new String[]{"src/test/resources/Contact.yml", outputContact, "contact"});
         final List<String> list = new ArrayList<>();
         list.add("title: Contact API");
         list.add("$ref: '#/components/schemas/Contact'");
@@ -53,7 +56,7 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(2)
     void testFullContact() throws Exception {
-        Main.main(new String[]{"src/test/resources/Contact.yml","testOutputContact.yml", "contact"});
+        Main.createOpenApiFromYamlfile(new String[]{"src/test/resources/Contact.yml","testOutputContact.yml", "contact"});
         File file1 = new File(output + "testOutputContact.yml");
         File file2 = new File("src/test/resources/testReferenceContact.yml");
         assertTrue(file1.isFile());
@@ -67,7 +70,7 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(3)
     void testPet() throws Exception {
-        Main.main(new String[]{"src/test/resources/Pet.yml", outputPet, "pet", "name", "yamlfile"});
+        Main.createOpenApiFromYamlfile(new String[]{"src/test/resources/Pet.yml", outputPet, "pet", "name", "yamlfile"});
         final List<String> list = new ArrayList<>();
         list.add("title: Pet API");
         list.add("$ref: '#/components/schemas/Pet'");
@@ -263,4 +266,24 @@ class JoaswizardTest implements Constants {
             assertTrue(file1.isFile() == false);
         }
     }
+    
+//    @Test
+//    @Order(11)
+//    void testSamplesMain() throws Exception {
+//        try {
+//            // Execute command
+//            String command = "java ";
+//            Process child = Runtime.getRuntime().exec(command);
+//
+//            // Get output stream to write from it
+//            OutputStream out = child.getOutputStream();
+//
+//            out.write("cd C:/ /r/n".getBytes());
+//            out.flush();
+//            out.write("dir /r/n".getBytes());
+//            out.close();
+//        } catch (IOException e) {
+//        }
+//    }
+    
 }

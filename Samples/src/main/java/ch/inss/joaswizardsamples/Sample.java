@@ -35,4 +35,30 @@ public class Sample {
         joaswizard.createFromExcel(inputParameter);
         System.out.println("OpenAPI document created: output/openapi_fromexcel.yaml");
     }
+
+    public void createOpenApiFromArguments(String[] args) {
+        System.out.println("Start to create OpenAPi from arguments.");
+        if (args.length < 3) {
+            System.out.println("Need four parameter.");
+            System.out.println("Usage: <inputfile> <outpufile> <resource> <Idfield>");
+            System.exit(1);
+        }
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setInputFile(args[0]);
+        inputParameter.setOutputFile(args[1]);
+        inputParameter.setResource(args[2]);
+        if (args.length >= 4) {
+            inputParameter.setResourceId(args[3]);
+        } else {
+            inputParameter.setResourceId("id");
+        }
+
+        if (args.length >= 5) {
+            inputParameter.setSourceType(args[4]);
+        } else {
+            inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
+        }
+        Joaswizard joaswizard = new Joaswizard();
+        joaswizard.createCrudFile(inputParameter);
+    }
 }

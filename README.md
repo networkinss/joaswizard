@@ -17,7 +17,7 @@ This is for better integration in Java applications, but also to be more flexibl
 ## Use case
 
 This library will help you in case of:
-* You need to create OpenAPI specifications programmatically.
+* You want to create OpenAPI specifications programmatically.
 * You have to process mass object data like from an Excel file.
 * You want a head start without knowing OpenAPI.
 
@@ -48,13 +48,9 @@ Add dependency to pom.xml.
 
 ## Usage
 
-For integration as a library you only need to instantiate Joaswizard, fill out the Parameter object and execute
-joaswizard.createCrudFile(parameter).
+You can use Joaswizard either as a command line tool or as a library.
 
-There are several public methods in the Joaswizard class.  
-Some give back a string, some write to a file.
-
-## Execution
+### as command line tool
 
 Jo as wizard needs three arguments.  
 <input.yaml> is a file which contains properties in yaml style.    
@@ -68,10 +64,15 @@ Sample is in src/test/resources/Contact.yml
 Example:  
 `java -jar joaswizard-*.jar pet-oas.yaml petSample.yaml pet name`
 
-## Library usage
+### as a library
 
 Simply define an object of the class InputParameter.  
 Use any of the public methods of the class Joaswizard.
 
+### samples for usage
+
+Samples are in the folder Samples.
+
 ## Template adjustment
-To fill in your own details into the info section just adjust the file src/main/resources/crud.yaml accordingly.
+To fill in your own details into the info section just adjust the files ending with .hbs (Handlebars) 
+in src/main/resources/ accordingly.

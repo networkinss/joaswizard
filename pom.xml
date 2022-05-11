@@ -246,17 +246,6 @@
       <artifactId>handlebars</artifactId>
       <version>4.1.2</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>com.github.spullara.mustache.java</groupId>-->
-<!--      <artifactId>compiler</artifactId>-->
-<!--      <version>0.9.4</version>-->
-<!--    </dependency>-->
-    <dependency>
-      <!-- https://www.baeldung.com/java-picocli-create-command-line-program -->
-      <groupId>info.picocli</groupId>
-      <artifactId>picocli</artifactId>
-      <version>3.9.6</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>

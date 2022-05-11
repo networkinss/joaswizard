@@ -21,7 +21,6 @@ public class InputParameter {
     private final String openCurlyBrace = "{";
     private final String closeCurlyBrace = "}";
     
-
     public InputParameter(String inputFile, String outputFile, Sourcetype sourceType, Set<Method> methods) {
         this.inputFile = inputFile;
         this.outputFile = outputFile;
@@ -31,11 +30,18 @@ public class InputParameter {
     public InputParameter(){
         
     }
-
     public InputParameter(String inputFile, String outputFile, Sourcetype sourceType) {
         this.inputFile = inputFile;
         this.outputFile = outputFile;
         this.sourceType = sourceType;
+    }
+    
+    /** Check if all mandatory parameter have been defined. */
+    public boolean checkValid(){
+        boolean valid = false;
+        valid = this.resource != null && (this.inputFile != null || this.sampleYamlData != null) && this.sourceType != null;
+        if(this.sourceType == Sourcetype.EXCEL) valid = valid && this.inputFile != null && this.methods.size() > 0;
+        return valid;
     }
 
     public Set<Method> getMethodList() {

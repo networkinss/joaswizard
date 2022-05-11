@@ -13,6 +13,8 @@ public class Main {
             sample.createOpenApiFromYaml();
         }else if (args[0].equals("2") || args[0].equalsIgnoreCase("excel")){
             sample.createOpenApiFromExcel();
+        }else{
+            sample.createOpenApiFromArguments(args);
         }
     }
 
