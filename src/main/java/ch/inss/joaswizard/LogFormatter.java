@@ -32,7 +32,7 @@ public class LogFormatter extends Formatter
         }else{
             builder.append(ANSI_CYAN);
         }
-
+        
         builder.append(record.getLevel().getName());
         builder.append(" ");
 
@@ -42,6 +42,8 @@ public class LogFormatter extends Formatter
 
         builder.append(" [");
         builder.append(record.getSourceClassName());
+        builder.append(".");
+        builder.append(record.getSourceMethodName());
         builder.append("]");
 
         builder.append(ANSI_WHITE);
