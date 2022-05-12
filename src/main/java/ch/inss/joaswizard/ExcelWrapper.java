@@ -10,9 +10,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.FileHandler;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
+import java.util.logging.*;
+import java.util.logging.Formatter;
 
 import static org.apache.poi.ss.usermodel.Cell.*;
 
@@ -20,24 +19,14 @@ public class ExcelWrapper {
     private static Logger logger = null;
 
     public ExcelWrapper() {
-        FileHandler fileHandler = null;
-        try {
-            InputStream stream = Joaswizard.class.getClassLoader().getResourceAsStream("logging.properties");
-            try {
-                LogManager.getLogManager().readConfiguration(stream);
-                logger = Logger.getLogger(Joaswizard.class.getName());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            fileHandler = new FileHandler("joaswizard.log");
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.severe(e.getLocalizedMessage());
-        }
-        logger.addHandler(fileHandler);
+        logger = Logger.getLogger(ExcelWrapper.class.getName());
+        for (Handler handler : logger.getHandlers()) {  logger.removeHandler(handler);}
+        logger.addHandler(Main.consoleHandler);
+        logger.setLevel(Level.FINE);
+        logger.setUseParentHandlers(false);
     }
 
-    public HashMap<String, List<Map<String, String>>>  readExcel(String file){
+    public HashMap<String, List<Map<String, String>>> readExcel(String file) {
         InputStream fileStream = null;
         File initialFile = null;
         try {
@@ -50,17 +39,17 @@ public class ExcelWrapper {
         }
         return this.readExcel(fileStream);
     }
-    
-    public HashMap<String, List<Map<String, String>>>  readExcel(InputStream fileStream){
+
+    public HashMap<String, List<Map<String, String>>> readExcel(InputStream fileStream) {
         HashMap<String, List<Map<String, String>>> map = new HashMap<>();
         try {
             final XSSFWorkbook workbook = new XSSFWorkbook(fileStream);
             List<XSSFName> allNames = workbook.getAllNames();
             Iterator it = workbook.iterator();
-            while ( it.hasNext() ){
+            while (it.hasNext()) {
                 final XSSFSheet sheet = (XSSFSheet) it.next();
                 List<Map<String, String>> list = sheetContent(sheet);
-                map.put(sheet.getSheetName(),list);
+                map.put(sheet.getSheetName(), list);
             }
         } catch (IOException e) {
             logger.severe("Parsing excel failed.");
@@ -71,9 +60,9 @@ public class ExcelWrapper {
     private List<Map<String, String>> sheetContent(XSSFSheet sheet) {
         final List<Map<String, String>> data = new ArrayList<>();
         final List<Row> rows = new ArrayList<>();
-        
+
         Iterator it = sheet.iterator();
-        while (it.hasNext()){
+        while (it.hasNext()) {
             Row row = (Row) it.next();
             rows.add(row);
         }
@@ -97,6 +86,7 @@ public class ExcelWrapper {
         }
         return header;
     }
+
     private String readCellAsString(final Cell cell) {
         if (cell == null) {
             return "";
@@ -109,7 +99,7 @@ public class ExcelWrapper {
             case BLANK:
                 return "";
             case BOOLEAN:
-                return Boolean.toString(cell.getBooleanCellValue()); 
+                return Boolean.toString(cell.getBooleanCellValue());
             case FORMULA:
                 return cell.getStringCellValue();
             case ERROR:
@@ -122,6 +112,6 @@ public class ExcelWrapper {
         }
 
     }
-    
-    
+
+
 }

@@ -8,37 +8,23 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
+import java.util.logging.*;
+import java.util.logging.Formatter;
 
 /**
  * Author: Oliver Glas, https://inss.ch.
  */
 public class Joaswizard implements Constants {
 
-    private static Logger logger = null;
+    private Logger logger = null;
     private Data data = new Data();
 
     public Joaswizard() {
-        FileHandler fileHandler = null;
-        try {
-            InputStream stream = Joaswizard.class.getClassLoader().getResourceAsStream("logging.properties");
-            if (stream == null) {
-                File file = new File(".");
-                System.out.println("Missing logging.properties file.");
-            } else {
-                LogManager.getLogManager().readConfiguration(stream);
-            }
-            logger = Logger.getLogger(Joaswizard.class.getName());
-            fileHandler = new FileHandler("joaswizard.log");
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.severe(e.getLocalizedMessage());
-        }
-        logger.addHandler(new ConsoleHandler());
-        logger.addHandler(fileHandler);
+        logger = Logger.getLogger(Joaswizard.class.getName());
+        for (Handler handler : logger.getHandlers()) {  logger.removeHandler(handler);}
+        logger.addHandler(Main.consoleHandler);
+        logger.setLevel(Level.FINE);
+        logger.setUseParentHandlers(false);
     }
 
     /**
@@ -97,7 +83,7 @@ public class Joaswizard implements Constants {
      */
     public String createSchemaObjects(InputParameter inputParameter) {
         logger.info("Starting create schema.");
-        logger.info("Input parameter: \n" + inputParameter);
+        logger.fine("Input parameter: \n" + inputParameter);
         Handlebars mf = new Handlebars();
         String result = null;
         try {
@@ -130,7 +116,7 @@ public class Joaswizard implements Constants {
      */
     public String createInfo(InputParameter inputParameter) {
         logger.info("Start creating info.");
-        logger.info("Input parameter: \n" + inputParameter);
+        logger.fine("Input parameter: \n" + inputParameter);
         Handlebars mf = new Handlebars();
         String result = null;
         try {
@@ -213,7 +199,7 @@ public class Joaswizard implements Constants {
                 return "Error";
             }
         }
-        logger.info(inputParameter.toString());
+        logger.fine(inputParameter.toString());
         Handlebars mf = new Handlebars();
         String result = null;
         try {
@@ -249,7 +235,7 @@ public class Joaswizard implements Constants {
                 System.exit(1);
             }
         }
-        logger.info(inputParameter.toString());
+        logger.fine(inputParameter.toString());
         Handlebars mf = new Handlebars();
         String result = null;
         try {

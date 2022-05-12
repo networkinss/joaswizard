@@ -47,9 +47,13 @@ public class InputParameter {
     public Set<Method> getMethodList() {
         return methods;
     }
-    public void addMethod(String method){
-        Method m = Method.valueOf(method.toUpperCase());
-        this.methods.add(m);
+    /** You can add one or more methods separated by ",". */
+    public void addMethod(String m){
+        String[] arr = m.split(",");
+        for ( String method : arr){
+            Method met = Method.valueOf(method.toUpperCase());
+            this.methods.add(met);
+        }
     }
     public void addMethod(Method method){
         this.methods.add(method);
@@ -147,7 +151,7 @@ public class InputParameter {
         }else if (suffix.equalsIgnoreCase(".xls") || suffix.equalsIgnoreCase(".xlsx")){
             this.setSourceType(Sourcetype.EXCEL);
         }else{
-            this.setSourceType(Sourcetype.UNDEFINED);
+            this.setSourceType(Sourcetype.YAMLSTRING);
         }
         this.inputFile = inputFile;
     }
@@ -220,13 +224,41 @@ public class InputParameter {
         PUT,
         GET,
         DELETE,
-        PATCH
+        PATCH,
+        CRUD
+    }
+    public static List getSourcetypeList(){
+        return new ArrayList<Sourcetype>(Arrays.asList(Sourcetype.values()));
+    }
+    public static List getAvalableMethodList(){
+        return new ArrayList<Method>(Arrays.asList(Method.values()));
+    }
+    public static boolean isValidSourcetype(String type){
+        
+        try{
+                Sourcetype.valueOf(type.toUpperCase());
+            return true;
+        }catch(IllegalArgumentException e){
+            return false;
+        }
+    }
+    
+    /** Check if methods are valid. You can put several methods separated by ",". */
+    public static boolean isValidMethod(String m){
+        String[] arr = m.split(",");
+        try{
+            for (String t : arr){
+                Method.valueOf(t.toUpperCase());
+            }
+            return true;
+        }catch(IllegalArgumentException e){
+            return false;
+        }
     }
     
     public  static enum Sourcetype{
         YAMLFILE,
         EXCEL,
-        YAMLSTRING, 
-        UNDEFINED
+        YAMLSTRING
     }
 }

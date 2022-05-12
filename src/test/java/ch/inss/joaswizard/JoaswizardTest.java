@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JoaswizardTest implements Constants {
@@ -261,6 +262,29 @@ class JoaswizardTest implements Constants {
         assertTrue(file1.isFile());
 
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
+        if (cleanUp) {
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
+    }
+    
+    @Test
+    @Order(11)
+    void testIsValidType(){
+        InputParameter inputParameter = new InputParameter();
+        assertTrue(inputParameter.isValidSourcetype("excel"));
+        assertFalse(inputParameter.isValidSourcetype("nix"));
+        assertTrue(InputParameter.isValidMethod("CRUD"));
+        assertFalse(InputParameter.isValidMethod("nix"));
+    }
+    
+    @Test
+    @Order(12)
+    void testMain(){
+        Main.main(new String[]{"sample.yaml","test12output.yaml","pet","name","yamlfile","get,post"});
+        File file1 = new File("test12output.yaml");
+        assertTrue(file1.isFile());
+
         if (cleanUp) {
             file1.delete();
             assertTrue(file1.isFile() == false);
