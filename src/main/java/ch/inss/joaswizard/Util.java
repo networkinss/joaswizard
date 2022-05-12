@@ -12,7 +12,7 @@ import java.util.*;
 public class Util implements Constants {
 
     static boolean writeStringToData(String userFolder, String data, String file) {
-        if (userFolder == null) userFolder = DATA_FOLDER;
+        if (userFolder == null) userFolder = OUTPUT_FOLDER;
         if (file == null) file = DEFAULT_OUTPUT_FILE;
         File folder = new File(userFolder);
         if (folder.mkdirs() == false && folder.isDirectory() == false) {

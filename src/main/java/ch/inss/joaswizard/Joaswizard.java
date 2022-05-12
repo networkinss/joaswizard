@@ -4,12 +4,9 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.logging.*;
-import java.util.logging.Formatter;
 
 /**
  * Author: Oliver Glas, https://inss.ch.
@@ -21,9 +18,11 @@ public class Joaswizard implements Constants {
 
     public Joaswizard() {
         logger = Logger.getLogger(Joaswizard.class.getName());
-        for (Handler handler : logger.getHandlers()) {  logger.removeHandler(handler);}
+        for (Handler handler : logger.getHandlers()) {
+            logger.removeHandler(handler);
+        }
         logger.addHandler(Main.consoleHandler);
-        logger.setLevel(Level.FINE);
+        logger.setLevel(Level.INFO);
         logger.setUseParentHandlers(false);
     }
 
@@ -33,9 +32,9 @@ public class Joaswizard implements Constants {
     public void createCrudFile(InputParameter inputParameter) {
         logger.info("Starting create crud file.");
         String resultSchema = this.createCrud(inputParameter);
-        boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, resultSchema, inputParameter.getOutputFile());
+        boolean ok = Util.writeStringToData(Constants.OUTPUT_FOLDER, resultSchema, inputParameter.getOutputFile());
         if (ok == false) {
-            logger.severe("Could not write file " + Constants.DATA_FOLDER + inputParameter.getOutputFile());
+            logger.severe("Could not write file " + Constants.OUTPUT_FOLDER + inputParameter.getOutputFile());
         }
     }
 
@@ -58,10 +57,9 @@ public class Joaswizard implements Constants {
     public String createMethods(InputParameter inputParameter) {
         String paths = null;
         StringBuilder builder = new StringBuilder();
-        if (inputParameter.getMethodList().contains(InputParameter.Method.GET)) {
-            paths = this.fromGetTemplate(inputParameter);
-        }
-
+        boolean ok1 = inputParameter.isPathIdQuery();
+        boolean ok2 = inputParameter.isAllquery();
+        paths = this.fromGetTemplate(inputParameter);
         builder.append(paths).append(nexLine);
         if (paths != null) {
             logger.info("Processed methods.");
@@ -156,11 +154,11 @@ public class Joaswizard implements Constants {
         String components = this.createComponentsSchemas();
 
         String result = info + paths + components + objects;
-        boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, result, input.getOutputFile());
+        boolean ok = Util.writeStringToData(Constants.OUTPUT_FOLDER, result, input.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
         } else {
-            logger.severe("Could not write file " + Constants.DATA_FOLDER + input.getOutputFile());
+            logger.severe("Could not write file " + Constants.OUTPUT_FOLDER + input.getOutputFile());
         }
     }
 
@@ -174,11 +172,11 @@ public class Joaswizard implements Constants {
         String info = this.createInfo(input);
         String components = this.createComponentsSchemas();
         String result = info + oasPaths + components + objects;
-        boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, result, input.getOutputFile());
+        boolean ok = Util.writeStringToData(Constants.OUTPUT_FOLDER, result, input.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
         } else {
-            logger.severe("Could not write file " + Constants.DATA_FOLDER + input.getOutputFile());
+            logger.severe("Could not write file " + Constants.OUTPUT_FOLDER + input.getOutputFile());
         }
     }
 

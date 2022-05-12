@@ -1,4 +1,4 @@
-  /{{lowerResources}}:{{#if get}}
+  {{#if allquery}}/{{lowerResources}}:{{/if}}{{#if get}}
     get:
       description: Returns all {{resources}}
       operationId: getAll{{capResources}}
@@ -60,8 +60,8 @@
             schema:
               $ref: '#/components/schemas/{{capResource}}'
         description: {{capResource}} to be created
-        required: true{{/if}}{{#if get}}
-  /{{lowerResource}}/{{openCurlyBrace}}{{resourceId}}{{closeCurlyBrace}}:
+        required: true{{/if}}{{#if pathIdQuery}}
+  /{{lowerResource}}/{{openCurlyBrace}}{{resourceId}}{{closeCurlyBrace}}:{{/if}}{{#if get}}
     get:
       description: Returns a {{resource}} by {{resourceId}}
       operationId: find{{capResource}}By{{resourceId}}
@@ -103,7 +103,6 @@
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'{{/if}}{{#if delete}}
-
     delete:
       description: deletes a single {{resource}} based on the {{resourceId}}
       operationId: delete{{capResource}}

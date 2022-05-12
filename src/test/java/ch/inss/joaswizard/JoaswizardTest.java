@@ -166,7 +166,7 @@ class JoaswizardTest implements Constants {
         List<InputParameter> inputList = new ArrayList<>();
         inputList.add(inputParameter);
         String result = jo.createMethodsFromList(inputList);
-        boolean ok = Util.writeStringToData(Constants.DATA_FOLDER, result, inputParameter.getOutputFile());
+        boolean ok = Util.writeStringToData(Constants.OUTPUT_FOLDER, result, inputParameter.getOutputFile());
         assertTrue(ok);
 
         File file1 = new File(output + "get_openapi.yaml");
@@ -251,10 +251,6 @@ class JoaswizardTest implements Constants {
         inputParameter.setOutputFile("testOutputCrudSingleYamlObject.yml");
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
         inputParameter.setCrud();
-        inputParameter.addMethod("put");
-        inputParameter.addMethod("get");
-        inputParameter.addMethod("post");
-        inputParameter.addMethod("delete");
 
         jo.createMethodsFromSingleYamlObject(inputParameter);
         File file1 = new File(output + "testOutputCrudSingleYamlObject.yml");
@@ -281,14 +277,14 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(12)
     void testMain(){
-        Main.main(new String[]{"sample.yaml","test12output.yaml","pet","name","yamlfile","get,post"});
+        Main.main(new String[]{"sample.yaml","test12output.yaml","pet","name","yamlfile","delete,post,patch"});
         File file1 = new File("test12output.yaml");
         assertTrue(file1.isFile());
 
-        if (cleanUp) {
-            file1.delete();
-            assertTrue(file1.isFile() == false);
-        }
+//        if (cleanUp) {
+//            file1.delete();
+//            assertTrue(file1.isFile() == false);
+//        }
     }
     
 //    @Test

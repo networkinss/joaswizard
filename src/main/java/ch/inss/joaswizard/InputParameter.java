@@ -14,76 +14,91 @@ public class InputParameter {
     private String internalid;
     private Sourcetype sourceType;
     private Set<Method> methods = new HashSet<>();
-    
+
     private boolean doInfo = true;
     private boolean doPaths = true;
     private boolean doSchemas = true;
     private final String openCurlyBrace = "{";
     private final String closeCurlyBrace = "}";
-    
+
     public InputParameter(String inputFile, String outputFile, Sourcetype sourceType, Set<Method> methods) {
         this.inputFile = inputFile;
         this.outputFile = outputFile;
         this.sourceType = sourceType;
         this.methods = methods;
     }
-    public InputParameter(){
-        
+
+    public InputParameter() {
+
     }
+
     public InputParameter(String inputFile, String outputFile, Sourcetype sourceType) {
         this.inputFile = inputFile;
         this.outputFile = outputFile;
         this.sourceType = sourceType;
     }
-    
-    /** Check if all mandatory parameter have been defined. */
-    public boolean checkValid(){
+
+    /**
+     * Check if all mandatory parameter have been defined.
+     */
+    public boolean checkValid() {
         boolean valid = false;
         valid = this.resource != null && (this.inputFile != null || this.sampleYamlData != null) && this.sourceType != null;
-        if(this.sourceType == Sourcetype.EXCEL) valid = valid && this.inputFile != null && this.methods.size() > 0;
+        if (this.sourceType == Sourcetype.EXCEL) valid = valid && this.inputFile != null && this.methods.size() > 0;
         return valid;
     }
 
     public Set<Method> getMethodList() {
         return methods;
     }
-    /** You can add one or more methods separated by ",". */
-    public void addMethod(String m){
+
+    /**
+     * You can add one or more methods separated by ",".
+     */
+    public void addMethod(String m) {
         String[] arr = m.split(",");
-        for ( String method : arr){
+        for (String method : arr) {
             Method met = Method.valueOf(method.toUpperCase());
             this.methods.add(met);
         }
     }
-    public void addMethod(Method method){
+
+    public void addMethod(Method method) {
         this.methods.add(method);
     }
-    public void setCrud(){
+
+    public void setCrud() {
         this.addMethod(Method.GET);
         this.addMethod(Method.PUT);
         this.addMethod(Method.POST);
         this.addMethod(Method.DELETE);
     }
-    public boolean isGet(){
+
+    public boolean isGet() {
         return this.methods.contains(Method.GET);
     }
-    public boolean isPost(){
+
+    public boolean isPost() {
         return this.methods.contains(Method.POST);
     }
-    public boolean isPut(){
+
+    public boolean isPut() {
         return this.methods.contains(Method.PUT);
     }
-    public boolean isPatch(){
+
+    public boolean isPatch() {
         return this.methods.contains(Method.PATCH);
     }
-    public boolean isDelete(){
+
+    public boolean isDelete() {
         return this.methods.contains(Method.DELETE);
     }
-    
+
 
     public String getCapResource() {
         return StringUtils.capitalize(resource.toLowerCase());
     }
+
     public String getCapResources() {
         return StringUtils.capitalize(resource) + "s";
     }
@@ -91,7 +106,8 @@ public class InputParameter {
     public String getResource() {
         return resource;
     }
-    public String getLowerResource(){
+
+    public String getLowerResource() {
         return this.resource.toLowerCase(Locale.ROOT);
     }
 
@@ -102,7 +118,8 @@ public class InputParameter {
     public String getResources() {
         return resource + "s";
     }
-    public String getLowerResources(){
+
+    public String getLowerResources() {
         return resource.toLowerCase() + "s";
     }
 
@@ -118,7 +135,7 @@ public class InputParameter {
         return openCurlyBrace;
     }
 
-    
+
     public String getCloseCurlyBrace() {
         return closeCurlyBrace;
     }
@@ -133,7 +150,9 @@ public class InputParameter {
         return sampleYamlData;
     }
 
-    /** The sample data frm which the output will be generated.*/
+    /**
+     * The sample data frm which the output will be generated.
+     */
     public void setSampleYamlData(String sampleYamlData) {
         this.sampleYamlData = sampleYamlData;
     }
@@ -142,15 +161,17 @@ public class InputParameter {
         return inputFile;
     }
 
-    /** The path to the input file. The content must be stored within the sampleYaml field. */
+    /**
+     * The path to the input file. The content must be stored within the sampleYaml field.
+     */
     public void setInputFile(String inputFile) {
         int pos = inputFile.lastIndexOf(".");
         String suffix = inputFile.substring(pos);
-        if (suffix.equalsIgnoreCase(".yml") || suffix.equalsIgnoreCase(".yaml")){
+        if (suffix.equalsIgnoreCase(".yml") || suffix.equalsIgnoreCase(".yaml")) {
             this.setSourceType(Sourcetype.YAMLFILE);
-        }else if (suffix.equalsIgnoreCase(".xls") || suffix.equalsIgnoreCase(".xlsx")){
+        } else if (suffix.equalsIgnoreCase(".xls") || suffix.equalsIgnoreCase(".xlsx")) {
             this.setSourceType(Sourcetype.EXCEL);
-        }else{
+        } else {
             this.setSourceType(Sourcetype.YAMLSTRING);
         }
         this.inputFile = inputFile;
@@ -171,6 +192,7 @@ public class InputParameter {
     public void setSourceType(String sourceType) {
         this.sourceType = Sourcetype.valueOf(sourceType.toUpperCase());
     }
+
     public void setSourceType(Sourcetype sourceType) {
         this.sourceType = sourceType;
     }
@@ -185,13 +207,15 @@ public class InputParameter {
 
     @Override
     public String toString() {
-        return "Parameter{" +
+        return "InputParameter{" +
                 "resource='" + resource + '\'' +
                 ", resourceId='" + resourceId + '\'' +
-                ", sampleYaml='" + sampleYamlData + '\'' +
+                ", sampleYamlData='" + sampleYamlData + '\'' +
                 ", inputFile='" + inputFile + '\'' +
                 ", outputFile='" + outputFile + '\'' +
-                ", source='" + sourceType + '\'' +
+                ", internalid='" + internalid + '\'' +
+                ", sourceType=" + sourceType +
+                ", methods=" + methods +
                 '}';
     }
 
@@ -219,7 +243,7 @@ public class InputParameter {
         this.doSchemas = doSchemas;
     }
 
-    public static enum Method{
+    public static enum Method {
         POST,
         PUT,
         GET,
@@ -227,36 +251,50 @@ public class InputParameter {
         PATCH,
         CRUD
     }
-    public static List getSourcetypeList(){
+    
+    public boolean isAllquery(){
+        return ! (this.methods.contains(Method.GET) == false && this.methods.contains(Method.POST) == false);
+    }
+    
+    /** If no path with path variable is needed. 
+     *  That is the case if only POST is the method. */
+    public boolean isPathIdQuery(){
+        return ! (this.methods.size() == 1 && this.methods.contains(Method.POST));
+    }
+
+    public static List getSourcetypeList() {
         return new ArrayList<Sourcetype>(Arrays.asList(Sourcetype.values()));
     }
-    public static List getAvalableMethodList(){
+
+    public static List getAvalableMethodList() {
         return new ArrayList<Method>(Arrays.asList(Method.values()));
     }
-    public static boolean isValidSourcetype(String type){
-        
-        try{
-                Sourcetype.valueOf(type.toUpperCase());
+
+    public static boolean isValidSourcetype(String type) {
+        try {
+            Sourcetype.valueOf(type.toUpperCase());
             return true;
-        }catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return false;
         }
     }
-    
-    /** Check if methods are valid. You can put several methods separated by ",". */
-    public static boolean isValidMethod(String m){
+
+    /**
+     * Check if methods are valid. You can put several methods separated by ",".
+     */
+    public static boolean isValidMethod(String m) {
         String[] arr = m.split(",");
-        try{
-            for (String t : arr){
+        try {
+            for (String t : arr) {
                 Method.valueOf(t.toUpperCase());
             }
             return true;
-        }catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return false;
         }
     }
-    
-    public  static enum Sourcetype{
+
+    public static enum Sourcetype {
         YAMLFILE,
         EXCEL,
         YAMLSTRING
