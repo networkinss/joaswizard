@@ -29,13 +29,15 @@ public class Joaswizard implements Constants {
     /**
      * Create all CRUD operations for one object and stores it in a file..
      */
-    public void createCrudFile(InputParameter inputParameter) {
+    public boolean createCrudFile(InputParameter inputParameter) {
         logger.info("Starting create crud file.");
         String resultSchema = this.createCrud(inputParameter);
+        if(ERROR.equals(resultSchema)) return false;
         boolean ok = Util.writeStringToData(Constants.OUTPUT_FOLDER, resultSchema, inputParameter.getOutputFile());
         if (ok == false) {
             logger.severe("Could not write file " + Constants.OUTPUT_FOLDER + inputParameter.getOutputFile());
         }
+        return ok;
     }
 
     /**
@@ -57,8 +59,8 @@ public class Joaswizard implements Constants {
     public String createMethods(InputParameter inputParameter) {
         String paths = null;
         StringBuilder builder = new StringBuilder();
-        boolean ok1 = inputParameter.isPathIdQuery();
-        boolean ok2 = inputParameter.isAllquery();
+//        boolean ok1 = inputParameter.isPathIdQuery();  //TODO
+//        boolean ok2 = inputParameter.isAllquery();
         paths = this.fromGetTemplate(inputParameter);
         builder.append(paths).append(nexLine);
         if (paths != null) {
@@ -91,12 +93,12 @@ public class Joaswizard implements Constants {
             }
             if (this.data.size() == 0) {
                 logger.severe("No data. Please define input file or set sample yaml.");
-                return "Error";
+                return ERROR;
             }
             HashMap sampleMap = data.getDataMap(inputParameter.getResource());
             if (sampleMap == null || sampleMap.size() == 0) {
                 logger.severe("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");
-                return "Error";
+                return ERROR;
             }
             sampleMap.put(OBJECTNAME, inputParameter.getCapResource());
 
@@ -131,21 +133,22 @@ public class Joaswizard implements Constants {
         return result;
     }
 
-    public void createFromExcel(InputParameter input) {
+    public boolean createFromExcel(InputParameter input) {
         ExcelWrapper excelWrapper = new ExcelWrapper();
-        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel(input.getInputFile());
+        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(input.getInputFile());
         input.setSourceType(InputParameter.Sourcetype.EXCEL);
         List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, input);
-
         String paths = this.createMethodsFromList(inputParameterList);
-        if (paths.startsWith("Error")) {
+        if (paths.startsWith(ERROR)) {
             logger.severe("Could not process data for OAS paths. " + paths);
         }
         StringBuilder resouces = new StringBuilder();
         StringBuilder objects = new StringBuilder();
         for (InputParameter parameter : inputParameterList) {
             resouces.append(parameter.getResource()).append(", ");
-            objects.append(this.createSchemaObjects(parameter)).append(nexLine);
+            String result = this.createSchemaObjects(parameter);
+            if (ERROR.equals(result)) return false;
+            objects.append(result).append(nexLine);
         }
         resouces.delete(resouces.length() - 2, resouces.length());
         input.setResource(resouces.toString());
@@ -160,15 +163,19 @@ public class Joaswizard implements Constants {
         } else {
             logger.severe("Could not write file " + Constants.OUTPUT_FOLDER + input.getOutputFile());
         }
+        return ok;
     }
 
     /**
      * Creates defined methods from a yaml string for a single object.
+     *  Returns if an error ocrrued or not.
      */
-    public void createMethodsFromSingleYamlObject(InputParameter input) {
+    public boolean createMethodsFromSingleYamlObject(InputParameter input) {
         String oasPaths = this.createMethods(input);
         StringBuilder objects = new StringBuilder();
-        objects.append(this.createSchemaObjects(input)).append(nexLine);
+        String schema = this.createSchemaObjects(input);
+        if (ERROR.equals(schema) ) return false;
+        objects.append(schema).append(nexLine);
         String info = this.createInfo(input);
         String components = this.createComponentsSchemas();
         String result = info + oasPaths + components + objects;
@@ -178,6 +185,7 @@ public class Joaswizard implements Constants {
         } else {
             logger.severe("Could not write file " + Constants.OUTPUT_FOLDER + input.getOutputFile());
         }
+        return ok;
     }
 
     private String fromGetTemplate(InputParameter inputParameter) {
@@ -251,12 +259,17 @@ public class Joaswizard implements Constants {
 
     private void createMustacheDataFromYaml(InputParameter inputParameter) {
         /** if STRING the data are already there. */
-        if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
-            inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
-        }
-        LinkedHashMap<String, Object> map = Util.readYamlFromString(inputParameter.getSampleYamlData());
-        if (map == null || map.isEmpty()) {
-            return;
+        LinkedHashMap<String, Object> map = null;
+        try {
+            if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
+                inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
+            }
+            map = Util.readYamlFromString(inputParameter.getSampleYamlData());
+            if (map == null || map.isEmpty()) {
+                return;
+            }
+        } catch (Exception e) {
+            logger.severe("Could not read Yaml file: " + inputParameter.getInputFile() + ", check if it in Yaml format.");
         }
         this.createMustacheData(inputParameter, map);
     }
@@ -299,6 +312,18 @@ public class Joaswizard implements Constants {
         LinkedHashMap<String, Object> resultMap = new LinkedHashMap<>();
         List<PropertyData> list = new ArrayList<>();
         int idx = 0;
+
+        //TODO
+//        String file = Util.readFromFile("src/test/resources/mapping.json");
+//        JSONParser parser = new JSONParser();
+//        JSONArray obj = (JSONArray) parser.parse(file);
+//        JSONObject jsonObject = (JSONObject) obj.toArray()[0];
+//        String dbtype = (String) jsonObject.get("dbtype");
+//        String oastype = (String) jsonObject.get("oastype");
+//        String oasformat = (String) jsonObject.get("oasformat");
+//        String oaspattern = (String) jsonObject.get("oaspattern");
+        
+        
         /** Define each property of one object. */
         for (Map<String, String> sheetMap : mapList) {
             CaseInsensitiveMap<String, String> sheetCIMap = new CaseInsensitiveMap(sheetMap);

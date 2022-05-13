@@ -1,0 +1,43 @@
+[
+  {
+    "dbtype": "TIMESTMP",
+    "oastype": "string",
+    "oasformat": "date-time",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "CHAR",
+    "oastype": "string",
+    "oasformat": "string",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "DATE",
+    "oastype": "string",
+    "oasformat": "date",
+    "oaspattern": "yyyy-mm-dd"
+  },
+  {
+    "dbtype": "SMALLINT",
+    "oastype": "number",
+    "oasformat": "int32",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "VARCHAR",
+    "oastype": "string",
+    "oasformat": "string",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "DECIMAL",
+    "oastype": "number",
+    "oasformat": "double",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "INTEGER",
+    "oastype": "number",
+    "oasformat": "int64",
+    "oaspattern": ""
+  }]

@@ -1,0 +1,13 @@
+Datatype Format
+integer	int32
+integer	int64 
+number 	float 
+number 	double 
+string 	string
+string 	byte 
+string 	binary 
+boolean boolean
+string 	date
+string 	date-time
+string 	password
+string 	array

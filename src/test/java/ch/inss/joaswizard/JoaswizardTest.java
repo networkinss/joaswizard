@@ -1,6 +1,9 @@
 package ch.inss.joaswizard;
 
 import org.apache.commons.io.FileUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -57,7 +60,7 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(2)
     void testFullContact() throws Exception {
-        Main.createOpenApiFromYamlfile(new String[]{"src/test/resources/Contact.yml","testOutputContact.yml", "contact"});
+        Main.createOpenApiFromYamlfile(new String[]{"src/test/resources/Contact.yml", "testOutputContact.yml", "contact"});
         File file1 = new File(output + "testOutputContact.yml");
         File file2 = new File("src/test/resources/testReferenceContact.yml");
         assertTrue(file1.isFile());
@@ -153,7 +156,9 @@ class JoaswizardTest implements Constants {
         }
     }
 
-    /** Tests only the path section with get methods. */
+    /**
+     * Tests only the path section with get methods.
+     */
     @Test
     @Order(6)
     void testGetPet() throws Exception {
@@ -191,9 +196,8 @@ class JoaswizardTest implements Constants {
     @Order(7)
     void testExcelWrapper() throws Exception {
         ExcelWrapper excelWrapper = new ExcelWrapper();
-        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcel("src/test/resources/objectimport.xlsx");
+        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile("src/test/resources/objectimport.xlsx");
         Assertions.assertEquals(3, integerListHashMap.keySet().size());
-        Assertions.assertEquals(3, integerListHashMap.keySet().iterator().next().length());
     }
 
     @Test
@@ -204,7 +208,7 @@ class JoaswizardTest implements Constants {
         inputParameter.setInputFile("src/test/resources/objectimport.xlsx");
         inputParameter.setOutputFile("testOutputExcelsheet0.yml");
         inputParameter.addMethod("get");
-        
+
         jo.createFromExcel(inputParameter);
         File file1 = new File(output + "testOutputExcelsheet0.yml");
         File file2 = new File("src/test/resources/testReferenceGetMethodList.yml");
@@ -219,7 +223,7 @@ class JoaswizardTest implements Constants {
 
     @Test
     @Order(9)
-    void testCreateMethodsFromSingleYamlObject()throws Exception {
+    void testCreateMethodsFromSingleYamlObject() throws Exception {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
         inputParameter.setResource("pet");
@@ -228,7 +232,7 @@ class JoaswizardTest implements Constants {
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
         inputParameter.addMethod("put");
         inputParameter.addMethod("get");
-        
+
         jo.createMethodsFromSingleYamlObject(inputParameter);
         File file1 = new File(output + "testOutputSingleYamlObject.yml");
         File file2 = new File("src/test/resources/testReferenceSingleYamlObject.yml");
@@ -243,7 +247,7 @@ class JoaswizardTest implements Constants {
 
     @Test
     @Order(10)
-    void testCreateCrudFromSingleYamlObject()throws Exception {
+    void testCreateCrudFromSingleYamlObject() throws Exception {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
         inputParameter.setResource("pet");
@@ -263,30 +267,60 @@ class JoaswizardTest implements Constants {
             assertTrue(file1.isFile() == false);
         }
     }
-    
+
     @Test
     @Order(11)
-    void testIsValidType(){
+    void testIsValidType() {
         InputParameter inputParameter = new InputParameter();
         assertTrue(inputParameter.isValidSourcetype("excel"));
         assertFalse(inputParameter.isValidSourcetype("nix"));
         assertTrue(InputParameter.isValidMethod("CRUD"));
         assertFalse(InputParameter.isValidMethod("nix"));
     }
-    
+
     @Test
     @Order(12)
-    void testMain(){
-        Main.main(new String[]{"sample.yaml","test12output.yaml","pet","name","yamlfile","delete,post,patch"});
-        File file1 = new File("test12output.yaml");
+    void testMainYaml() {
+        Main.main(new String[]{"src/test/resources/sample.yaml", "testMainYamloutput.yaml", "pet", "name", "yamlfile", "delete,post,patch"});
+        File file1 = new File("testMainYamloutput.yaml");
         assertTrue(file1.isFile());
 
-//        if (cleanUp) {
-//            file1.delete();
-//            assertTrue(file1.isFile() == false);
-//        }
+        if (cleanUp) {
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
     }
-    
+
+    @Test
+    @Order(13)
+    void testMainExcel() throws Exception {
+        Main.main(new String[]{"src/test/resources/objectimport.xlsx", "testMainExceloutput.yaml", "pet", "name", "excel", "delete,post,patch"});
+        File file1 = new File("testMainExceloutput.yaml");
+        assertTrue(file1.isFile());
+
+        if (cleanUp) {
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
+    }
+
+    @Test
+    @Order(14)
+    void testReadMapping() throws Exception {
+        String file = Util.readFromFile("src/test/resources/mapping.json");
+        JSONParser parser = new JSONParser();
+        JSONArray obj = (JSONArray) parser.parse(file);
+        JSONObject jsonObject = (JSONObject) obj.toArray()[0];
+        String dbtype = (String) jsonObject.get("dbtype");
+        String oastype = (String) jsonObject.get("oastype");
+        String oasformat = (String) jsonObject.get("oasformat");
+        String oaspattern = (String) jsonObject.get("oaspattern");
+        assertTrue("TIMESTMP".equals(dbtype));
+        assertTrue("string".equals(oastype));
+        assertTrue("date-time".equals(oasformat));
+        assertTrue("".equals(oaspattern));
+    }
+
 //    @Test
 //    @Order(11)
 //    void testSamplesMain() throws Exception {
@@ -305,5 +339,5 @@ class JoaswizardTest implements Constants {
 //        } catch (IOException e) {
 //        }
 //    }
-    
+
 }

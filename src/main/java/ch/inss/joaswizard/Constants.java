@@ -16,4 +16,5 @@ public interface Constants {
     String nexLine = System.getProperty("line.separator");
     String OBJECTNAME = "objectName";
     String[] DATATYPELIST = {"integer","number","string","boolean"};
+    String ERROR = "Error";
 }

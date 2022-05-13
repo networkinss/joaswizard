@@ -26,7 +26,7 @@ public class ExcelWrapper {
         logger.setUseParentHandlers(false);
     }
 
-    public HashMap<String, List<Map<String, String>>> readExcel(String file) {
+    public HashMap<String, List<Map<String, String>>> readExcelfile(String file) {
         InputStream fileStream = null;
         File initialFile = null;
         try {
@@ -40,7 +40,7 @@ public class ExcelWrapper {
         return this.readExcel(fileStream);
     }
 
-    public HashMap<String, List<Map<String, String>>> readExcel(InputStream fileStream) {
+    private HashMap<String, List<Map<String, String>>> readExcel(InputStream fileStream) {
         HashMap<String, List<Map<String, String>>> map = new HashMap<>();
         try {
             final XSSFWorkbook workbook = new XSSFWorkbook(fileStream);

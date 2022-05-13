@@ -21,13 +21,16 @@ This library will help you in case of:
 * You have to process mass object data like from an Excel file.
 * You want a head start without knowing OpenAPI.
 
-## Status
+
+## Features
 
 It is still in development.  
 Implemented features:
 * Create OpenAPI document with all CRUD operations just from object properties.
-* Create OpenAPI document for several objects and defined methods from Excel data.
-* Create OpenAPI document from a Yaml object and defined methods.
+* Create OpenAPI document with defined list of methods.
+* Create OpenAPI document from a Yaml object file.
+* Create OpenAPI document from a Yaml object string.
+* Create OpenAPI document from several Excel sheets.
 
 Missing:  
 Parameter to use custom Handlebar template files.
@@ -58,16 +61,31 @@ Sample is in src/test/resources/Contact.yml
 <output.yaml> is the name of the output file.  
 <objectname> is the name of the object which you defined in the <input.yaml> file.  
 <idfieldname> must be a fieldname used in <input.yaml> file to define which field shall be used as an ID.
+<sourcetype> is one of yamlfile, excelfile or yamlstring.
+<methods> are all REST methods that shall be used. You can use crud or post, put, get, delete and patch. 
 
-`java -jar joaswizard-*.jar <input.yaml> <output.yaml> <objectname> <idfieldname>  `
+`java -jar joaswizard-*.jar <input.yaml> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>`
 
-Example:  
-`java -jar joaswizard-*.jar pet-oas.yaml petSample.yaml pet name`
+Example:
+You can execute it without parameter. Jo will ask for the parameter.
+`java -jar joaswizard-*.jar`
+Or with all parameter. Jo will ask for skipped parameters, if any.
+`java -jar joaswizard-*.jar sample.yaml petsample.yaml pet name yamlfile delete,post,patch`
 
 ### as a library
 
 Simply define an object of the class InputParameter.  
 Use any of the public methods of the class Joaswizard.
+
+### Input data
+
+You can define an object either in Yaml format (file or string).  
+Or in an Excel workbook with many sheets, one for each object.
+
+Sample for Yaml:
+`src/test/resources/sample.yaml`  
+Sample for Excel:
+`src/test/resources/objectimport.xlsx`
 
 ### samples for usage
 

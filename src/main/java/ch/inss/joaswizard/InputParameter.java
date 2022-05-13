@@ -12,6 +12,8 @@ public class InputParameter {
     private String inputFile;
     private String outputFile;
     private String internalid;
+
+    private String[] tags;
     private Sourcetype sourceType;
     private Set<Method> methods = new HashSet<>();
 
@@ -204,6 +206,13 @@ public class InputParameter {
     public void setInternalid(String internalid) {
         this.internalid = internalid;
     }
+    public String[] getTags() {
+        return tags;
+    }
+
+    public void setTags(String[] tags) {
+        this.tags = tags;
+    }
 
     @Override
     public String toString() {
@@ -214,8 +223,14 @@ public class InputParameter {
                 ", inputFile='" + inputFile + '\'' +
                 ", outputFile='" + outputFile + '\'' +
                 ", internalid='" + internalid + '\'' +
+                ", tags=" + Arrays.toString(tags) +
                 ", sourceType=" + sourceType +
                 ", methods=" + methods +
+                ", doInfo=" + doInfo +
+                ", doPaths=" + doPaths +
+                ", doSchemas=" + doSchemas +
+                ", openCurlyBrace='" + openCurlyBrace + '\'' +
+                ", closeCurlyBrace='" + closeCurlyBrace + '\'' +
                 '}';
     }
 

@@ -133,17 +133,17 @@ public class Main implements Constants {
         inputParameter.setResourceId(idfield);
         inputParameter.setSourceType(sourcetype);
         inputParameter.addMethod(methods);
-        boolean what = inputParameter.isPathIdQuery();
-        boolean what1 = inputParameter.isAllquery();
 
         Joaswizard joaswizard = new Joaswizard();
+        boolean ok = false;
         if (methods.equalsIgnoreCase("crud") && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL) == false) {
-            joaswizard.createCrudFile(inputParameter);
+            ok = joaswizard.createCrudFile(inputParameter);
         } else if (inputParameter.getSourceType().toString().equalsIgnoreCase(InputParameter.Sourcetype.EXCEL.toString())) {
-            joaswizard.createFromExcel(inputParameter);
+           ok =  joaswizard.createFromExcel(inputParameter);
         } else {
-            joaswizard.createMethodsFromSingleYamlObject(inputParameter);
+            ok = joaswizard.createMethodsFromSingleYamlObject(inputParameter);
         }
+        if(ok)        logger.info("Created openapi file in output/" + inputParameter.getOutputFile());
         logger.info("Created openapi file in output/" + inputParameter.getOutputFile());
     }
 
