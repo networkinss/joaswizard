@@ -3,12 +3,13 @@
       properties:{{#data}}
         {{lowKey}}:
           type: {{type}}{{#format}}
-          format: {{format}}{{/format}}{{#enumvalues}}
+          format: {{format}}{{/format}}{{#pattern}}
+          pattern: {{pattern}}{{/pattern}}{{#enumvalues}}
           enum:
           {{{enumvalues}}}{{/enumvalues}}{{#minlength}}
           minLength: {{minlength}}{{/minlength}}{{#maxLength}}
-          maxLength: {{maxLength}}{{/maxLength}}
-          example: {{examplevalue}}{{#description}}
+          maxLength: {{maxLength}}{{/maxLength}}{{#examplevalue}}
+          example: {{examplevalue}}{{/examplevalue}}{{#description}}
           description: {{description}}{{/description}}{{/data}}
       required:{{#data}}{{#required}}
       - {{key}}{{/required}}{{/data}}

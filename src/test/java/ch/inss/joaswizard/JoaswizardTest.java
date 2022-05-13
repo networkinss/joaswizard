@@ -128,10 +128,10 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(5)
     void testCreateFromString() throws Exception {
-        String debug = "Zmlyc3RuYW1lOiBNYXgKbmFtZTogTXVzdGVybWFubgpwaG9uZTogMTIzNDU2Nzg5CmVtYWlsOiAibWF4QGV4YW1wbGUuY29tIg==";
+        String string64 = "Zmlyc3RuYW1lOiBNYXgKbmFtZTogTXVzdGVybWFubgpwaG9uZTogMTIzNDU2Nzg5CmVtYWlsOiAibWF4QGV4YW1wbGUuY29tIg==";
         InputParameter inputParameter = new InputParameter();
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLSTRING);
-        inputParameter.setSampleYamlBase64(debug);
+        inputParameter.setSampleYamlBase64(string64);
         inputParameter.setOutputFile(outputString);
         inputParameter.setResourceId("name");
         inputParameter.setResource("contact");
@@ -219,6 +219,16 @@ class JoaswizardTest implements Constants {
             file1.delete();
             assertTrue(file1.isFile() == false);
         }
+        //TODO
+//        acht:
+//        type: string
+//        format: enum
+//        enum:
+//        - Yes
+//                - No
+//                - '0'
+//        example: [eins,zwei,drei]
+//        description: Der Array
     }
 
     @Test
@@ -320,24 +330,5 @@ class JoaswizardTest implements Constants {
         assertTrue("date-time".equals(oasformat));
         assertTrue("".equals(oaspattern));
     }
-
-//    @Test
-//    @Order(11)
-//    void testSamplesMain() throws Exception {
-//        try {
-//            // Execute command
-//            String command = "java ";
-//            Process child = Runtime.getRuntime().exec(command);
-//
-//            // Get output stream to write from it
-//            OutputStream out = child.getOutputStream();
-//
-//            out.write("cd C:/ /r/n".getBytes());
-//            out.flush();
-//            out.write("dir /r/n".getBytes());
-//            out.close();
-//        } catch (IOException e) {
-//        }
-//    }
 
 }

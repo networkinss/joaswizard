@@ -1,6 +1,10 @@
 package ch.inss.joaswizard;
 
 import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -8,8 +12,26 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static ch.inss.joaswizard.Main.consoleHandler;
 
 public class Util implements Constants {
+    
+//    private static Logger logger = null;
+//    
+//    static {
+//        consoleHandler.setLevel(Level.ALL);
+//        Formatter formatter = new LogFormatter();
+//        consoleHandler.setFormatter(formatter);
+//        logger = Logger.getLogger(Util.class.getName());
+//        logger.addHandler(consoleHandler);
+//        logger.setLevel(Level.INFO);
+//        logger.setUseParentHandlers(false);
+//    }
 
     static boolean writeStringToData(String userFolder, String data, String file) {
         if (userFolder == null) userFolder = OUTPUT_FOLDER;
@@ -45,7 +67,6 @@ public class Util implements Constants {
     static String readFromFile(String file) {
         File filePath = new File(file);
         if (filePath.isFile() == false) {
-            System.out.println("File not found: " + filePath);
             return null;
         }
         String result = null;
@@ -93,8 +114,42 @@ public class Util implements Constants {
         return yaml.load(isr);
     }
 
+    /** regex =  "[0-9.]+", null = false, */
     static boolean isNumber(String str) {
         return str != null && str.matches("[0-9.]+");
+    }
+    
+    /** Read a json file and returns a map with maps. */
+    static HashMap<String, HashMap<String, String>> getJsonAsMap(String jsonFile){
+        final HashMap<String, HashMap<String, String>> resultMap = new HashMap<>();
+        try {
+            String file = readFromFile(jsonFile);
+            if (file == null){
+                file = new Util().readFromClasspath(jsonFile);
+            }
+            if (file == null) return null;
+            
+            JSONParser parser = new JSONParser();
+            JSONArray obj = (JSONArray) parser.parse(file);
+            Consumer<Object> lambdaExpression = x -> {
+                JSONObject jsonObject = (JSONObject) x;    
+                HashMap<String,String> map = new HashMap<>();
+                String dbtype = (String) jsonObject.get(Header.DBTYPE.toString().toLowerCase());
+                String oastype = (String) jsonObject.get(Header.OASTYPE.toString().toLowerCase());
+                String oasformat = (String) jsonObject.get(Header.OASFORMAT.toString().toLowerCase());
+                String oaspattern = (String) jsonObject.get(Header.OASPATTERN.toString().toLowerCase());
+                map.put(Header.OASTYPE.toString(),oastype);
+                map.put(Header.OASFORMAT.toString(), oasformat);
+                map.put(Header.OASPATTERN.toString(), oaspattern);
+                resultMap.put(dbtype, map);
+            };
+            obj.stream().forEach( lambdaExpression);
+            
+        }catch(ParseException pe){
+            pe.printStackTrace();
+            return null;
+        }
+        return resultMap;
     }
 
     /**

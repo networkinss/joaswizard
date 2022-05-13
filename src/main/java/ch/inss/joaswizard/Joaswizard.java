@@ -32,7 +32,7 @@ public class Joaswizard implements Constants {
     public boolean createCrudFile(InputParameter inputParameter) {
         logger.info("Starting create crud file.");
         String resultSchema = this.createCrud(inputParameter);
-        if(ERROR.equals(resultSchema)) return false;
+        if (ERROR.equals(resultSchema)) return false;
         boolean ok = Util.writeStringToData(Constants.OUTPUT_FOLDER, resultSchema, inputParameter.getOutputFile());
         if (ok == false) {
             logger.severe("Could not write file " + Constants.OUTPUT_FOLDER + inputParameter.getOutputFile());
@@ -168,13 +168,13 @@ public class Joaswizard implements Constants {
 
     /**
      * Creates defined methods from a yaml string for a single object.
-     *  Returns if an error ocrrued or not.
+     * Returns if an error ocrrued or not.
      */
     public boolean createMethodsFromSingleYamlObject(InputParameter input) {
         String oasPaths = this.createMethods(input);
         StringBuilder objects = new StringBuilder();
         String schema = this.createSchemaObjects(input);
-        if (ERROR.equals(schema) ) return false;
+        if (ERROR.equals(schema)) return false;
         objects.append(schema).append(nexLine);
         String info = this.createInfo(input);
         String components = this.createComponentsSchemas();
@@ -307,94 +307,109 @@ public class Joaswizard implements Constants {
 
     /**
      * Providing HashMap this.data with input data for the Mustache engine.
+     * OAS type, format and pattern is defined in this sequence:
+     * 1. Read values from Excel in columns with name: Datatype, Format, Pattern.
+     * 2. If not defined there, it will check mapping.
+     * 3. If no mapping is defined, it will guess. If it can be parsed to a number, it will be type number. All other is a string.
      */
     private void createMustacheDataFromExcel(InputParameter inputParameter, List<Map<String, String>> mapList) {
         LinkedHashMap<String, Object> resultMap = new LinkedHashMap<>();
         List<PropertyData> list = new ArrayList<>();
         int idx = 0;
-
-        //TODO
-//        String file = Util.readFromFile("src/test/resources/mapping.json");
-//        JSONParser parser = new JSONParser();
-//        JSONArray obj = (JSONArray) parser.parse(file);
-//        JSONObject jsonObject = (JSONObject) obj.toArray()[0];
-//        String dbtype = (String) jsonObject.get("dbtype");
-//        String oastype = (String) jsonObject.get("oastype");
-//        String oasformat = (String) jsonObject.get("oasformat");
-//        String oaspattern = (String) jsonObject.get("oaspattern");
-        
-        
+        /* If not in OasType field defined, it will try to take the type from the column DbType. */
+        HashMap<String, HashMap<String, String>> jsonMappingMap = Util.getJsonAsMap("mapping.json");
+        if (jsonMappingMap == null) {
+            jsonMappingMap = new HashMap<>();
+        }
         /** Define each property of one object. */
         for (Map<String, String> sheetMap : mapList) {
             CaseInsensitiveMap<String, String> sheetCIMap = new CaseInsensitiveMap(sheetMap);
             idx++;
-//            List<Header> unused = new ArrayList<>();
-
             String key = sheetCIMap.get(Header.NAME);
             if (key == null || key.equals("")) key = UNDEFINED;
             else key = key.trim();
-            String sampleValue = sheetCIMap.get(Header.SAMPLEVALUE);
+            String sampleValue = sheetCIMap.get(Header.OASEXAMPLE);
             String type = null;
-            if (sheetCIMap.containsKey(Header.DATATYPE)) type = sheetCIMap.get(Header.DATATYPE);
+            if (sheetCIMap.containsKey(Header.OASTYPE)) type = sheetCIMap.get(Header.OASTYPE);
             if (key.equals(UNDEFINED) && (sampleValue == null || sampleValue.equals("") && (type == null || type.equals("")))) {
                 logger.warning("Not enough data to build an OAS3 schema object (at index: " + idx + ").");
                 continue;
             }
 
+            HashMap<String, String> mappingMap = new HashMap<>();
             if (type == null || type.equals("")) {
+                String dbtype = sheetCIMap.get(Header.DBTYPE);
+                if (dbtype != null && "".equals(dbtype) == false) {
+                    /* Get the mapping hashMap from the mapping map.*/
+                    mappingMap = jsonMappingMap.get(dbtype.toUpperCase());
+                    if (mappingMap == null) mappingMap = new HashMap<>();
+                    type = mappingMap.get(Header.OASTYPE.toString());
+                }
+            }
+            if ((type == null || type.equals("")) && sampleValue != null) {
                 type = (Util.isNumber(sampleValue) ? "number" : "string");
             } else {
                 type = type.trim().toLowerCase();
                 if (Arrays.asList(DATATYPELIST).contains(type) == false) {
-                    logger.warning("Type not valid: " + type + ". Type is changed to string.");
+                    logger.warning("Type not valid: " + type + ". Change type to string.");
                     type = "string";
                 }
             }
-            if (sampleValue == null) {
-                if (type.equals("string")) sampleValue = "string";
-                if (type.equals("integer")) sampleValue = "1";
-                if (type.equals("number")) sampleValue = "1.0";
+            /* Object containing all the properties for an object. */
+            PropertyData propertyData = new PropertyData(key, type);
+
+            /* Define example values even if not defined. */
+            if ((sampleValue == null || "".equals(sampleValue))) {
+                if(inputParameter.isDoDefaultSamples()) {
+                    if (type.equals("string")) sampleValue = "string";
+                    else if (type.equals("integer")) sampleValue = "1";
+                    else if (type.equals("number")) sampleValue = "1.0";
+                }
             } else {
                 sampleValue = sampleValue.trim();
             }
-
-            PropertyData propertyData = new PropertyData(key, type);
-            String format = sheetCIMap.get(Header.FORMAT);
+            if (sampleValue!=null) {
+                if (sampleValue.equals("")) propertyData.setExamplevalue(null);
+                else propertyData.setExamplevalue(sampleValue);
+            }
+            /* Define formatting. */
+            String format = sheetCIMap.get(Header.OASFORMAT);
+            if (format == null || "".equals(format)) {
+                /* Try to get mapped format from mapping.json if the DbType had been defined. */
+                format = mappingMap.get(Header.OASFORMAT.toString());
+                // If datatype had to be change and format is not defined, define format as former datatype.
+//                if (format == null && sheetCIMap.containsKey(Header.OASTYPE) && sheetCIMap.get(Header.OASTYPE).equalsIgnoreCase(type) == false) {
+//                    propertyData.setFormat(sheetCIMap.get(Header.OASTYPE));
+//                }
+            }
             if (format != null) {
                 if ((type.equalsIgnoreCase("number") || type.equalsIgnoreCase("integer")) && format.equalsIgnoreCase("string")) {
                     logger.warning("Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);
-                    ;
-                }
-                propertyData.setFormat(format.trim());
-            } else {
-                // If datatype had to be change and format is not defined, define format as former datatype.
-                if (sheetCIMap.containsKey(Header.DATATYPE) && sheetCIMap.get(Header.DATATYPE).equalsIgnoreCase(type) == false) {
-                    propertyData.setFormat(sheetCIMap.get(Header.DATATYPE).toLowerCase());
-                }
+                    propertyData.setFormat(null);
+                } else propertyData.setFormat(format.trim());
             }
 
-            propertyData.setExamplevalue(sampleValue);
-            if (sheetCIMap.containsKey(Header.MIN)) {
-                if (Util.isNumber(sheetCIMap.get(Header.MIN))) {
-                    propertyData.setMinlength(Integer.parseInt(sheetCIMap.get(Header.MIN)));
+            if (sheetCIMap.containsKey(Header.OASMIN)) {
+                if (Util.isNumber(sheetCIMap.get(Header.OASMIN))) {
+                    propertyData.setMinlength(Integer.parseInt(sheetCIMap.get(Header.OASMIN)));
                 }
             } else if (!Util.isNumber(sampleValue)) {
                 propertyData.setMinlength(1);
             }
-            propertyData.setDescription(sheetCIMap.get("Description"));
+            propertyData.setDescription(sheetCIMap.get(Header.OASDESCRIPTION));
 
-            propertyData.setPattern(sheetCIMap.get("Pattern"));
-            if (sheetCIMap.containsKey("Required")) {
-                propertyData.setRequired(Boolean.parseBoolean(sheetCIMap.get("Required")));
-            } else if (sheetCIMap.containsKey("Nullable")) {
-                propertyData.setRequired(!Boolean.parseBoolean(sheetCIMap.get("Nullable")));
+            propertyData.setPattern(sheetCIMap.get(Header.OASPATTERN.toString()));
+            if (sheetCIMap.containsKey(Header.OASREQUIRED)) {
+                propertyData.setRequired(Boolean.parseBoolean(sheetCIMap.get(Header.OASREQUIRED)));
+            } else if (sheetCIMap.containsKey(Header.DBNULLABLE)) {
+                propertyData.setRequired(!Boolean.parseBoolean(sheetCIMap.get(Header.DBNULLABLE)));
             } else {
                 propertyData.setRequired(true);
             }
 
-            propertyData.setEnumvalues(this.getOasEnum(sheetCIMap.get(Header.ENUMVALUES), propertyData.getType()));
+            propertyData.setEnumvalues(this.getOasEnum(sheetCIMap.get(Header.OASENUM), propertyData.getType()));
 
-            String max = sheetCIMap.get("Max");
+            String max = sheetCIMap.get(Header.OASMAX);
             if (Util.isNumber(max)) {
                 propertyData.setMaxLength(Integer.parseInt(max));
             } else if (max != null && max.equals("") == false) {

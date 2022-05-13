@@ -42,12 +42,14 @@ It is a normal Maven project. You will need Java SDK 11 and Maven to build it.
 
 ## Maven Integration
 
-Add dependency to pom.xml.  
-`<dependency>     
+Add dependency to pom.xml.
+```
+<dependency>     
     <groupId>ch.inss.joaswizard</groupId>     
     <artifactId>joaswizard</artifactId>   
     <version>0.2.3</version>   
-</dependency>`  
+</dependency>  
+```
 
 ## Usage
 
@@ -63,8 +65,9 @@ Sample is in src/test/resources/Contact.yml
 <idfieldname> must be a fieldname used in <input.yaml> file to define which field shall be used as an ID.
 <sourcetype> is one of yamlfile, excelfile or yamlstring.
 <methods> are all REST methods that shall be used. You can use crud or post, put, get, delete and patch. 
-
-`java -jar joaswizard-*.jar <input.yaml> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>`
+```
+java -jar joaswizard-*.jar <input.yaml> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>
+```
 
 Example:
 You can execute it without parameter. Jo will ask for the parameter.
@@ -82,10 +85,53 @@ Use any of the public methods of the class Joaswizard.
 You can define an object either in Yaml format (file or string).  
 Or in an Excel workbook with many sheets, one for each object.
 
-Sample for Yaml:
-`src/test/resources/sample.yaml`  
+#### Yaml
+Yaml is easy.<br>
+You can either point to the file which contains some Yaml style properties or put direcly a string.
+Example for a file content:  
+```
+name: Underdog  
+price: 12.05  
+status: "available"  
+tags: [ dog,4paws ]  
+```
+
+Sample file for Yaml:
+`src/test/resources/sample.yaml`
+
+Or you can put the Yaml formatted string directly.  
+You can check the JUnit test `testCreateFromString()`.
+
+#### Excel
+Excel is very useful for mass conversion.  
+Every sheet is an component schema object. The sheetname is the name of the object.    
+First line should contain the following header:  
+* Name -> Name of the property of the object.	
+* DbType -> Database type. This can be mapped as defined in the mapping.json (src/main/resources/mapping.json). Will be used only if OasType is empty.
+* OasType -> The actual OAS type. A list of OAS3 types is in doc/oas3datatypes.txt.
+* OasFormat	-> The format of the type. Possible values also in the file doc/oas3datatypes.txt.
+* OASPattern -> Can be a pattern like e.g. for a date: yyyy-mm-dd.
+* OasMin -> The OAS3 minimum length of a value for that property.
+* OasMax -> The OAS3 maximum length of a value for that property.	
+* OasExample -> The OAS3 example value. If not set, Jo will guess a bit.	
+* OasEnum -> OAS3 Enum values.
+* OasDescription -> Text description for the OAS3 property.
+* OasRequired -> If required or not. Values are true (required) or false (optional).
+* DbNullable -> If required or not (true/false), but with opposite value like OasRequired. True means field value is optional. False means it is required.
+
+Excel headers are not case-sensitive.  
+the `mapping.json` is the mapping file for the field `DbType`.
+There is a default mapping.json in the application.  
+However, it will first look if there is one mapping.json in the same folder and take
+that one if available.  
+Have a look into `src/main/resources/mapping.json` to get to know the structure.  
+DbType contains the database type.  
+OasType, OasFormat, OasPattern can be filled with desired mapping in the generated OAS3 document.  
+The fields must be from the type enum Header. All field names must be lowercase in the json file.
+
 Sample for Excel:
 `src/test/resources/objectimport.xlsx`
+
 
 ### samples for usage
 

@@ -2,16 +2,16 @@ package ch.inss.joaswizard;
 
 public enum Header {
     NAME,
-    DBDATATYPE,
-    DATATYPE,
-    FORMAT,
-    PATTERN,
-    MIN,
-    MAX,
-    SAMPLEVALUE,
-    ENUMVALUES,
-    REQUIRED,
-    NULLABLE,
-    DESCRIPTION
+    DBTYPE,
+    OASTYPE,
+    OASFORMAT,
+    OASPATTERN,
+    OASMIN,
+    OASMAX,
+    OASEXAMPLE,
+    OASENUM,
+    OASREQUIRED,
+    DBNULLABLE,
+    OASDESCRIPTION
 
     }

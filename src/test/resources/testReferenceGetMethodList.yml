@@ -9,7 +9,7 @@ info:
     email: oliver.glas@inss.ch
     url: http://inss.ch
   license:
-    name: Apache
+    name: Apache 2.0 license
     url: http://opensource.org/licenses/Apache-2.0
 servers:
   - url: http://localhost:8080/v1
@@ -256,94 +256,132 @@ components:
         id:
           type: integer
           format: int32
-          maxLength: 2
+          maxLength: 14
           example: 1
-          description: signed 32 bits
-        zweitername:
+          description: signed 32 bit
+        amount:
           type: integer
           format: int64
           maxLength: 3
           example: 2
-          description: signed 64 bits (a.k.a long)
-        dritter name:
+          description: signed 64 bit (a.k.a long)
+        price:
           type: number
           format: float
           maxLength: 4
           example: 1.0
-          description: Die dritte Beschreibung.
-        einenum:
+          description: A float sample
+        option:
           type: number
-          format: double
+          enum:
+          - 1.0
+          - 2.0
+          - 5.0
+          - 8.0
           example: 2.0
-          description: Ein Enum Beispiel.
-        eins:
+          description: An enum example.
+        sometext:
+          type: string
+          description: An example of a definition of the type via the database type. The file mapping.json contains the mapping. If none is available, an internal default is used.
+        one:
           type: string
           format: string
           example: eins
-        zwei:
+        two:
           type: string
           format: byte
           example: byte
           description: base64 encoded characters
-        drei:
+        three:
           type: string
           format: binary
           example: binary
           description: any sequence of octets
-        vier:
+        four:
           type: boolean
           format: boolean
           example: true
-        fünf:
+        five:
           type: string
           format: date
-          example: date
+          pattern: yyyy-mm-dd
+          maxLength: 10
+          example: 1998-12-31
           description: As defined by full-date - RFC3339
-        sechs:
+        six:
           type: string
           format: date-time
-          example: Date-time
+          example: 2019-10-12T07:20:50.52Z
           description: As defined by date-time - RFC3339
-        sieben:
+        seven:
           type: string
           format: password
-          example: password
+          example: asecret
           description: A hint to UIs to obscure input.
-        acht:
+        eight:
           type: string
-          format: enum
           enum:
           - Yes
           - No
           - '0'
-          example: [eins,zwei,drei]
-          description: Der Array
+          example: Yes
+          description: An enum example.
+        nine:
+          type: string
+          format: date-time
+          minLength: 6
+          description: These types from DBDatatype must be mapped in the mapping.json. Oastype would overwrite it if not empty.
+        ten:
+          type: string
+          minLength: 1
+          description: Database type CHAR
+        eleven:
+          type: string
+          format: date
+          minLength: 6
+          description: Database type DATE
+        twelve:
+          type: integer
+          format: int32
+          minLength: 1
+          description: Database type SMALLINT
+        thirteen:
+          type: string
+          minLength: 1
+          description: Database type VARCHAR
+        fourteen:
+          type: number
+          format: double
+          description: Database type DECIMAL
+        fifteen:
+          type: integer
+          format: int64
+          description: Database type INTEGER
       required:
       - ID
-      - zweiterName
-      - EinEnum
-      - eins
-      - drei
-      - fünf
-      - sechs
-      - sieben
-      - acht
+      - amount
+      - option
+      - one
+      - three
+      - five
+      - six
+      - seven
+      - eight
     Customer:
       type: object
       properties:
         id:
           type: integer
-          example: 1
+          minLength: 1
+          description: Die Beschreibung
         zweitername3:
           type: string
-          format: date
           minLength: 1
-          example: string
+          description: Noch eine Beschreibung
         dritter name3:
           type: string
-          format: char
           minLength: 1
-          example: string
+          description: Die dritte Beschreibung.
       required:
       - ID
       - zweiterName3
@@ -352,17 +390,16 @@ components:
       properties:
         id:
           type: integer
-          example: 1
+          minLength: 1
+          description: Die Beschreibung
         zweitername:
           type: string
-          format: date
           minLength: 1
-          example: string
+          description: Noch eine Beschreibung
         dritter name:
           type: string
-          format: char
           minLength: 1
-          example: string
+          description: Die dritte Beschreibung.
       required:
       - ID
       - zweiterName

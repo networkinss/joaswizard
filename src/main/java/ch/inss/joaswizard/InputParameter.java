@@ -20,6 +20,7 @@ public class InputParameter {
     private boolean doInfo = true;
     private boolean doPaths = true;
     private boolean doSchemas = true;
+    private boolean doDefaultSamples = false;
     private final String openCurlyBrace = "{";
     private final String closeCurlyBrace = "}";
 
@@ -256,6 +257,14 @@ public class InputParameter {
 
     public void setDoSchemas(boolean doSchemas) {
         this.doSchemas = doSchemas;
+    }
+
+    public boolean isDoDefaultSamples() {
+        return doDefaultSamples;
+    }
+
+    public void setDoDefaultSamples(boolean doDefaultSamples) {
+        this.doDefaultSamples = doDefaultSamples;
     }
 
     public static enum Method {

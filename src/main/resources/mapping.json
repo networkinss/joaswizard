@@ -8,7 +8,7 @@
   {
     "dbtype": "CHAR",
     "oastype": "string",
-    "oasformat": "string",
+    "oasformat": "",
     "oaspattern": ""
   },
   {
@@ -19,14 +19,14 @@
   },
   {
     "dbtype": "SMALLINT",
-    "oastype": "number",
+    "oastype": "integer",
     "oasformat": "int32",
     "oaspattern": ""
   },
   {
     "dbtype": "VARCHAR",
     "oastype": "string",
-    "oasformat": "string",
+    "oasformat": "",
     "oaspattern": ""
   },
   {
@@ -37,7 +37,7 @@
   },
   {
     "dbtype": "INTEGER",
-    "oastype": "number",
+    "oastype": "integer",
     "oasformat": "int64",
     "oaspattern": ""
   }]
