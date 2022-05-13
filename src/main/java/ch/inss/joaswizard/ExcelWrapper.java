@@ -41,6 +41,7 @@ public class ExcelWrapper {
     }
 
     private HashMap<String, List<Map<String, String>>> readExcel(InputStream fileStream) {
+        if(fileStream == null) return null;
         HashMap<String, List<Map<String, String>>> map = new HashMap<>();
         try {
             final XSSFWorkbook workbook = new XSSFWorkbook(fileStream);

@@ -136,6 +136,7 @@ public class Joaswizard implements Constants {
     public boolean createFromExcel(InputParameter input) {
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(input.getInputFile());
+        if(integerListHashMap == null) return false;
         input.setSourceType(InputParameter.Sourcetype.EXCEL);
         List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, input);
         String paths = this.createMethodsFromList(inputParameterList);
@@ -346,9 +347,13 @@ public class Joaswizard implements Constants {
                     type = mappingMap.get(Header.OASTYPE.toString());
                 }
             }
-            if ((type == null || type.equals("")) && sampleValue != null) {
-                type = (Util.isNumber(sampleValue) ? "number" : "string");
-            } else {
+            if ((type == null || type.equals("")) ) {
+                if(sampleValue != null){
+                    type = (Util.isNumber(sampleValue) ? "number" : "string");
+                }else{
+                    type = "string";
+                }
+            } else if(type != null){
                 type = type.trim().toLowerCase();
                 if (Arrays.asList(DATATYPELIST).contains(type) == false) {
                     logger.warning("Type not valid: " + type + ". Change type to string.");
