@@ -1,17 +1,12 @@
 package ch.inss.joaswizard;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Scanner;
-import java.util.logging.*;
-
-import static java.lang.System.currentTimeMillis;
-import static java.lang.System.in;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main implements Constants {
     private static Logger logger = null;
@@ -143,8 +138,11 @@ public class Main implements Constants {
         } else {
             ok = joaswizard.createMethodsFromSingleYamlObject(inputParameter);
         }
-        if(ok)        logger.info("Created openapi file in output/" + inputParameter.getOutputFile());
-        logger.info("Created openapi file in output/" + inputParameter.getOutputFile());
+        if(ok)  {
+            logger.info("Created openapi file in output/" + inputParameter.getOutputFile());
+        }else{
+            logger.info("An error occurred, could not create file ." + inputParameter.getOutputFile());
+        }
     }
 
     public static void createOpenApiFromYamlfile(String[] args) {
