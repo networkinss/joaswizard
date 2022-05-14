@@ -57,7 +57,7 @@ public class Main implements Constants {
             output = args[1];
         }
         if (output.equals("")) output = "openapi.yaml";
-        output = ".." + sep + output;
+        output = "." + sep + output;
 
         if (args.length < 3) {
             logger.info("Please enter the name of the resource (objectname). Like e.g. 'pet'.");

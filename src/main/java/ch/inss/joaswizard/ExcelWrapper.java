@@ -16,11 +16,12 @@ import java.util.logging.Formatter;
 import static org.apache.poi.ss.usermodel.Cell.*;
 
 public class ExcelWrapper {
+    
     private static Logger logger = null;
 
     public ExcelWrapper() {
         logger = Logger.getLogger(ExcelWrapper.class.getName());
-        for (Handler handler : logger.getHandlers()) {  logger.removeHandler(handler);}
+        for (Handler handler : logger.getHandlers()) {logger.removeHandler(handler);}
         logger.addHandler(Main.consoleHandler);
         logger.setLevel(Level.FINE);
         logger.setUseParentHandlers(false);

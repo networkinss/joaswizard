@@ -33,9 +33,9 @@ public class Joaswizard implements Constants {
         logger.info("Starting create crud file.");
         String resultSchema = this.createCrud(inputParameter);
         if (ERROR.equals(resultSchema)) return false;
-        boolean ok = Util.writeStringToData(Constants.OUTPUT_FOLDER, resultSchema, inputParameter.getOutputFile());
+        boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, resultSchema, inputParameter.getOutputFile());
         if (ok == false) {
-            logger.severe("Could not write file " + Constants.OUTPUT_FOLDER + inputParameter.getOutputFile());
+            logger.severe("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
         }
         return ok;
     }
@@ -158,11 +158,11 @@ public class Joaswizard implements Constants {
         String components = this.createComponentsSchemas();
 
         String result = info + paths + components + objects;
-        boolean ok = Util.writeStringToData(Constants.OUTPUT_FOLDER, result, input.getOutputFile());
+        boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, input.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
         } else {
-            logger.severe("Could not write file " + Constants.OUTPUT_FOLDER + input.getOutputFile());
+            logger.severe("Could not write file " + Constants.CURRENT_FOLDER + input.getOutputFile());
         }
         return ok;
     }
@@ -180,11 +180,11 @@ public class Joaswizard implements Constants {
         String info = this.createInfo(input);
         String components = this.createComponentsSchemas();
         String result = info + oasPaths + components + objects;
-        boolean ok = Util.writeStringToData(Constants.OUTPUT_FOLDER, result, input.getOutputFile());
+        boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, input.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
         } else {
-            logger.severe("Could not write file " + Constants.OUTPUT_FOLDER + input.getOutputFile());
+            logger.severe("Could not write file " + Constants.CURRENT_FOLDER + input.getOutputFile());
         }
         return ok;
     }
@@ -333,7 +333,7 @@ public class Joaswizard implements Constants {
             String type = null;
             if (sheetCIMap.containsKey(Header.OASTYPE)) type = sheetCIMap.get(Header.OASTYPE);
             if (key.equals(UNDEFINED) && (sampleValue == null || sampleValue.equals("") && (type == null || type.equals("")))) {
-                logger.warning("Not enough data to build an OAS3 schema object (at index: " + idx + ").");
+                logger.warning("Not enough data to build an OAS3 schema object (at line: " + idx + ").");
                 continue;
             }
 

@@ -11,7 +11,7 @@ public class Sample {
     public void createOpenApiFromYaml() {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setInputFile("./pet.yml");
-        inputParameter.setOutputFile("openapi_fromyaml.yaml");
+        inputParameter.setOutputFile("output/openapi_fromyaml.yaml");
         inputParameter.setResource("pet");
         inputParameter.setResourceId("id");
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
@@ -23,7 +23,7 @@ public class Sample {
     public void createOpenApiFromExcel() {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setInputFile("./objectimport.xlsx");
-        inputParameter.setOutputFile("openapi_fromexcel.yaml");
+        inputParameter.setOutputFile("output/openapi_fromexcel.yaml");
 //        inputParameter.setResource("pet");
         inputParameter.setResourceId("id");
         /* Define the input to come from an Excel file. */

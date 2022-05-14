@@ -34,7 +34,7 @@ public class Util implements Constants {
 //    }
 
     static boolean writeStringToData(String userFolder, String data, String file) {
-        if (userFolder == null) userFolder = OUTPUT_FOLDER;
+        if (userFolder == null) userFolder = ".";
         if (file == null) file = DEFAULT_OUTPUT_FILE;
         File folder = new File(userFolder);
         if (folder.mkdirs() == false && folder.isDirectory() == false) {
@@ -44,7 +44,7 @@ public class Util implements Constants {
         BufferedOutputStream bos = null;
 
         try {
-            fos = new FileOutputStream(folder + S + file);
+            fos = new FileOutputStream(folder + sep + file);
             bos = new BufferedOutputStream(fos);
             byte[] bytes = data.getBytes();
             bos.write(bytes);
