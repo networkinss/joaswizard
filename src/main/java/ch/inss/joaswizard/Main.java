@@ -151,7 +151,7 @@ public class Main implements Constants {
         logger.info("Start to create OpenAPi from arguments.");
         if (args.length < 3) {
             logger.info("Need four parameter.");
-            logger.info("Usage: <inputfile> <outpufile> <resource> <Idfield>");
+            logger.info(          "Parameters are <input.yaml> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>");
             System.exit(1);
         }
         InputParameter inputParameter = new InputParameter();

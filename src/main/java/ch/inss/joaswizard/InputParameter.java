@@ -75,10 +75,10 @@ public class InputParameter {
     }
 
     public void setCrud() {
-        this.addMethod(Method.GET);
-        this.addMethod(Method.PUT);
-        this.addMethod(Method.POST);
-        this.addMethod(Method.DELETE);
+        this.methods.add(Method.GET);
+        this.methods.add(Method.PUT);
+        this.methods.add(Method.POST);
+        this.methods.add(Method.DELETE);
     }
 
     public boolean isGet() {

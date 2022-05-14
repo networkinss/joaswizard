@@ -31,7 +31,11 @@ public class Joaswizard implements Constants {
      */
     public boolean createCrudFile(InputParameter inputParameter) {
         logger.info("Starting create crud file.");
+        inputParameter.addMethod(InputParameter.Method.CRUD);
         String resultSchema = this.createCrud(inputParameter);
+        
+        
+        
         if (ERROR.equals(resultSchema)) return false;
         boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, resultSchema, inputParameter.getOutputFile());
         if (ok == false) {
@@ -172,14 +176,8 @@ public class Joaswizard implements Constants {
      * Returns if an error ocrrued or not.
      */
     public boolean createMethodsFromSingleYamlObject(InputParameter input) {
-        String oasPaths = this.createMethods(input);
-        StringBuilder objects = new StringBuilder();
-        String schema = this.createSchemaObjects(input);
-        if (ERROR.equals(schema)) return false;
-        objects.append(schema).append(nexLine);
-        String info = this.createInfo(input);
-        String components = this.createComponentsSchemas();
-        String result = info + oasPaths + components + objects;
+        String result = fullDocument(input);
+        if (result == null) return false;
         boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, input.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
@@ -187,6 +185,18 @@ public class Joaswizard implements Constants {
             logger.severe("Could not write file " + Constants.CURRENT_FOLDER + input.getOutputFile());
         }
         return ok;
+    }
+
+    private String fullDocument(InputParameter input) {
+        String oasPaths = this.createMethods(input);
+        StringBuilder objects = new StringBuilder();
+        String schema = this.createSchemaObjects(input);
+        if (ERROR.equals(schema)) return null;
+        objects.append(schema).append(nexLine);
+        String info = this.createInfo(input);
+        String components = this.createComponentsSchemas();
+        String result = info + oasPaths + components + objects;
+        return result;
     }
 
     private String fromGetTemplate(InputParameter inputParameter) {
@@ -242,9 +252,12 @@ public class Joaswizard implements Constants {
                 System.exit(1);
             }
         }
+        
         logger.fine(inputParameter.toString());
         Handlebars mf = new Handlebars();
         String result = null;
+//        return this.fullDocument(inputParameter);  //TODO use other templates.
+        
         try {
             Template template = mf.compile(fullCrudTemplate);
             /** Read input data sample. */
