@@ -9,6 +9,17 @@ Only with that information will Jo as wizard create a complete OpenAPi specifica
 * Object schemas.
 * Default info section
 
+First aim is to create a complete OpenAPI specification with a minimum of data. 
+All you need is a file with a content like:
+```
+name: Underdog  
+price: 12.05  
+status: "available"  
+tags: [ dog,4paws ]  
+```
+and you will be able to create a full OAS3 document with one execution and a few parameters.  
+Second aim is to generate mass data from Excel files.  
+
 Repository: https://github.com/networkinss/joaswizard.  
 This project is inspired by https://github.com/isa-group/oas-wizard.  
 It is a complete re-write in Java instead of Node.js and a lot of extensions.  
@@ -30,7 +41,7 @@ Implemented features:
 * Create OpenAPI document with defined list of methods.
 * Create OpenAPI document from a Yaml object file.
 * Create OpenAPI document from a Yaml object string.
-* Create OpenAPI document from several Excel sheets.
+* Create OpenAPI document from an Excel workbook with several sheets, each representing one object.
 
 Missing:  
 Parameter to use custom Handlebar template files.
@@ -47,7 +58,7 @@ Add dependency to pom.xml.
 <dependency>     
     <groupId>ch.inss.joaswizard</groupId>     
     <artifactId>joaswizard</artifactId>   
-    <version>0.2.3</version>   
+    <version>0.9.0</version>   
 </dependency>  
 ```
 
