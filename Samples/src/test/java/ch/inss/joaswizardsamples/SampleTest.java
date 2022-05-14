@@ -64,14 +64,14 @@ public class SampleTest extends TestCase {
     public void testCreateOpenApiFromArguments() throws Exception{
         Sample sample = new Sample();
         String output = "output" + sep + "openapi_fromparameters.yaml";
-        sample.createOpenApiFromArguments(new String[]{"./pet.yml", output, "pet", "name","yamlfile","delete,post,patch"});
+        sample.createOpenApiFromArguments(new String[]{"./pet.yml", output, "pet", "name","yamlfile","crud,patch"});
 
         File file1 = new File(output);
         assertTrue(file1.isFile());
 
         final List<String> list = new ArrayList<>();
-        list.add("operationId: getPets");
-        list.add("description: deletes a single pet based on the name");
+        list.add("operationId: addPet");
+        list.add("description: Patches a pet based on its name");
         list.add("example: Underdog");
         try (Stream<String> lines = Files.lines(Paths.get(output))) {
             Stream<String> f = lines.filter(l -> list.contains(l.trim()));

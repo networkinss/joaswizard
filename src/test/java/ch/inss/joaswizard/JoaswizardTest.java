@@ -33,13 +33,8 @@ class JoaswizardTest implements Constants {
     private final String outputSingleYamlObject = output + "testOutputSingleYamlObject.yml";
     private final String outputCrudSingleYamlObject = output + "testOutputCrudSingleYamlObject.yml";
     
-//    private final String referenceContact = "src/test/resources/testReferenceContact.yml";
-//    private final String referencePet = "src/test/resources/testReferencePet.yml";
-    private final String referenceString = "src/test/resources/testReferenceString.yml";
-
     private static Joaswizard jo = new Joaswizard();
     private static boolean cleanUp = true;
-
 
     @Test
     @Order(1)
@@ -55,7 +50,7 @@ class JoaswizardTest implements Constants {
             assertEquals(6.0, x);
         }
 
-        File file1 = new File(output + outputContact);
+        File file1 = new File( outputContact);
         if (cleanUp) {
             file1.delete();
             assertTrue(file1.isFile() == false);
@@ -145,7 +140,7 @@ class JoaswizardTest implements Constants {
         jo.createCrudFile(inputParameter);
 
         File file1 = new File( outputString);
-        File file2 = new File(referenceString);
+        File file2 = new File( "src/test/resources/testReferenceString.yml");
         assertTrue(file1.isFile());
 
         final List<String> list = new ArrayList<>();

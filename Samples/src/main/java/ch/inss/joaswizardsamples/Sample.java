@@ -40,25 +40,11 @@ public class Sample {
         System.out.println("Start to create OpenAPi from arguments.");
         if (args.length < 3) {
             System.out.println("Need four parameter.");
-            System.out.println("Usage: <inputfile> <outpufile> <resource> <Idfield>");
+            System.out.println("Parameters are <input.yaml> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>");
+            System.out.println("Check README.md for more details.");
             System.exit(1);
         }
-        InputParameter inputParameter = new InputParameter();
-        inputParameter.setInputFile(args[0]);
-        inputParameter.setOutputFile(args[1]);
-        inputParameter.setResource(args[2]);
-        if (args.length >= 4) {
-            inputParameter.setResourceId(args[3]);
-        } else {
-            inputParameter.setResourceId("id");
-        }
+        ch.inss.joaswizard.Main.main(args);
 
-        if (args.length >= 5) {
-            inputParameter.setSourceType(args[4]);
-        } else {
-            inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
-        }
-        Joaswizard joaswizard = new Joaswizard();
-        joaswizard.createCrudFile(inputParameter);
     }
 }

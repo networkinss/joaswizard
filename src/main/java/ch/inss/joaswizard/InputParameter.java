@@ -62,7 +62,11 @@ public class InputParameter {
         String[] arr = m.split(",");
         for (String method : arr) {
             Method met = Method.valueOf(method.toUpperCase());
-            this.methods.add(met);
+            if(met == Method.CRUD){
+                this.setCrud();
+            }else{
+                this.methods.add(met);
+            }
         }
     }
 

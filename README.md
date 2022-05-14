@@ -62,7 +62,7 @@ Jo as wizard needs three arguments.
 Sample is in src/test/resources/Contact.yml  
 <output.yaml> is the name of the output file.  
 <objectname> is the name of the object which you defined in the <input.yaml> file.  
-<idfieldname> must be a fieldname used in <input.yaml> file to define which field shall be used as an ID.
+<idfieldname> must be a fieldname used in <input.yaml> file to define which field shall be used as an ID. Will be the path variable for ID requests.
 <sourcetype> is one of yamlfile, excelfile or yamlstring.
 <methods> are all REST methods that shall be used. You can use crud or post, put, get, delete and patch. 
 ```
