@@ -4,7 +4,9 @@ import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -23,18 +25,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JoaswizardTest implements Constants {
 
-    private final String output = "output" + sep;
-    private final String outputPet = output + "testOutputPet.yml";
-    private final String outputContact = output + "testOutputContact.yml";
-    private final String outputString = output + "testOutputString.yml";
-    private final String outputExcel = output + "testOutputExcelsheet.yml";
-    private final String outputMainExcel = output + "testMainExceloutput.yaml";
-    private final String outputMainYaml = output + "testMainYamloutput.yaml";
-    private final String outputSingleYamlObject = output + "testOutputSingleYamlObject.yml";
-    private final String outputCrudSingleYamlObject = output + "testOutputCrudSingleYamlObject.yml";
+    private final static String output = "output" + sep;
+    private final static String outputPet = output + "testOutputPet.yml";
+    private final static String outputContact = output + "testOutputContact.yml";
+    private final static String outputString = output + "testOutputString.yml";
+    private final static String outputExcel = output + "testOutputExcelsheet.yml";
+    private final static String outputMainExcel = output + "testMainExceloutput.yaml";
+    private final static String outputMainYaml = output + "testMainYamloutput.yaml";
+    private final static String outputSingleYamlObject = output + "testOutputSingleYamlObject.yml";
+    private final static String outputCrudSingleYamlObject = output + "testOutputCrudSingleYamlObject.yml";
     
     private static Joaswizard jo = new Joaswizard();
     private static boolean cleanUp = true;
+    
+    @BeforeAll
+    static void initialize(){
+        File outputFolder = new File(output);
+        if(outputFolder.isDirectory() == false){
+            outputFolder.mkdir();
+        }
+    }
 
     @Test
     @Order(1)

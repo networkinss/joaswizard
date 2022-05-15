@@ -34,8 +34,6 @@ public class Joaswizard implements Constants {
         inputParameter.addMethod(InputParameter.Method.CRUD);
         String resultSchema = this.createCrud(inputParameter);
         
-        
-        
         if (ERROR.equals(resultSchema)) return false;
         boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, resultSchema, inputParameter.getOutputFile());
         if (ok == false) {
@@ -231,6 +229,23 @@ public class Joaswizard implements Constants {
             e.printStackTrace();
         }
         return nexLine + result;
+    }
+    
+    /** Gives back an Inputparameter instance with pre-filled default values. */
+    public InputParameter inputMandatory(String input, String sourcetype, String resource){
+        InputParameter in = new InputParameter();
+        in.setCrud();
+        in.setOutputFile(DEFAULT_OUTPUT_FILE);
+        in.setResource(resource);
+        in.setResourceId("ID");
+        if(sourcetype.equals(InputParameter.Sourcetype.YAMLFILE.toString()) || sourcetype.equals(InputParameter.Sourcetype.EXCEL.toString())){
+            in.setInputFile(input);
+        }else if (sourcetype.equals(InputParameter.Sourcetype.YAMLSTRING.toString())  ){
+            in.setSampleYamlData(input);
+        }else if (sourcetype.equals(InputParameter.Sourcetype.YAMLSTRINGBASE64)){
+            in.setSampleYamlBase64(input);
+        }
+        return in;
     }
 
     /**

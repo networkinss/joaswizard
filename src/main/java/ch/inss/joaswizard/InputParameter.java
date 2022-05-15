@@ -325,6 +325,7 @@ public class InputParameter {
     public static enum Sourcetype {
         YAMLFILE,
         EXCEL,
-        YAMLSTRING
+        YAMLSTRING,
+        YAMLSTRINGBASE64
     }
 }

@@ -43,8 +43,9 @@ Implemented features:
 * Create OpenAPI document from a Yaml object string.
 * Create OpenAPI document from an Excel workbook with several sheets, each representing one object.
 
-Missing:  
+Future extensions:
 Parameter to use custom Handlebar template files.
+Include tags for generation.
 
 ## Build
 
@@ -68,28 +69,38 @@ You can use Joaswizard either as a command line tool or as a library.
 
 ### as command line tool
 
-Jo as wizard needs three arguments.  
-<input.yaml> is a file which contains properties in yaml style.    
-Sample is in src/test/resources/Contact.yml  
-<output.yaml> is the name of the output file.  
-<objectname> is the name of the object which you defined in the <input.yaml> file.  
-<idfieldname> must be a fieldname used in <input.yaml> file to define which field shall be used as an ID. Will be the path variable for ID requests.
-<sourcetype> is one of yamlfile, excelfile or yamlstring.
-<methods> are all REST methods that shall be used. You can use crud or post, put, get, delete and patch. 
+Jo as wizard needs several arguments.  
+They have to be provided in the right sequence. If you skip one, Jo will ask for it.   
+Since the sequence is important, you can skip arguments only from right to left.
 ```
 java -jar joaswizard-*.jar <input.yaml> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>
 ```
+* `<input.yaml>` is a file which contains properties in yaml style. A simple sample is in Samples/pet.yml.    
+* `<output.yaml>` is the name of the output file.  
+* `<objectname>` is the name of the object which you defined in the <input.yaml> file.  
+* `<idfieldname>` must be a fieldname used in <input.yaml> file to define which field shall be used as an ID. Will be the path variable for ID requests.
+* `<sourcetype>` is one of yamlfile, excelfile or yamlstring.
+* `<methods>` are all REST methods that shall be used. You can use crud or post, put, get, delete and patch.  
 
-Example:
-You can execute it without parameter. Jo will ask for the parameter.
+
+You can execute it without parameter. Jo will ask for the parameter.  
 `java -jar joaswizard-*.jar`
-Or with all parameter. Jo will ask for skipped parameters, if any.
-`java -jar joaswizard-*.jar sample.yaml petsample.yaml pet name yamlfile delete,post,patch`
+
+### Samples for commandline 
+
+With all parameters. Jo would ask for skipped parameters, if any.  
+`java -jar joaswizard-*.jar Samples/pet.yml openapipet.yaml pet name yamlfile delete,post,patch`
+
+
 
 ### as a library
 
 Simply define an object of the class InputParameter.  
 Use any of the public methods of the class Joaswizard.
+
+### Samples for library
+
+You find samples how to use Jo as a library in the folder Samples.  
 
 ### Input data
 
