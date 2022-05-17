@@ -49,7 +49,7 @@ Include tags for generation.
 
 ## Build
 
-It is a normal Maven project. You will need Java SDK 11 and Maven to build it.  
+It is a normal Java Maven project. You will need Java SDK 11 and Maven to build it.  
 `mvn clean install`
 
 ## Maven Integration

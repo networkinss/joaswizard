@@ -1,7 +1,6 @@
 package ch.inss.joaswizard;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFName;
@@ -11,9 +10,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
-import java.util.logging.Formatter;
-
-import static org.apache.poi.ss.usermodel.Cell.*;
 
 public class ExcelWrapper {
     
@@ -38,11 +34,11 @@ public class ExcelWrapper {
             logger.severe(e.getLocalizedMessage());
             logger.severe("Parse excel failed. Filename: " + initialFile.getAbsolutePath());
         }
-        return this.readExcel(fileStream);
+        return this.readExcelStream(fileStream);
     }
 
-    private HashMap<String, List<Map<String, String>>> readExcel(InputStream fileStream) {
-        if(fileStream == null) return null;
+    public HashMap<String, List<Map<String, String>>> readExcelStream(InputStream fileStream) {
+        if (fileStream == null) return null;
         HashMap<String, List<Map<String, String>>> map = new HashMap<>();
         try {
             final XSSFWorkbook workbook = new XSSFWorkbook(fileStream);

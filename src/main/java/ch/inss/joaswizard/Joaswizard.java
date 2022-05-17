@@ -5,6 +5,7 @@ import com.github.jknack.handlebars.Template;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.logging.*;
 
@@ -135,10 +136,20 @@ public class Joaswizard implements Constants {
         return result;
     }
 
+    public boolean createFromExcelInputstream(InputParameter inputParameter, InputStream inputStream) {
+        ExcelWrapper excelWrapper = new ExcelWrapper();
+        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelStream(inputStream);
+        return createExcel(integerListHashMap, inputParameter);
+    }
+
     public boolean createFromExcel(InputParameter input) {
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(input.getInputFile());
-        if(integerListHashMap == null) return false;
+        return createExcel(integerListHashMap, input);
+    }
+
+    private boolean createExcel(HashMap<String, List<Map<String, String>>> integerListHashMap, InputParameter input) {
+        if (integerListHashMap == null) return false;
         input.setSourceType(InputParameter.Sourcetype.EXCEL);
         List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, input);
         String paths = this.createMethodsFromList(inputParameterList);
@@ -416,7 +427,9 @@ public class Joaswizard implements Constants {
 //                }
             }
             if (format != null) {
-                if ((type.equalsIgnoreCase("number") || type.equalsIgnoreCase("integer")) && format.equalsIgnoreCase("string")) {
+                if (((type.equalsIgnoreCase("number") || type.equalsIgnoreCase("integer")) && format.equalsIgnoreCase("string"))
+                        || (type.equalsIgnoreCase("number") && (format.equalsIgnoreCase("int32") || format.equalsIgnoreCase("int64")))
+                        || (type.equalsIgnoreCase("integer") && (format.equalsIgnoreCase("flaot") || format.equalsIgnoreCase("double")))) {
                     logger.warning("Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);
                     propertyData.setFormat(null);
                 } else propertyData.setFormat(format.trim());
