@@ -55,6 +55,12 @@ public class InputParameter {
         return methods;
     }
 
+    public void setMedhodList(List<String> list) {
+        for (String a : list) {
+            this.addMethod(a);
+        }
+    }
+
     /**
      * You can add one or more methods separated by ",".
      */
@@ -62,7 +68,7 @@ public class InputParameter {
         String[] arr = m.split(",");
         for (String method : arr) {
             Method met = Method.valueOf(method.toUpperCase());
-            if(met == Method.CRUD){
+            if (met == Method.CRUD) {
                 this.setCrud();
             }else{
                 this.methods.add(met);
