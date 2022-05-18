@@ -9,10 +9,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main implements Constants {
+
     private static Logger logger = null;
     public static ConsoleHandler consoleHandler = new ConsoleHandler();
     static {
-        
         consoleHandler.setLevel(Level.ALL);
         Formatter formatter = new LogFormatter();
         consoleHandler.setFormatter(formatter);
