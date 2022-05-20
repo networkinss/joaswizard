@@ -31,15 +31,13 @@ public class Joaswizard implements Constants {
      * Create all CRUD operations for one object and stores it in a file..
      */
     public boolean createCrudFile(InputParameter inputParameter) {
-        logger.info("Starting create crud file.");
+        logger.info("Jo starts to create crud file.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
         String resultSchema = this.createCrud(inputParameter);
-        
         if (ERROR.equals(resultSchema)) return false;
         boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, resultSchema, inputParameter.getOutputFile());
-        if (ok == false) {
-            logger.severe("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
-        }
+        if (ok) logger.info("Jo finished creating OAS3 crud file.");
+        else logger.severe("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
         return ok;
     }
 
@@ -241,19 +239,21 @@ public class Joaswizard implements Constants {
         }
         return nexLine + result;
     }
-    
-    /** Gives back an Inputparameter instance with pre-filled default values. */
-    public InputParameter inputMandatory(String input, String sourcetype, String resource){
+
+    /**
+     * Gives back an Inputparameter instance with pre-filled default values.
+     */
+    public InputParameter inputMandatory(String input, String sourcetype, String resource) {
         InputParameter in = new InputParameter();
         in.setCrud();
         in.setOutputFile(DEFAULT_OUTPUT_FILE);
         in.setResource(resource);
         in.setResourceId("ID");
-        if(sourcetype.equals(InputParameter.Sourcetype.YAMLFILE.toString()) || sourcetype.equals(InputParameter.Sourcetype.EXCEL.toString())){
+        if (sourcetype.equals(InputParameter.Sourcetype.YAMLFILE.toString()) || sourcetype.equals(InputParameter.Sourcetype.EXCEL.toString())) {
             in.setInputFile(input);
-        }else if (sourcetype.equals(InputParameter.Sourcetype.YAMLSTRING.toString())  ){
+        } else if (sourcetype.equals(InputParameter.Sourcetype.YAMLSTRING.toString())) {
             in.setSampleYamlData(input);
-        }else if (sourcetype.equals(InputParameter.Sourcetype.YAMLSTRINGBASE64)){
+        } else if (sourcetype.equals(InputParameter.Sourcetype.YAMLSTRINGBASE64)) {
             in.setSampleYamlBase64(input);
         }
         return in;
@@ -278,12 +278,12 @@ public class Joaswizard implements Constants {
                 System.exit(1);
             }
         }
-        
+
         logger.fine(inputParameter.toString());
         Handlebars mf = new Handlebars();
         String result = null;
 //        return this.fullDocument(inputParameter);  //TODO use other templates.
-        
+
         try {
             Template template = mf.compile(fullCrudTemplate);
             /** Read input data sample. */
@@ -361,6 +361,7 @@ public class Joaswizard implements Constants {
         if (jsonMappingMap == null) {
             jsonMappingMap = new CaseInsensitiveMap<>();
         }
+        String prefix = "Sheet " + inputParameter.getResource() + ": ";
         /** Define each property of one object. */
         for (Map<String, String> sheetMap : mapList) {
             CaseInsensitiveMap<String, String> sheetCIMap = new CaseInsensitiveMap(sheetMap);
@@ -372,7 +373,7 @@ public class Joaswizard implements Constants {
             String type = null;
             if (sheetCIMap.containsKey(Header.OASTYPE)) type = sheetCIMap.get(Header.OASTYPE);
             if (key.equals(UNDEFINED) && (sampleValue == null || sampleValue.equals("") && (type == null || type.equals("")))) {
-                logger.warning("Not enough data to build an OAS3 schema object (at line: " + idx + ").");
+                logger.warning(prefix + "Empty row or not enough data to build an OAS3 schema object (at line: " + idx + ").");
                 continue;
             }
 
@@ -386,16 +387,16 @@ public class Joaswizard implements Constants {
                     type = mappingMap.get(Header.OASTYPE.toString());
                 }
             }
-            if ((type == null || type.equals("")) ) {
-                if(sampleValue != null){
+            if ((type == null || type.equals(""))) {
+                if (sampleValue != null) {
                     type = (Util.isNumber(sampleValue) ? "number" : "string");
-                }else{
+                } else {
                     type = "string";
                 }
-            } else if(type != null){
+            } else if (type != null) {
                 type = type.trim().toLowerCase();
                 if (Arrays.asList(DATATYPELIST).contains(type) == false) {
-                    logger.warning("Type not valid: " + type + ". Change type to string.");
+                    logger.warning(prefix + "Type not valid: " + type + ". Jo changes type to string.");
                     type = "string";
                 }
             }
@@ -404,7 +405,7 @@ public class Joaswizard implements Constants {
 
             /* Define example values even if not defined. */
             if ((sampleValue == null || "".equals(sampleValue))) {
-                if(inputParameter.isDoDefaultSamples()) {
+                if (inputParameter.isDoDefaultSamples()) {
                     if (type.equals("string")) sampleValue = "string";
                     else if (type.equals("integer")) sampleValue = "1";
                     else if (type.equals("number")) sampleValue = "1.0";
@@ -412,7 +413,7 @@ public class Joaswizard implements Constants {
             } else {
                 sampleValue = sampleValue.trim();
             }
-            if (sampleValue!=null) {
+            if (sampleValue != null) {
                 if (sampleValue.equals("")) propertyData.setExamplevalue(null);
                 else propertyData.setExamplevalue(sampleValue);
             }
@@ -430,7 +431,7 @@ public class Joaswizard implements Constants {
                 if (((type.equalsIgnoreCase("number") || type.equalsIgnoreCase("integer")) && format.equalsIgnoreCase("string"))
                         || (type.equalsIgnoreCase("number") && (format.equalsIgnoreCase("int32") || format.equalsIgnoreCase("int64")))
                         || (type.equalsIgnoreCase("integer") && (format.equalsIgnoreCase("flaot") || format.equalsIgnoreCase("double")))) {
-                    logger.warning("Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);
+                    logger.warning(prefix + "Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);
                     propertyData.setFormat(null);
                 } else propertyData.setFormat(format.trim());
             }
@@ -465,7 +466,7 @@ public class Joaswizard implements Constants {
             if (Util.isNumber(max)) {
                 propertyData.setMaxLength(Integer.parseInt(max));
             } else if (max != null && max.equals("") == false) {
-                logger.warning("Value for maxLength is not a number: " + max);
+                logger.warning(prefix + "Value for maxLength is not a number: " + max);
             }
             list.add(propertyData);
         }
