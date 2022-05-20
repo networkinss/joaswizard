@@ -442,7 +442,10 @@ public class Joaswizard implements Constants {
             } else if (!Util.isNumber(sampleValue)) {
                 propertyData.setMinlength(1);
             }
-            propertyData.setDescriptionApostrophe(sheetCIMap.get(Header.OASDESCRIPTION));
+            if (sheetCIMap.get(Header.OASDESCRIPTION) != null && sheetCIMap.get(Header.OASDESCRIPTION).equals("") == false) {
+                propertyData.setDescriptionApostrophe(sheetCIMap.get(Header.OASDESCRIPTION));
+            }
+
 
             propertyData.setPattern(sheetCIMap.get(Header.OASPATTERN.toString()));
             if (sheetCIMap.containsKey(Header.OASREQUIRED)) {

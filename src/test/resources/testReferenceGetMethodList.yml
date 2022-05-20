@@ -287,7 +287,6 @@ components:
           type: string
           format: string
           example: eins
-          description: ''
         two:
           type: string
           format: byte
@@ -302,7 +301,6 @@ components:
           type: boolean
           format: boolean
           example: true
-          description: ''
         five:
           type: string
           format: date
