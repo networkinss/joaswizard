@@ -258,19 +258,19 @@ components:
           format: int32
           maxLength: 14
           example: 1
-          description: signed 32 bit
+          description: 'signed 32 bit'
         amount:
           type: integer
           format: int64
           maxLength: 3
           example: 2
-          description: signed 64 bit (a.k.a long)
+          description: 'signed 64 bit (a.k.a long)'
         price:
           type: number
           format: float
           maxLength: 4
           example: 1.0
-          description: A float sample
+          description: 'A float sample'
         option:
           type: number
           enum:
@@ -279,45 +279,47 @@ components:
           - 5.0
           - 8.0
           example: 2.0
-          description: An enum example.
+          description: 'An enum example.'
         sometext:
           type: string
-          description: An example of a definition of the type via the database type. The file mapping.json contains the mapping. If none is available, an internal default is used.
+          description: 'An example of a definition of the type via the database type. The file mapping.json contains the mapping. If none is available, an internal default is used.'
         one:
           type: string
           format: string
           example: eins
+          description: ''
         two:
           type: string
           format: byte
           example: byte
-          description: base64 encoded characters
+          description: 'base64 encoded characters'
         three:
           type: string
           format: binary
           example: binary
-          description: any sequence of octets
+          description: 'any sequence of octets'
         four:
           type: boolean
           format: boolean
           example: true
+          description: ''
         five:
           type: string
           format: date
           pattern: yyyy-mm-dd
           maxLength: 10
           example: 1998-12-31
-          description: As defined by full-date - RFC3339
+          description: 'As defined by full-date - RFC3339'
         six:
           type: string
           format: date-time
           example: 2019-10-12T07:20:50.52Z
-          description: As defined by date-time - RFC3339
+          description: 'As defined by date-time - RFC3339'
         seven:
           type: string
           format: password
           example: asecret
-          description: A hint to UIs to obscure input.
+          description: 'A hint to UIs to obscure input.'
         eight:
           type: string
           enum:
@@ -325,38 +327,38 @@ components:
           - No
           - '0'
           example: Yes
-          description: An enum example.
+          description: 'An enum example.'
         nine:
           type: string
           format: date-time
           minLength: 6
-          description: These types from DBDatatype must be mapped in the mapping.json. Oastype would overwrite it if not empty.
+          description: 'These types from DBDatatype must be mapped in the mapping.json. Oastype would overwrite it if not empty.'
         ten:
           type: string
           minLength: 1
-          description: Database type CHAR
+          description: 'Database type CHAR'
         eleven:
           type: string
           format: date
           minLength: 6
-          description: Database type DATE
+          description: 'Database type DATE'
         twelve:
           type: integer
           format: int32
           minLength: 1
-          description: Database type SMALLINT
+          description: 'Database type SMALLINT'
         thirteen:
           type: string
           minLength: 1
-          description: Database type VARCHAR
+          description: 'Database type VARCHAR'
         fourteen:
           type: number
           format: double
-          description: Database type DECIMAL
+          description: 'Database type DECIMAL'
         fifteen:
           type: integer
           format: int64
-          description: Database type INTEGER
+          description: 'Database type INTEGER'
       required:
       - ID
       - amount
@@ -373,15 +375,15 @@ components:
         id:
           type: integer
           minLength: 1
-          description: Die Beschreibung
+          description: 'Die Beschreibung'
         zweitername3:
           type: string
           minLength: 1
-          description: Noch eine Beschreibung
+          description: 'Noch eine Beschreibung'
         dritter name3:
           type: string
           minLength: 1
-          description: Die dritte Beschreibung.
+          description: 'Die dritte Beschreibung.'
       required:
       - ID
       - zweiterName3
@@ -391,15 +393,15 @@ components:
         id:
           type: integer
           minLength: 1
-          description: Die Beschreibung
+          description: 'Die Beschreibung'
         zweitername:
           type: string
           minLength: 1
-          description: Noch eine Beschreibung
+          description: 'Noch eine Beschreibung'
         dritter name:
           type: string
           minLength: 1
-          description: Die dritte Beschreibung.
+          description: 'Die dritte Beschreibung.'
       required:
       - ID
       - zweiterName

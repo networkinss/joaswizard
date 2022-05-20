@@ -13,7 +13,7 @@ public interface Constants {
     String schemaTemplate = "schema.yaml";
     String componentsErrorTemplate = "componentsErrorModel.yaml";
     String infoTemplate = "info.yaml";
-    
+    String DEFAULT_MAPPING = "mapping.json";
     
     String OBJECTNAME = "objectName";
     String[] DATATYPELIST = {"integer","number","string","boolean"};

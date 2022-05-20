@@ -357,7 +357,7 @@ public class Joaswizard implements Constants {
         List<PropertyData> list = new ArrayList<>();
         int idx = 0;
         /* If not in OasType field defined, it will try to take the type from the column DbType. */
-        HashMap<String, HashMap<String, String>> jsonMappingMap = Util.getJsonAsMap("mapping.json");
+        HashMap<String, HashMap<String, String>> jsonMappingMap = Util.getJsonAsMap(DEFAULT_MAPPING);
         if (jsonMappingMap == null) {
             jsonMappingMap = new HashMap<>();
         }
@@ -442,7 +442,7 @@ public class Joaswizard implements Constants {
             } else if (!Util.isNumber(sampleValue)) {
                 propertyData.setMinlength(1);
             }
-            propertyData.setDescription(sheetCIMap.get(Header.OASDESCRIPTION));
+            propertyData.setDescriptionApostrophe(sheetCIMap.get(Header.OASDESCRIPTION));
 
             propertyData.setPattern(sheetCIMap.get(Header.OASPATTERN.toString()));
             if (sheetCIMap.containsKey(Header.OASREQUIRED)) {

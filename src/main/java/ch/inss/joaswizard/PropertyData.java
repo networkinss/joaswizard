@@ -81,6 +81,10 @@ public class PropertyData {
         this.description = description;
     }
 
+    public void setDescriptionApostrophe(String description) {
+        this.description = "'" + description + "'";
+    }
+
     public String getType() {
         return type;
     }
