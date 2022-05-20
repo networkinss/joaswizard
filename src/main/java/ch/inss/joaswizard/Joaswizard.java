@@ -442,8 +442,14 @@ public class Joaswizard implements Constants {
             } else if (!Util.isNumber(sampleValue)) {
                 propertyData.setMinlength(1);
             }
-            if (sheetCIMap.get(Header.OASDESCRIPTION) != null && sheetCIMap.get(Header.OASDESCRIPTION).equals("") == false) {
-                propertyData.setDescriptionApostrophe(sheetCIMap.get(Header.OASDESCRIPTION));
+            String oasDescription = sheetCIMap.get(Header.OASDESCRIPTION);
+            oasDescription = "Keine Description wit ' oder \" .";
+            if (oasDescription != null && oasDescription.isEmpty() == false && oasDescription.isBlank() == false) {
+                //Do some cleanup otherwise it would invalidate the OAS3.
+                oasDescription = oasDescription.replace('\'', ' ');
+                oasDescription = oasDescription.replace('"', ' ');
+
+                propertyData.setDescriptionApostrophe(oasDescription);
             }
 
 
