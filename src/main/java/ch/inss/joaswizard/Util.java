@@ -1,5 +1,6 @@
 package ch.inss.joaswizard;
 
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -118,17 +119,19 @@ public class Util implements Constants {
     static boolean isNumber(String str) {
         return str != null && str.matches("[0-9.]+");
     }
-    
-    /** Read a json file and returns a map with maps. */
-    static HashMap<String, HashMap<String, String>> getJsonAsMap(String jsonFile){
-        final HashMap<String, HashMap<String, String>> resultMap = new HashMap<>();
+
+    /**
+     * Read a json file and returns a map with maps.
+     */
+    static CaseInsensitiveMap<String, HashMap<String, String>> getJsonAsMap(String jsonFile) {
+        final CaseInsensitiveMap<String, HashMap<String, String>> resultMap = new CaseInsensitiveMap<>();
         try {
             String file = readFromFile(jsonFile);
-            if (file == null){
+            if (file == null) {
                 file = new Util().readFromClasspath(jsonFile);
             }
             if (file == null) return null;
-            
+
             JSONParser parser = new JSONParser();
             JSONArray obj = (JSONArray) parser.parse(file);
             Consumer<Object> lambdaExpression = x -> {

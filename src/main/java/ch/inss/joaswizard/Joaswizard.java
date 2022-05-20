@@ -357,9 +357,9 @@ public class Joaswizard implements Constants {
         List<PropertyData> list = new ArrayList<>();
         int idx = 0;
         /* If not in OasType field defined, it will try to take the type from the column DbType. */
-        HashMap<String, HashMap<String, String>> jsonMappingMap = Util.getJsonAsMap(DEFAULT_MAPPING);
+        CaseInsensitiveMap<String, HashMap<String, String>> jsonMappingMap = Util.getJsonAsMap(DEFAULT_MAPPING);
         if (jsonMappingMap == null) {
-            jsonMappingMap = new HashMap<>();
+            jsonMappingMap = new CaseInsensitiveMap<>();
         }
         /** Define each property of one object. */
         for (Map<String, String> sheetMap : mapList) {
@@ -381,7 +381,7 @@ public class Joaswizard implements Constants {
                 String dbtype = sheetCIMap.get(Header.DBTYPE);
                 if (dbtype != null && "".equals(dbtype) == false) {
                     /* Get the mapping hashMap from the mapping map.*/
-                    mappingMap = jsonMappingMap.get(dbtype.toUpperCase());
+                    mappingMap = jsonMappingMap.get(dbtype);
                     if (mappingMap == null) mappingMap = new HashMap<>();
                     type = mappingMap.get(Header.OASTYPE.toString());
                 }

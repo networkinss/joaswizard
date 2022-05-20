@@ -11,19 +11,19 @@ public class Sample {
     public void createOpenApiFromYaml() {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setInputFile("./pet.yml");
-        inputParameter.setOutputFile("output/openapi_fromyaml.yaml");
+        inputParameter.setOutputFile("openapi_fromyaml.yaml");
         inputParameter.setResource("pet");
         inputParameter.setResourceId("id");
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
         Joaswizard joaswizard = new Joaswizard();
         joaswizard.createCrudFile(inputParameter);
-        System.out.println("OpenAPI document created: output/openapi_fromyaml.yaml");
+        System.out.println("OpenAPI document created: openapi_fromyaml.yaml");
         
     }
     public void createOpenApiFromExcel() {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setInputFile("./objectimport.xlsx");
-        inputParameter.setOutputFile("output/openapi_fromexcel.yaml");
+        inputParameter.setOutputFile("openapi_fromexcel.yaml");
 //        inputParameter.setResource("pet");
         inputParameter.setResourceId("id");
         /* Define the input to come from an Excel file. */
@@ -33,7 +33,7 @@ public class Sample {
         /* Process file and generate OpenAPI specification which will be in the output folder. */
         Joaswizard joaswizard = new Joaswizard();
         joaswizard.createFromExcel(inputParameter);
-        System.out.println("OpenAPI document created: output/openapi_fromexcel.yaml");
+        System.out.println("OpenAPI document created: openapi_fromexcel.yaml");
     }
 
     public void createOpenApiFromArguments(String[] args) {

@@ -4,18 +4,19 @@ public class Main {
 
     /** Create OAS3 document with all CRUD operations for one object. */
     public static void main(String[] args) {
-        if (args.length == 0) {
-            help();
-            System.exit(0);
-        }
+//        if (args.length == 0) {
+//            help();
+//            System.exit(0);
+//        }
         Sample sample = new Sample();
-        if (args[0].equals("1") || args[0].equalsIgnoreCase("yaml")){
-            sample.createOpenApiFromYaml();
-        }else if (args[0].equals("2") || args[0].equalsIgnoreCase("excel")){
-            sample.createOpenApiFromExcel();
-        }else{
-            sample.createOpenApiFromArguments(args);
-        }
+        sample.createOpenApiFromExcel();
+//        if (args[0].equals("1") || args[0].equalsIgnoreCase("yaml")){
+//            sample.createOpenApiFromYaml();
+//        }else if (args[0].equals("2") || args[0].equalsIgnoreCase("excel")){
+//            sample.createOpenApiFromExcel();
+//        }else{
+//            sample.createOpenApiFromArguments(args);
+//        }
     }
 
     private static void help() {
