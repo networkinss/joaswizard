@@ -127,7 +127,7 @@ public class Main implements Constants {
         inputParameter.setResource(resource);
         inputParameter.setResourceId(idfield);
         inputParameter.setSourceType(sourcetype);
-        inputParameter.addMethod(methods);
+        inputParameter.addMethods(methods);
 
         Joaswizard joaswizard = new Joaswizard();
         boolean ok = false;

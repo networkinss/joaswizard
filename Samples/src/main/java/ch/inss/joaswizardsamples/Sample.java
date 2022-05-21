@@ -29,7 +29,7 @@ public class Sample {
         /* Define the input to come from an Excel file. */
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
         /* This is not the CRUD method. So define the rest methods you want to get in the OpenAPI document. */
-        inputParameter.addMethod("get");
+        inputParameter.addMethods("get");
         /* Process file and generate OpenAPI specification which will be in the output folder. */
         Joaswizard joaswizard = new Joaswizard();
         joaswizard.createFromExcel(inputParameter);

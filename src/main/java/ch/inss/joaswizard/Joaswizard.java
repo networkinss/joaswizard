@@ -46,6 +46,7 @@ public class Joaswizard implements Constants {
      */
     public String createMethodsFromList(List<InputParameter> list) {
         logger.info("Starting to create methods.");
+        if (list == null || list.isEmpty()) return "{}";
         String result = new String();
         if (list == null || list.isEmpty()) return "Error: no data.";
         for (InputParameter inputParameter : list) {
@@ -62,7 +63,7 @@ public class Joaswizard implements Constants {
         StringBuilder builder = new StringBuilder();
 //        boolean ok1 = inputParameter.isPathIdQuery();  //TODO
 //        boolean ok2 = inputParameter.isAllquery();
-        paths = this.fromGetTemplate(inputParameter);
+        paths = this.fromPathsCrudTemplate(inputParameter);
         builder.append(paths).append(nexLine);
         if (paths != null) {
             logger.info("Processed methods.");
@@ -137,17 +138,27 @@ public class Joaswizard implements Constants {
     public boolean createFromExcelInputstream(InputParameter inputParameter, InputStream inputStream) {
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelStream(inputStream);
-        return createExcel(integerListHashMap, inputParameter);
+        return Boolean.parseBoolean(createExcel(integerListHashMap, inputParameter, WRITETOFILE));
+    }
+
+    public String createExcelInputstreamToString(InputParameter inputParameter, InputStream inputStream) {
+        if (inputStream == null) {
+            logger.severe("File was empty.");
+            return "false";
+        }
+        ExcelWrapper excelWrapper = new ExcelWrapper();
+        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelStream(inputStream);
+        return createExcel(integerListHashMap, inputParameter, WRITETOSTRING);
     }
 
     public boolean createFromExcel(InputParameter input) {
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(input.getInputFile());
-        return createExcel(integerListHashMap, input);
+        return Boolean.parseBoolean(createExcel(integerListHashMap, input, WRITETOFILE));
     }
 
-    private boolean createExcel(HashMap<String, List<Map<String, String>>> integerListHashMap, InputParameter input) {
-        if (integerListHashMap == null) return false;
+    private String createExcel(HashMap<String, List<Map<String, String>>> integerListHashMap, InputParameter input, String action) {
+        if (integerListHashMap == null) return "false";
         input.setSourceType(InputParameter.Sourcetype.EXCEL);
         List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, input);
         String paths = this.createMethodsFromList(inputParameterList);
@@ -159,7 +170,7 @@ public class Joaswizard implements Constants {
         for (InputParameter parameter : inputParameterList) {
             resouces.append(parameter.getResource()).append(", ");
             String result = this.createSchemaObjects(parameter);
-            if (ERROR.equals(result)) return false;
+            if (ERROR.equals(result)) return "false";
             objects.append(result).append(nexLine);
         }
         resouces.delete(resouces.length() - 2, resouces.length());
@@ -169,13 +180,16 @@ public class Joaswizard implements Constants {
         String components = this.createComponentsSchemas();
 
         String result = info + paths + components + objects;
-        boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, input.getOutputFile());
-        if (ok) {
-            logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
-        } else {
-            logger.severe("Could not write file " + Constants.CURRENT_FOLDER + input.getOutputFile());
+        if (action.equals(WRITETOFILE)) {
+            boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, input.getOutputFile());
+            if (ok) {
+                logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
+            } else {
+                logger.severe("Could not write file " + Constants.CURRENT_FOLDER + input.getOutputFile());
+            }
+            return Boolean.valueOf(ok).toString();
         }
-        return ok;
+        return result;
     }
 
     /**
@@ -206,7 +220,7 @@ public class Joaswizard implements Constants {
         return result;
     }
 
-    private String fromGetTemplate(InputParameter inputParameter) {
+    private String fromPathsCrudTemplate(InputParameter inputParameter) {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile("get_" + Constants.DEFAULT_OUTPUT_FILE);
         }

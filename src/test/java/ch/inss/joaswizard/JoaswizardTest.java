@@ -4,7 +4,6 @@ import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
@@ -176,7 +175,7 @@ class JoaswizardTest implements Constants {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
         inputParameter.setResource("pet");
-        inputParameter.addMethod("GET");
+        inputParameter.addMethods("GET");
         inputParameter.setInputFile("src/test/resources/Pet.yml");
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
         List<InputParameter> inputList = new ArrayList<>();
@@ -218,7 +217,7 @@ class JoaswizardTest implements Constants {
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
         inputParameter.setInputFile("src/test/resources/objectimport.xlsx");
         inputParameter.setOutputFile(outputExcel);
-        inputParameter.addMethod("get");
+        inputParameter.addMethods("get");
 
         jo.createFromExcel(inputParameter);
         File file1 = new File( outputExcel);
@@ -241,8 +240,8 @@ class JoaswizardTest implements Constants {
         inputParameter.setInputFile("src/test/resources/Pet.yml");
         inputParameter.setOutputFile(outputSingleYamlObject);
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
-        inputParameter.addMethod("put");
-        inputParameter.addMethod("get");
+        inputParameter.addMethods("put");
+        inputParameter.addMethods("get");
 
         jo.createMethodsFromSingleYamlObject(inputParameter);
         File file1 = new File(outputSingleYamlObject);

@@ -5,7 +5,7 @@
     <groupId>ch.inss.joaswizard.samples</groupId>
     <artifactId>Samples</artifactId>
     <packaging>jar</packaging>
-    <version>0.2.2</version>
+    <version>0.9.2</version>
     <name>Samples for Joaswizard</name>
     <url>http://inss.ch</url>
     <description>Samples for Joaswizard.</description>

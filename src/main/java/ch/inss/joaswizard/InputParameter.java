@@ -3,6 +3,9 @@ package ch.inss.joaswizard;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class InputParameter {
 
@@ -24,21 +27,35 @@ public class InputParameter {
     private final String openCurlyBrace = "{";
     private final String closeCurlyBrace = "}";
 
+    private Logger logger = null;
+
     public InputParameter(String inputFile, String outputFile, Sourcetype sourceType, Set<Method> methods) {
         this.inputFile = inputFile;
         this.outputFile = outputFile;
         this.sourceType = sourceType;
         this.methods = methods;
+        this.initialize();
     }
 
     public InputParameter() {
-
+        this.initialize();
     }
 
     public InputParameter(String inputFile, String outputFile, Sourcetype sourceType) {
         this.inputFile = inputFile;
         this.outputFile = outputFile;
         this.sourceType = sourceType;
+        this.initialize();
+    }
+
+    private void initialize() {
+        logger = Logger.getLogger(InputParameter.class.getName());
+        for (Handler handler : logger.getHandlers()) {
+            logger.removeHandler(handler);
+        }
+        logger.addHandler(Main.consoleHandler);
+        logger.setLevel(Level.INFO);
+        logger.setUseParentHandlers(false);
     }
 
     /**
@@ -46,8 +63,13 @@ public class InputParameter {
      */
     public boolean checkValid() {
         boolean valid = false;
-        valid = this.resource != null && (this.inputFile != null || this.sampleYamlData != null) && this.sourceType != null;
-        if (this.sourceType == Sourcetype.EXCEL) valid = valid && this.inputFile != null && this.methods.size() > 0;
+        if (this.sourceType == Sourcetype.EXCEL) {
+            valid = this.inputFile != null && this.methods != null;
+        } else if (this.sourceType == Sourcetype.YAMLFILE) {
+            valid = this.inputFile != null && this.resource != null && this.resourceId != null;
+        } else if (this.sourceType == Sourcetype.YAMLSTRING) {
+            valid = this.sampleYamlData != null && this.resource != null && this.resourceId != null;
+        }
         return valid;
     }
 
@@ -56,22 +78,28 @@ public class InputParameter {
     }
 
     public void setMedhodList(List<String> list) {
+        if (list == null) return;
         for (String a : list) {
-            this.addMethod(a);
+            this.addMethods(a);
         }
     }
 
     /**
      * You can add one or more methods separated by ",".
      */
-    public void addMethod(String m) {
+    public void addMethods(String m) {
+        if (m == null) return;
         String[] arr = m.split(",");
         for (String method : arr) {
-            Method met = Method.valueOf(method.toUpperCase());
-            if (met == Method.CRUD) {
-                this.setCrud();
-            }else{
-                this.methods.add(met);
+            try {
+                Method met = Method.valueOf(method.trim().toUpperCase());
+                if (met == Method.CRUD) {
+                    this.setCrud();
+                } else {
+                    this.methods.add(met);
+                }
+            } catch (IllegalArgumentException iae) {
+                logger.severe("Not a valid REST API method: " + method);
             }
         }
     }
@@ -217,6 +245,7 @@ public class InputParameter {
     public void setInternalid(String internalid) {
         this.internalid = internalid;
     }
+
     public String[] getTags() {
         return tags;
     }
@@ -283,17 +312,20 @@ public class InputParameter {
         GET,
         DELETE,
         PATCH,
-        CRUD
+        CRUD,
+        EMPTY
     }
-    
-    public boolean isAllquery(){
-        return ! (this.methods.contains(Method.GET) == false && this.methods.contains(Method.POST) == false);
+
+    public boolean isAllquery() {
+        return !(this.methods.contains(Method.GET) == false && this.methods.contains(Method.POST) == false);
     }
-    
-    /** If no path with path variable is needed. 
-     *  That is the case if only POST is the method. */
-    public boolean isPathIdQuery(){
-        return ! (this.methods.size() == 1 && this.methods.contains(Method.POST));
+
+    /**
+     * If no path with path variable is needed.
+     * That is the case if only POST is the method.
+     */
+    public boolean isPathIdQuery() {
+        return !(this.methods.size() == 1 && this.methods.contains(Method.POST));
     }
 
     public static List getSourcetypeList() {
