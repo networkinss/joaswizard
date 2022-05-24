@@ -89,7 +89,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-
   /customers:
     get:
       description: Returns all Customers
@@ -163,7 +162,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-
   /pets:
     get:
       description: Returns all Pets

@@ -136,7 +136,7 @@ public class Main implements Constants {
         } else if (inputParameter.getSourceType().toString().equalsIgnoreCase(InputParameter.Sourcetype.EXCEL.toString())) {
            ok =  joaswizard.createFromExcel(inputParameter);
         } else {
-            ok = joaswizard.createMethodsFromSingleYamlObject(inputParameter);
+            ok = joaswizard.createAllFromSingleYamlObjectToFile(inputParameter);
         }
         if(ok)  {
             logger.info("Created openapi file in output/" + inputParameter.getOutputFile());

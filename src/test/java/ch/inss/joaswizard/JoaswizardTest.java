@@ -243,7 +243,7 @@ class JoaswizardTest implements Constants {
         inputParameter.addMethods("put");
         inputParameter.addMethods("get");
 
-        jo.createMethodsFromSingleYamlObject(inputParameter);
+        jo.createAllFromSingleYamlObjectToFile(inputParameter);
         File file1 = new File(outputSingleYamlObject);
         File file2 = new File("src/test/resources/testReferenceSingleYamlObject.yml");
         assertTrue(file1.isFile());
@@ -266,7 +266,7 @@ class JoaswizardTest implements Constants {
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
         inputParameter.setCrud();
 
-        jo.createMethodsFromSingleYamlObject(inputParameter);
+        jo.createAllFromSingleYamlObjectToFile(inputParameter);
         File file1 = new File(outputCrudSingleYamlObject);
         File file2 = new File("src/test/resources/testReferenceCrudSingleYamlObject.yml");
         assertTrue(file1.isFile());

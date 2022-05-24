@@ -105,7 +105,11 @@ public class InputParameter {
     }
 
     public void addMethod(Method method) {
-        this.methods.add(method);
+        if (method == Method.CRUD) {
+            this.setCrud();
+        } else {
+            this.methods.add(method);
+        }
     }
 
     public void setCrud() {
