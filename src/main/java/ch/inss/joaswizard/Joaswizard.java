@@ -27,14 +27,6 @@ public class Joaswizard implements Constants {
         logger.setUseParentHandlers(false);
     }
 
-    /***
-     *  1. Create Crud file.
-     *  2. Create Crud String
-     *  3. Create
-     *
-     */
-
-
     /**
      * Create all methods for the paths as defined in input parameter object list.
      */
@@ -48,24 +40,6 @@ public class Joaswizard implements Constants {
         }
         return result;
     }
-
-    /**
-     * Creates paths for the defined methods.
-     */
-//    public String createMethods(InputParameter inputParameter) {
-//        String paths = null;
-//        StringBuilder builder = new StringBuilder();
-////        boolean ok1 = inputParameter.isPathIdQuery();  //TODO
-////        boolean ok2 = inputParameter.isAllquery();
-//        paths = this.fromPathsCrudTemplate(inputParameter);
-//        builder.append(paths).append(nexLine);
-//        if (paths != null) {
-//            logger.info("Processed methods.");
-//        } else {
-//            logger.severe("No methods found. Please define rest api methods.");
-//        }
-//        return builder.toString();
-//    }
 
     /**
      * Creates only error model and the start of components schemas.
@@ -104,7 +78,6 @@ public class Joaswizard implements Constants {
             logger.severe(e.getLocalizedMessage());
         }
         return result;
-//        return writerSchema.toString();
     }
 
     /**
@@ -257,42 +230,6 @@ public class Joaswizard implements Constants {
         return nexLine + result;
     }
 
-//    public String createCrudDeprecated(InputParameter inputParameter) {
-//        if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
-//            inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
-//        }
-//        if ((inputParameter.getInputFile() == null || inputParameter.getInputFile().equals(""))
-//                && inputParameter.getSampleYamlData() == null && inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
-//            inputParameter.setInputFile("src/test/resources/Pet.yml");
-//        }
-//        /* Read in the sample data from a file. */
-//        if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.YAMLFILE)) {
-//            inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
-//            if (inputParameter.getSampleYamlData() == null || inputParameter.getSampleYamlData().length() < 3) {
-//                logger.severe("No sample yaml with data. Please define input file or set sample yaml.");
-//                System.exit(1);
-//            }
-//        }
-//
-//        logger.fine(inputParameter.toString());
-//        Handlebars mf = new Handlebars();
-//        String result = null;
-////        return this.fullDocument(inputParameter);  //TODO use other templates.
-//
-//        try {
-//            Template template = mf.compile(fullCrudTemplate);
-//            /** Read input data sample. */
-//            if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
-//                this.createMustacheDataFromYaml(inputParameter);
-//            }
-//            result = template.apply(inputParameter);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return result + nexLine + this.createSchemaObjects(inputParameter);
-//    }
-
-
     /**
      * Gives back an Inputparameter instance with pre-filled default values.
      */
@@ -319,9 +256,6 @@ public class Joaswizard implements Constants {
         logger.info("Jo starts to create crud file.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
         boolean ok = this.createAllFromSingleYamlObjectToFile(inputParameter);
-//        String resultSchema = this.createCrudDeprecated(inputParameter);
-
-//        boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, resultSchema, inputParameter.getOutputFile());
         if (ok) logger.info("Jo finished creating OAS3 crud file.");
         else logger.severe("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
         return ok;
@@ -340,7 +274,7 @@ public class Joaswizard implements Constants {
                 return;
             }
         } catch (Exception e) {
-            logger.severe("Could not read Yaml file: " + inputParameter.getInputFile() + ", check if it in Yaml format.");
+            logger.severe("Could not read Yaml file: " + inputParameter.getInputFile() + ". Check if it has Yaml format.");
         }
         this.createMustacheData(inputParameter, map);
     }
@@ -538,7 +472,6 @@ public class Joaswizard implements Constants {
             StringBuilder yaml = new StringBuilder(index + ": " + "´\n");
             InputParameter inputParameter = new InputParameter(in.getInputFile(), in.getOutputFile(), in.getSourceType(), in.getMethodList());
             inputParameter.setResource(index);
-//            inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
             this.createMustacheDataFromExcel(inputParameter, mapList);
             result.add(inputParameter);
         }
