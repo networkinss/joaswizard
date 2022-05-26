@@ -377,8 +377,8 @@ components:
           type: string
           description: 'This is a wrongly typed datatype which is ignored and type string is used instead.'
       required:
-        - ID
-        - secondName
+      - ID
+      - secondName
     Pet:
       type: object
       properties:
@@ -393,5 +393,5 @@ components:
           type: string
           description: 'Yet another description.'
       required:
-        - ID
-        - secondName
+      - ID
+      - secondName

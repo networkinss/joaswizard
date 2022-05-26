@@ -74,10 +74,10 @@ class JoaswizardTest implements Constants {
         File file2 = new File("src/test/resources/testReferenceContact.yml");
         assertTrue(file1.isFile());
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
-        if (cleanUp) {
-            file1.delete();
-            assertTrue(file1.isFile() == false);
-        }
+//        if (cleanUp) {
+//            file1.delete();
+//            assertTrue(file1.isFile() == false);
+//        }
     }
 
     @Test
