@@ -322,7 +322,7 @@ public class Joaswizard implements Constants {
         List<PropertyData> list = new ArrayList<>();
 
         /* If not in OasType field defined, it will try to take the type from the column DbType. */
-        CaseInsensitiveMap<String, HashMap<String, String>> jsonMappingMap = Util.getJsonAsMap(DEFAULT_MAPPING);
+        CaseInsensitiveMap<String, HashMap<String, String>> jsonMappingMap = Util.getJsonAsMap(inputParameter.getMappingFile() == null ? DEFAULT_MAPPING : inputParameter.getMappingFile());
         if (jsonMappingMap == null) {
             jsonMappingMap = new CaseInsensitiveMap<>();
         }
@@ -353,17 +353,28 @@ public class Joaswizard implements Constants {
             HashMap<String, String> mappingMap = new HashMap<>();
             /** Define type (OasType). */
             if (type == null || type.equals("")) {
+                /** DB type assignment if Oastype is not defined but DBType is present. */
                 String dbtype = sheetCIMap.get(Header.DBTYPE);
                 if (dbtype != null && "".equals(dbtype) == false) {
                     /* Get the mapping hashMap from the mapping map.*/
                     mappingMap = jsonMappingMap.get(dbtype);
-                    if (mappingMap == null) mappingMap = new HashMap<>();
+                    if (mappingMap == null) {
+                        if (inputParameter.isPrefixMatch()) {
+                            for (String mapType : jsonMappingMap.keySet()) {
+                                if (dbtype.toLowerCase().startsWith(mapType.toLowerCase()) && mapType.length() >= 3) {
+                                    mappingMap = jsonMappingMap.get(mapType);
+                                }
+                            }
+                        } else {
+                            mappingMap = new HashMap<>();
+                        }
+                    }
                     type = mappingMap.get(Header.OASTYPE.toString());
                 }
             }
             if ((type == null || type.equals(""))) {
                 if (sampleValue != null) {
-                    type = (Util.isNumber(sampleValue) ? "number" : "string");
+                    type = (Util.isNumber(sampleValue) ? "integer" : "string");
                 } else {
                     type = "string";
                 }
@@ -480,7 +491,7 @@ public class Joaswizard implements Constants {
         for (String index : map.keySet()) {
             List<Map<String, String>> mapList = map.get(index);
             StringBuilder yaml = new StringBuilder(index + ": " + "´\n");
-            InputParameter inputParameter = new InputParameter(in.getInputFile(), in.getOutputFile(), in.getSourceType(), in.getMethodList());
+            InputParameter inputParameter = new InputParameter(in.getInputFile(), in.getOutputFile(), in.getSourceType(), in.getMethodList(), in.getMappingFile(), in.isPrefixMatch());
             inputParameter.setResource(index);
             this.createMustacheDataFromExcel(inputParameter, mapList);
             result.add(inputParameter);

@@ -17,14 +17,27 @@ public class Sample {
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
         Joaswizard joaswizard = new Joaswizard();
         joaswizard.createCrudFile(inputParameter);
+        System.out.println();
         System.out.println("OpenAPI document created: openapi_fromyaml.yaml");
         
     }
-    public void createOpenApiFromExcel() {
+    public void createOpenApiFromExcel(String file) {
+        this.createOpenApiFromExcel(file, null);
+    }
+    public void createOpenApiFromExcel(String file, String mappingFile) {
+        this.createOpenApiFromExcel(file, null, null);
+    }
+    public void createOpenApiFromExcel(String file, String mappingFile, String outputFile) {
         InputParameter inputParameter = new InputParameter();
-        inputParameter.setInputFile("./objectimport.xlsx");
-        inputParameter.setOutputFile("openapi_fromexcel.yaml");
-//        inputParameter.setResource("pet");
+        inputParameter.setInputFile(file);
+        if(outputFile == null){
+            inputParameter.setOutputFile("openapi_fromexcel.yaml");
+        }else{
+            inputParameter.setOutputFile(outputFile);
+        }
+        if(mappingFile != null){
+            inputParameter.setMappingFile(mappingFile);
+        }
         inputParameter.setResourceId("id");
         /* Define the input to come from an Excel file. */
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
@@ -33,6 +46,7 @@ public class Sample {
         /* Process file and generate OpenAPI specification which will be in the output folder. */
         Joaswizard joaswizard = new Joaswizard();
         joaswizard.createFromExcel(inputParameter);
+        System.out.println();
         System.out.println("OpenAPI document created: openapi_fromexcel.yaml");
     }
 

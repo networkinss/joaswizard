@@ -4,10 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -30,6 +27,7 @@ class JoaswizardTest implements Constants {
     private final static String outputString = output + "testOutputString.yml";
     private final static String outputExcel = output + "testOutputExcelsheet.yml";
     private final static String outputDBFieldsExcel = output + "testOutputDBFieldsExcelsheet.yml";
+    private final static String outputMySQLDBFieldsExcel = output + "testOutputMySQLDBFieldsExcelsheet.yml";
     private final static String outputMainExcel = output + "testMainExceloutput.yaml";
     private final static String outputMainYaml = output + "testMainYamloutput.yaml";
     private final static String outputSingleYamlObject = output + "testOutputSingleYamlObject.yml";
@@ -242,7 +240,31 @@ class JoaswizardTest implements Constants {
         inputParameter.addMethods("get");
 
         jo.createFromExcel(inputParameter);
-        File file1 = new File(outputExcel);
+        File file1 = new File(outputDBFieldsExcel);
+        File file2 = new File("src/test/resources/testReferenceGetMethodList.yml");
+        assertTrue(file1.isFile());
+
+        Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
+        if (cleanUp) {
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
+    }
+
+    @Test
+    @Order(9)
+    void testExcelMySQLDBFields() throws Exception {
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
+        inputParameter.setInputFile("src/test/resources/mySQLObjectimport.xlsx");
+        /** Check the custom mappin in this test. */
+        inputParameter.setMappingFile("src/test/resources/mysqlMapping.json");
+        inputParameter.setPrefixMatch(true);
+        inputParameter.setOutputFile(outputMySQLDBFieldsExcel);
+        inputParameter.addMethods("get");
+
+        jo.createFromExcel(inputParameter);
+        File file1 = new File(outputMySQLDBFieldsExcel);
         File file2 = new File("src/test/resources/testReferenceGetMethodList.yml");
         assertTrue(file1.isFile());
 
@@ -339,7 +361,7 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(15)
     void testReadMapping() throws Exception {
-        String file = Util.readFromFile("src/test/resources/mapping.json");
+        String file = Util.readFromFile("src/main/resources/mapping.json");
         JSONParser parser = new JSONParser();
         JSONArray obj = (JSONArray) parser.parse(file);
         JSONObject jsonObject = (JSONObject) obj.toArray()[0];

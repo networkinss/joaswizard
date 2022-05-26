@@ -284,26 +284,24 @@ components:
           description: 'An example of a definition of the type via the database type. The file mapping.json contains the mapping. If none is available, an internal default is used.'
         one:
           type: string
-          format: string
-          example: eins
+          example: A string sample
         two:
           type: string
           format: byte
-          example: byte
+          example: U3dhZ2dlciByb2Nrcw==
           description: 'base64 encoded characters'
         three:
           type: string
           format: binary
-          example: binary
           description: 'any sequence of octets'
         four:
           type: boolean
-          format: boolean
           example: true
         five:
           type: string
           format: date
-          pattern: yyyy-mm-dd
+          pattern: '^\d{3}-\d{2}-\d{4}$'
+          minLength: 10
           maxLength: 10
           example: 1998-12-31
           description: 'As defined by full-date - RFC3339'
@@ -328,7 +326,6 @@ components:
         nine:
           type: string
           format: date-time
-          minLength: 6
           description: 'These types from DBDatatype must be mapped in the mapping.json. Oastype would overwrite it if not empty.'
         ten:
           type: string
@@ -337,7 +334,7 @@ components:
         eleven:
           type: string
           format: date
-          minLength: 6
+          minLength: 10
           description: 'Database type DATE'
         twelve:
           type: integer
@@ -371,28 +368,30 @@ components:
       properties:
         id:
           type: integer
-          description: 'Die Beschreibung'
-        zweitername3:
+          format: int32
+          description: 'A description'
+        secondname:
           type: string
-          description: 'Noch eine Beschreibung'
-        dritter name3:
+          description: 'This is a wrongly typed datatype which is ignored and type string is used instead.'
+        thirdname:
           type: string
-          description: 'Die dritte Beschreibung.'
+          description: 'This is a wrongly typed datatype which is ignored and type string is used instead.'
       required:
-      - ID
-      - zweiterName3
+        - ID
+        - secondName
     Pet:
       type: object
       properties:
         id:
           type: integer
-          description: 'Die Beschreibung'
-        zweitername:
+          format: int32
+          description: 'A description'
+        secondname:
           type: string
-          description: 'Noch eine Beschreibung'
-        dritter name:
+          description: 'Another description'
+        thirdname:
           type: string
-          description: 'Die dritte Beschreibung.'
+          description: 'Yet another description.'
       required:
-      - ID
-      - zweiterName
+        - ID
+        - secondName

@@ -15,25 +15,39 @@ public class InputParameter {
     private String inputFile;
     private String outputFile;
     private String internalid;
+    private String mappingFile;
 
     private String[] tags;
     private Sourcetype sourceType;
     private Set<Method> methods = new HashSet<>();
 
-    private boolean doInfo = true;
-    private boolean doPaths = true;
-    private boolean doSchemas = true;
+    //    private boolean doInfo = true;
+//    private boolean doPaths = true;
+//    private boolean doSchemas = true;
     private boolean doDefaultSamples = false;
+
+    /**
+     * This is for the mapping.json used for database types.
+     * If true, DB types like CHAR(80) in the DBType column of an Excel file will match to CHAR in the mapping.json.
+     * It must match at least three characters at the beginning of the type defined in the mapping.json.
+     * If false, DB type CHAR(80) must be defined including the (80) in the mapping.json to work.
+     * Unmapped types will be mapped to OAS3 type string.
+     */
+    private boolean prefixMatch = false;
+
+    /* Static fields. */
     private final String openCurlyBrace = "{";
     private final String closeCurlyBrace = "}";
 
     private Logger logger = null;
 
-    public InputParameter(String inputFile, String outputFile, Sourcetype sourceType, Set<Method> methods) {
+    public InputParameter(String inputFile, String outputFile, Sourcetype sourceType, Set<Method> methods, String mappingFile, boolean prefixMatch) {
         this.inputFile = inputFile;
         this.outputFile = outputFile;
         this.sourceType = sourceType;
         this.methods = methods;
+        this.mappingFile = mappingFile;
+        this.prefixMatch = prefixMatch;
         this.initialize();
     }
 
@@ -139,7 +153,6 @@ public class InputParameter {
         return this.methods.contains(Method.DELETE);
     }
 
-
     public String getCapResource() {
         return StringUtils.capitalize(resource.toLowerCase());
     }
@@ -176,10 +189,25 @@ public class InputParameter {
         this.resourceId = resourceId;
     }
 
+    public boolean isDoDefaultSamples() {
+        return doDefaultSamples;
+    }
+
+    public void setDoDefaultSamples(boolean doDefaultSamples) {
+        this.doDefaultSamples = doDefaultSamples;
+    }
+
+    public boolean isPrefixMatch() {
+        return prefixMatch;
+    }
+
+    public void setPrefixMatch(boolean prefixMatch) {
+        this.prefixMatch = prefixMatch;
+    }
+
     public String getOpenCurlyBrace() {
         return openCurlyBrace;
     }
-
 
     public String getCloseCurlyBrace() {
         return closeCurlyBrace;
@@ -250,6 +278,14 @@ public class InputParameter {
         this.internalid = internalid;
     }
 
+    public String getMappingFile() {
+        return mappingFile;
+    }
+
+    public void setMappingFile(String mappingFile) {
+        this.mappingFile = mappingFile;
+    }
+
     public String[] getTags() {
         return tags;
     }
@@ -270,45 +306,15 @@ public class InputParameter {
                 ", tags=" + Arrays.toString(tags) +
                 ", sourceType=" + sourceType +
                 ", methods=" + methods +
-                ", doInfo=" + doInfo +
-                ", doPaths=" + doPaths +
-                ", doSchemas=" + doSchemas +
+//                ", doInfo=" + doInfo +
+//                ", doPaths=" + doPaths +
+//                ", doSchemas=" + doSchemas +
                 ", openCurlyBrace='" + openCurlyBrace + '\'' +
                 ", closeCurlyBrace='" + closeCurlyBrace + '\'' +
                 '}';
     }
 
-    public boolean isDoInfo() {
-        return doInfo;
-    }
 
-    public void setDoInfo(boolean doInfo) {
-        this.doInfo = doInfo;
-    }
-
-    public boolean isDoPaths() {
-        return doPaths;
-    }
-
-    public void setDoPaths(boolean doPaths) {
-        this.doPaths = doPaths;
-    }
-
-    public boolean isDoSchemas() {
-        return doSchemas;
-    }
-
-    public void setDoSchemas(boolean doSchemas) {
-        this.doSchemas = doSchemas;
-    }
-
-    public boolean isDoDefaultSamples() {
-        return doDefaultSamples;
-    }
-
-    public void setDoDefaultSamples(boolean doDefaultSamples) {
-        this.doDefaultSamples = doDefaultSamples;
-    }
 
     public static enum Method {
         POST,

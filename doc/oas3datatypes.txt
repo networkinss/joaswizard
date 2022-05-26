@@ -1,13 +1,19 @@
-Datatype Format
-integer	int32
-integer	int64 
-number 	float 
-number 	double 
-string 	string
-string 	byte 
-string 	binary 
-boolean boolean
-string 	date
-string 	date-time
-string 	password
-string 	array
+Datatype    Format     example                  pattern
+integer	    int32
+integer	    int64
+number 	    float
+number 	    double
+string 	    string
+string 	    byte        U3dhZ2dlciByb2Nrcw==
+string 	    binary
+boolean     boolean     true
+string 	    date        2017-07-21              '^\d{3}-\d{2}-\d{4}$'
+string 	    date-time   2017-07-21T17:32:28Z
+string 	    password
+string 	    array
+string 	    email
+string 	    uuid
+string 	    uri
+string 	    hostname
+string 	    ipv4
+string 	    ipv6
