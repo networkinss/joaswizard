@@ -31,3 +31,5 @@ output
 /joaswizard.log.2
 /Samples/src/joaswizard.log
 /.run/
+/Samples/openapi_fromMySQLExcel.yaml
+/Samples/openapi_fromyaml.yaml
