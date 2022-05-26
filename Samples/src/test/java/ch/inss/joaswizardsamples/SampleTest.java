@@ -1,9 +1,16 @@
 package ch.inss.joaswizardsamples;
 
-import ch.inss.joaswizard.InputParameter;
-import junit.framework.TestCase;
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+//import ch.inss.joaswizard.InputParameter;
+//import junit.framework.TestCase;
+//import org.apache.commons.io.FileUtils;
+//import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 
 import java.io.File;
 import java.nio.file.Files;
@@ -12,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class SampleTest extends TestCase {
+public class SampleTest {
 
     final static String sep = System.getProperty("file.separator");
 
