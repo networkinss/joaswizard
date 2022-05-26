@@ -37,6 +37,7 @@ public class Sample {
         }
         if(mappingFile != null){
             inputParameter.setMappingFile(mappingFile);
+            inputParameter.setPrefixMatch(true);
         }
         inputParameter.setResourceId("id");
         /* Define the input to come from an Excel file. */
@@ -47,7 +48,7 @@ public class Sample {
         Joaswizard joaswizard = new Joaswizard();
         joaswizard.createFromExcel(inputParameter);
         System.out.println();
-        System.out.println("OpenAPI document created: openapi_fromexcel.yaml");
+        System.out.println("OpenAPI document created: " + inputParameter.getOutputFile());
     }
 
     public void createOpenApiFromArguments(String[] args) {
