@@ -91,17 +91,15 @@ public class ExcelWrapper {
         }
 
         switch (cell.getCellTypeEnum()) {
+//        switch (cell.getCellTypeEnum()) {
             case STRING:
-//            case CELL_TYPE_STRING:
+            case FORMULA:
+            case ERROR:
                 return cell.getStringCellValue();
             case BLANK:
                 return "";
             case BOOLEAN:
                 return Boolean.toString(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getStringCellValue();
-            case ERROR:
-                return cell.getStringCellValue();
             case NUMERIC:
                 final DataFormatter formatter = new DataFormatter();
                 return formatter.formatCellValue(cell);
