@@ -31,6 +31,7 @@ This library will help you in case of:
 * You want to create OpenAPI specifications programmatically.
 * You have to process mass object data like from an Excel file.
 * You want a head start without knowing OpenAPI.
+* You want to use your database structure to generate the OAS3 objects.
 
 
 ## Features
@@ -59,7 +60,7 @@ Add dependency to pom.xml.
 <dependency>     
     <groupId>ch.inss.joaswizard</groupId>     
     <artifactId>joaswizard</artifactId>   
-    <version>0.9.0</version>   
+    <version>0.9.2</version>   
 </dependency>  
 ```
 
@@ -90,7 +91,6 @@ You can execute it without parameter. Jo will ask for the parameter.
 
 With all parameters. Jo would ask for skipped parameters, if any.  
 `java -jar joaswizard-*.jar Samples/pet.yml openapipet.yaml pet name yamlfile delete,post,patch`
-
 
 
 ### as a library
@@ -125,17 +125,20 @@ Or you can put the Yaml formatted string directly.
 You can check the JUnit test `testCreateFromString()`.
 
 #### Excel
+
 Excel is very useful for mass conversion.  
 Every sheet is an component schema object. The sheetname is the name of the object.    
-First line should contain the following header:  
-* Name -> Name of the property of the object.	
-* DbType -> Database type. This can be mapped as defined in the mapping.json (src/main/resources/mapping.json). Will be used only if OasType is empty.
+First line can contain the following header:
+
+* Name -> Required. Name of the property of the object.
+* DbType -> Database type. This can be mapped as defined in the mapping.json (src/main/resources/mapping.json). Will be
+  used only if OasType is empty.
 * OasType -> The actual OAS type. A list of OAS3 types is in doc/oas3datatypes.txt.
-* OasFormat	-> The format of the type. Possible values also in the file doc/oas3datatypes.txt.
+* OasFormat -> The format of the type. Possible values also in the file doc/oas3datatypes.txt.
 * OASPattern -> Can be a pattern like e.g. for a date: yyyy-mm-dd.
 * OasMin -> The OAS3 minimum length of a value for that property.
-* OasMax -> The OAS3 maximum length of a value for that property.	
-* OasExample -> The OAS3 example value. If not set, Jo will guess a bit.	
+* OasMax -> The OAS3 maximum length of a value for that property.
+* OasExample -> The OAS3 example value. If not set, Jo will guess a bit.
 * OasEnum -> OAS3 Enum values.
 * OasDescription -> Text description for the OAS3 property.
 * OasRequired -> If required or not. Values are true (required) or false (optional).
@@ -147,18 +150,29 @@ There is a default mapping.json in the application.
 However, it will first look if there is one mapping.json in the same folder and take
 that one if available.  
 Have a look into `src/main/resources/mapping.json` to get to know the structure.  
-DbType contains the database type.  
-OasType, OasFormat, OasPattern can be filled with desired mapping in the generated OAS3 document.  
-The fields must be from the type enum Header. All field names must be lowercase in the json file.
+A custom mapping can be defined like for MySQL dataabase types like here:
+`Samples/mysql/mysqlMapping.json`  
+DbType contains the database type. This field can be use instead of OasType if you take the structure from a database
+DDL.  
+OasType, OasFormat, OasPattern can be filled with desired mapping for the generated OAS3 document.  
+All field names must be lowercase in the json file.
 
-Sample for Excel:
+Sample Excel file:
 `src/test/resources/objectimport.xlsx`
 
+### Sample code
 
-### samples for usage
-
-Samples are in the folder Samples.
+Samples are in the folder Samples.  
+There are sample methods how to use Yaml properties as input or Excel files.
+There is also a method to show how to use custom mappings DBTypes to OASTypes for MySQL database types.  
+With the correct mapping you don't have to define each OASType manually.  
+Also the JUnit tests of Samples
+Samples/src/test/java/ch/inss/joaswizardsamples/SampleTest.java
+and from
+src/test/java/ch/inss/joaswizard/JoaswizardTest.java
+can be used to see how it works.
 
 ## Template adjustment
-To fill in your own details into the info section just adjust the files ending with .hbs (Handlebars) 
+
+To fill in your own details into the info section just adjust the files ending with .hbs (Handlebars)
 in src/main/resources/ accordingly.

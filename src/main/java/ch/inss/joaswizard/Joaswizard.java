@@ -29,6 +29,9 @@ public class Joaswizard implements Constants {
 
     /**
      * Create all methods for the paths as defined in input parameter object list.
+     *
+     * @param list list of input parameter values.
+     * @return String of OAS3 path section.
      */
     public String createMethodsFromList(List<InputParameter> list) {
         logger.info("Starting to create methods.");
@@ -43,6 +46,8 @@ public class Joaswizard implements Constants {
 
     /**
      * Creates only error model and the start of components schemas.
+     *
+     * @return String of beginning of components schemas including a standard error model.
      */
     public String createComponentsSchemas() {
         return new Util().readFromClasspath(componentsErrorTemplate + ".hbs") + nexLine;
@@ -50,6 +55,9 @@ public class Joaswizard implements Constants {
 
     /**
      * Creates one components schema as defined in input paramter.
+     *
+     * @param inputParameter input parameter values.
+     * @return String of components schemas object.
      */
     public String createSchemaObjects(InputParameter inputParameter) {
         logger.info("Starting create schema.");
@@ -82,6 +90,9 @@ public class Joaswizard implements Constants {
 
     /**
      * Creates one components schema as defined in input paramter.
+     *
+     * @param inputParameter input parameter values.
+     * @return String of OAS3 info section.
      */
     public String createInfo(InputParameter inputParameter) {
         logger.info("Start creating info.");
@@ -162,6 +173,9 @@ public class Joaswizard implements Constants {
     /**
      * Creates defined methods from a yaml string for a single object.
      * Returns if an error ocrrued or not.
+     *
+     * @param input input parameter values.
+     * @return true if the file was created.
      */
     public boolean createAllFromSingleYamlObjectToFile(InputParameter input) {
         String result = this.fullDocument(input);
@@ -178,7 +192,10 @@ public class Joaswizard implements Constants {
     /**
      * Creates full document from inputParameter object.
      * Returns OAS3 document as String object.
-     **/
+     *
+     * @param input  input parameter values.
+     * @return OAS3 as string.
+     */
     public String fullDocument(InputParameter input) {
         StringBuilder document = new StringBuilder();
 
@@ -232,6 +249,11 @@ public class Joaswizard implements Constants {
 
     /**
      * Gives back an Inputparameter instance with pre-filled default values.
+     *
+     * @param input  input parameter values.
+     * @param sourcetype Sourc type.
+     * @param resource resource name.
+     * @return Default input parameter values.
      */
     public InputParameter inputMandatory(String input, String sourcetype, String resource) {
         InputParameter in = new InputParameter();
@@ -251,6 +273,9 @@ public class Joaswizard implements Constants {
 
     /**
      * Create all CRUD operations for one object and stores it in a file..
+     *
+     * @param inputParameter input parameter values.
+     * @return true if file was created.
      */
     public boolean createCrudFile(InputParameter inputParameter) {
         logger.info("Jo starts to create crud file.");

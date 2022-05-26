@@ -91,7 +91,6 @@ public class ExcelWrapper {
         }
 
         switch (cell.getCellTypeEnum()) {
-//        switch (cell.getCellTypeEnum()) {
             case STRING:
             case FORMULA:
             case ERROR:

@@ -74,6 +74,8 @@ public class InputParameter {
 
     /**
      * Check if all mandatory parameter have been defined.
+     *
+     * @return if input parameter are valid.
      */
     public boolean checkValid() {
         boolean valid = false;
@@ -99,7 +101,9 @@ public class InputParameter {
     }
 
     /**
+     *
      * You can add one or more methods separated by ",".
+     * @param m A HTTP method.
      */
     public void addMethods(String m) {
         if (m == null) return;
@@ -225,6 +229,7 @@ public class InputParameter {
 
     /**
      * The sample data frm which the output will be generated.
+     * @param sampleYamlData Sample properties in Yaml format.
      */
     public void setSampleYamlData(String sampleYamlData) {
         this.sampleYamlData = sampleYamlData;
@@ -236,6 +241,7 @@ public class InputParameter {
 
     /**
      * The path to the input file. The content must be stored within the sampleYaml field.
+     * @param inputFile Path to the input file.
      */
     public void setInputFile(String inputFile) {
         int pos = inputFile.lastIndexOf(".");
@@ -333,6 +339,8 @@ public class InputParameter {
     /**
      * If no path with path variable is needed.
      * That is the case if only POST is the method.
+     *
+     * @return If there are any path variables.
      */
     public boolean isPathIdQuery() {
         return !(this.methods.size() == 1 && this.methods.contains(Method.POST));
@@ -357,6 +365,8 @@ public class InputParameter {
 
     /**
      * Check if methods are valid. You can put several methods separated by ",".
+     * @param m HTTP method as string.
+     * @return If it is a valid HTTP method.
      */
     public static boolean isValidMethod(String m) {
         String[] arr = m.split(",");

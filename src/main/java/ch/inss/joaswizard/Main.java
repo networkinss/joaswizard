@@ -24,6 +24,8 @@ public class Main implements Constants {
 
     /**
      * Create OAS3 document with command line arguments or input.
+     *
+     * @param args inputfile outpufile resource Idfield sourcetype methods
      */
     public static void main(String[] args) {
         logger.info("Starting main.");
