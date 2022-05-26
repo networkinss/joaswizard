@@ -1,0 +1,194 @@
+[
+  {
+    "dbtype": "TIMESTAMP",
+    "oastype": "string",
+    "oasformat": "date-time",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "DATETIME",
+    "oastype": "string",
+    "oasformat": "date-time",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "TIME",
+    "oastype": "string",
+    "oasformat": "date-time",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "YEAR",
+    "oastype": "string",
+    "oasformat": "year",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "CHAR",
+    "oastype": "string",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "VARCHAR",
+    "oastype": "string",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "BINARY",
+    "oastype": "string",
+    "oasformat": "binary",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "VARBINARY",
+    "oastype": "string",
+    "oasformat": "binary",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "LONGTEXT",
+    "oastype": "string",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "LONGBLOB",
+    "oastype": "string",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "MEDIUMTEXT",
+    "oastype": "string",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "MEDIUMBLOB",
+    "oastype": "string",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "BLOB",
+    "oastype": "string",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "TEXT",
+    "oastype": "string",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "TINYBLOB",
+    "oastype": "string",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "TINYTEXT",
+    "oastype": "string",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "DATE",
+    "oastype": "string",
+    "oasformat": "date",
+    "oaspattern": "'^\\d{3}-\\d{2}-\\d{4}$'"
+  },
+  {
+    "dbtype": "SMALLINT",
+    "oastype": "integer",
+    "oasformat": "int32",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "TINYINT",
+    "oastype": "integer",
+    "oasformat": "int32",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "MEDIUMINT",
+    "oastype": "integer",
+    "oasformat": "int32",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "INT",
+    "oastype": "integer",
+    "oasformat": "int32",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "INTEGER",
+    "oastype": "integer",
+    "oasformat": "int64",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "BIGINTEGER",
+    "oastype": "integer",
+    "oasformat": "int64",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "BOOLEAN",
+    "oastype": "boolean",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "BOOL",
+    "oastype": "boolean",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "DECIMAL",
+    "oastype": "number",
+    "oasformat": "double",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "DEC",
+    "oastype": "number",
+    "oasformat": "double",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "FLOAT",
+    "oastype": "number",
+    "oasformat": "double",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "SET",
+    "oastype": "array",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "SET",
+    "oastype": "array",
+    "oasformat": "",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "BIT",
+    "oastype": "integer",
+    "oasformat": "int32",
+    "oaspattern": ""
+  },
+  {
+    "dbtype": "DOUBLE",
+    "oastype": "number",
+    "oasformat": "double",
+    "oaspattern": ""
+  }
+]
