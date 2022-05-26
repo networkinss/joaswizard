@@ -14,7 +14,7 @@ info:
 servers:
   - url: http://localhost:8080/v1
     description: Local environment.
-    
+
 paths:
   /invoices:
     get:
@@ -259,18 +259,19 @@ components:
           description: 'signed 32 bit'
         amount:
           type: integer
-          format: int64
+          format: int32
           maxLength: 3
           example: 2
           description: 'signed 64 bit (a.k.a long)'
         price:
           type: number
-          format: float
+          format: double
           maxLength: 4
           example: 1.0
           description: 'A float sample'
         option:
           type: number
+          format: double
           enum:
           - 1.0
           - 2.0
@@ -370,15 +371,12 @@ components:
       properties:
         id:
           type: integer
-          minLength: 1
           description: 'Die Beschreibung'
         zweitername3:
           type: string
-          minLength: 1
           description: 'Noch eine Beschreibung'
         dritter name3:
           type: string
-          minLength: 1
           description: 'Die dritte Beschreibung.'
       required:
       - ID
@@ -388,15 +386,12 @@ components:
       properties:
         id:
           type: integer
-          minLength: 1
           description: 'Die Beschreibung'
         zweitername:
           type: string
-          minLength: 1
           description: 'Noch eine Beschreibung'
         dritter name:
           type: string
-          minLength: 1
           description: 'Die dritte Beschreibung.'
       required:
       - ID

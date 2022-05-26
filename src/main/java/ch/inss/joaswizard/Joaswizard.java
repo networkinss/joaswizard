@@ -320,13 +320,15 @@ public class Joaswizard implements Constants {
     private void createMustacheDataFromExcel(InputParameter inputParameter, List<Map<String, String>> mapList) {
         LinkedHashMap<String, Object> resultMap = new LinkedHashMap<>();
         List<PropertyData> list = new ArrayList<>();
-        int idx = 0;
+
         /* If not in OasType field defined, it will try to take the type from the column DbType. */
         CaseInsensitiveMap<String, HashMap<String, String>> jsonMappingMap = Util.getJsonAsMap(DEFAULT_MAPPING);
         if (jsonMappingMap == null) {
             jsonMappingMap = new CaseInsensitiveMap<>();
         }
         String prefix = "Sheet " + inputParameter.getResource() + ": ";
+        int idx = 0;
+        int countEmpty = 0;
         /** Define each property of one object. */
         for (Map<String, String> sheetMap : mapList) {
             CaseInsensitiveMap<String, String> sheetCIMap = new CaseInsensitiveMap(sheetMap);
@@ -337,12 +339,19 @@ public class Joaswizard implements Constants {
             String sampleValue = sheetCIMap.get(Header.OASEXAMPLE);
             String type = null;
             if (sheetCIMap.containsKey(Header.OASTYPE)) type = sheetCIMap.get(Header.OASTYPE);
+            logger.fine("Line " + idx + ", key: " + key);
             if (key.equals(UNDEFINED) && (sampleValue == null || sampleValue.equals("") && (type == null || type.equals("")))) {
-                logger.warning(prefix + "Empty row or not enough data to build an OAS3 schema object (at line: " + idx + ").");
+                logger.fine(prefix + "Empty row or not enough data to build an OAS3 schema object (at line: " + idx + ").");
+                countEmpty++;
+                if (countEmpty > 2) {
+                    logger.info("Found 3 or more empty lines beginning row " + (idx - 1) + ", assuming no more data and stop reading lines here..");
+                    break;
+                }
                 continue;
             }
 
             HashMap<String, String> mappingMap = new HashMap<>();
+            /** Define type (OasType). */
             if (type == null || type.equals("")) {
                 String dbtype = sheetCIMap.get(Header.DBTYPE);
                 if (dbtype != null && "".equals(dbtype) == false) {
@@ -368,7 +377,7 @@ public class Joaswizard implements Constants {
             /* Object containing all the properties for an object. */
             PropertyData propertyData = new PropertyData(key, type);
 
-            /* Define example values even if not defined. */
+            /** Define example values (OasExample) and guess if not defined. */
             if ((sampleValue == null || "".equals(sampleValue))) {
                 if (inputParameter.isDoDefaultSamples()) {
                     if (type.equals("string")) sampleValue = "string";
@@ -382,7 +391,7 @@ public class Joaswizard implements Constants {
                 if (sampleValue.equals("")) propertyData.setExamplevalue(null);
                 else propertyData.setExamplevalue(sampleValue);
             }
-            /* Define formatting. */
+            /** Define formatting (OasFormat). */
             String format = sheetCIMap.get(Header.OASFORMAT);
             if (format == null || "".equals(format)) {
                 /* Try to get mapped format from mapping.json if the DbType had been defined. */
@@ -405,9 +414,10 @@ public class Joaswizard implements Constants {
                 if (Util.isNumber(sheetCIMap.get(Header.OASMIN))) {
                     propertyData.setMinlength(Integer.parseInt(sheetCIMap.get(Header.OASMIN)));
                 }
-            } else if (!Util.isNumber(sampleValue)) {
-                propertyData.setMinlength(1);
             }
+//            else if (!Util.isNumber(sampleValue)) {
+//                propertyData.setMinlength(1);
+//            }
             String oasDescription = sheetCIMap.get(Header.OASDESCRIPTION);
             if (oasDescription != null && oasDescription.isEmpty() == false && oasDescription.isBlank() == false) {
                 //Do some cleanup otherwise it would invalidate the OAS3.
