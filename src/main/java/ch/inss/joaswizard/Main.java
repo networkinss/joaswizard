@@ -134,14 +134,14 @@ public class Main implements Constants {
         Joaswizard joaswizard = new Joaswizard();
         boolean ok = false;
         if (methods.equalsIgnoreCase("crud") && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL) == false) {
-            ok = joaswizard.createCrudFile(inputParameter);
+            ok = joaswizard.createCrudFileFromYaml(inputParameter);
         } else if (inputParameter.getSourceType().toString().equalsIgnoreCase(InputParameter.Sourcetype.EXCEL.toString())) {
-           ok =  joaswizard.createFromExcel(inputParameter);
+            ok = joaswizard.createFromExcelToFile(inputParameter);
         } else {
-            ok = joaswizard.createAllFromSingleYamlObjectToFile(inputParameter);
+            ok = joaswizard.createFromSingleYamlToFile(inputParameter);
         }
         if(ok)  {
-            logger.info("Created openapi file in output/" + inputParameter.getOutputFile());
+            logger.info("Created openapi file in " + inputParameter.getOutputFile());
         }else{
             logger.info("An error occurred, could not create file ." + inputParameter.getOutputFile());
         }
@@ -170,6 +170,6 @@ public class Main implements Constants {
             inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
         }
         Joaswizard joaswizard = new Joaswizard();
-        joaswizard.createCrudFile(inputParameter);
+        joaswizard.createCrudFileFromYaml(inputParameter);
     }
 }

@@ -34,14 +34,14 @@ class JoaswizardTest implements Constants {
     private final static String outputMainYaml = output + "testMainYamloutput.yaml";
     private final static String outputSingleYamlObject = output + "testOutputSingleYamlObject.yml";
     private final static String outputCrudSingleYamlObject = output + "testOutputCrudSingleYamlObject.yml";
-    
+
     private static Joaswizard jo = new Joaswizard();
     private static boolean cleanUp = true;
-    
+
     @BeforeAll
-    static void initialize(){
+    static void initialize() {
         File outputFolder = new File(output);
-        if(outputFolder.isDirectory() == false){
+        if (outputFolder.isDirectory() == false) {
             outputFolder.mkdir();
         }
     }
@@ -60,7 +60,7 @@ class JoaswizardTest implements Constants {
             assertEquals(6.0, x);
         }
 
-        File file1 = new File( outputContact);
+        File file1 = new File(outputContact);
         if (cleanUp) {
             file1.delete();
             assertTrue(file1.isFile() == false);
@@ -89,12 +89,12 @@ class JoaswizardTest implements Constants {
         final List<String> list = new ArrayList<>();
         list.add("title: Pet API");
         list.add("$ref: '#/components/schemas/Pet'");
-        try (Stream<String> lines = Files.lines(Paths.get( outputPet))) {
+        try (Stream<String> lines = Files.lines(Paths.get(outputPet))) {
             Stream<String> f = lines.filter(l -> list.contains(l.trim()));
             long x = f.count();
             assertEquals(5.0, x);
         }
-        File file1 = new File( outputPet);
+        File file1 = new File(outputPet);
         assertTrue(file1.isFile());
         if (cleanUp) {
             file1.delete();
@@ -147,16 +147,16 @@ class JoaswizardTest implements Constants {
         inputParameter.setResourceId("name");
         inputParameter.setResource("contact");
 
-        jo.createCrudFile(inputParameter);
+        jo.createCrudFileFromYaml(inputParameter);
 
-        File file1 = new File( outputString);
-        File file2 = new File( "src/test/resources/testReferenceString.yml");
+        File file1 = new File(outputString);
+        File file2 = new File("src/test/resources/testReferenceString.yml");
         assertTrue(file1.isFile());
 
         final List<String> list = new ArrayList<>();
         list.add("title: Contact API");
         list.add("$ref: '#/components/schemas/Contact'");
-        try (Stream<String> lines = Files.lines(Paths.get( outputString))) {
+        try (Stream<String> lines = Files.lines(Paths.get(outputString))) {
             assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
         }
 
@@ -173,26 +173,28 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(6)
     void testGetPet() throws Exception {
+        String outputGetPet = "get_openapi.yaml";
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
         inputParameter.setResource("pet");
         inputParameter.addMethods("GET");
+        inputParameter.setOutputFile(outputGetPet);
         inputParameter.setInputFile("src/test/resources/Pet.yml");
-        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
         List<InputParameter> inputList = new ArrayList<>();
         inputList.add(inputParameter);
         String result = jo.createMethodsFromList(inputList);
         boolean ok = Util.writeStringToData(output, result, inputParameter.getOutputFile());
         assertTrue(ok);
 
-        File file1 = new File(output + "get_openapi.yaml");
+        File file1 = new File(output + outputGetPet);
         assertTrue(file1.isFile());
 
         final List<String> list = new ArrayList<>();
         list.add("/pet/{name}:");
         list.add("description: Returns all pets");
         list.add("$ref: '#/components/schemas/Pet'");
-        try (Stream<String> lines = Files.lines(Paths.get(output + "get_openapi.yaml"))) {
+        try (Stream<String> lines = Files.lines(Paths.get(output + outputGetPet))) {
             Stream<String> f = lines.filter(l -> list.contains(l.trim()));
             long x = f.count();
             assertEquals(4.0, x);
@@ -202,6 +204,41 @@ class JoaswizardTest implements Constants {
             assertTrue(file1.isFile() == false);
         }
     }
+
+
+    //TODO check if there are multiple pet object to be created.
+//    @Test
+//    @Order(6)
+//    void testGetMultiplePets() throws Exception {
+//        InputParameter inputParameter = new InputParameter();
+//        inputParameter.setResourceId("name");
+//        inputParameter.setResource("pet");
+//        inputParameter.addMethods("GET");
+//        inputParameter.setInputFile("src/test/resources/Pet.yml");
+//        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
+//        List<InputParameter> inputList = new ArrayList<>();
+//        inputList.add(inputParameter);
+//        String result = jo.createMethodsFromList(inputList);
+//        boolean ok = Util.writeStringToData(output, result, inputParameter.getOutputFile());
+//        assertTrue(ok);
+//
+//        File file1 = new File(output + "get_openapi.yaml");
+//        assertTrue(file1.isFile());
+//
+//        final List<String> list = new ArrayList<>();
+//        list.add("/pet/{name}:");
+//        list.add("description: Returns all pets");
+//        list.add("$ref: '#/components/schemas/Pet'");
+//        try (Stream<String> lines = Files.lines(Paths.get(output + "get_openapi.yaml"))) {
+//            Stream<String> f = lines.filter(l -> list.contains(l.trim()));
+//            long x = f.count();
+//            assertEquals(4.0, x);
+//        }
+//        if (cleanUp) {
+//            file1.delete();
+//            assertTrue(file1.isFile() == false);
+//        }
+//    }
 
     @Test
     @Order(7)
@@ -220,8 +257,8 @@ class JoaswizardTest implements Constants {
         inputParameter.setOutputFile(outputExcel);
         inputParameter.addMethods("get");
 
-        jo.createFromExcel(inputParameter);
-        File file1 = new File( outputExcel);
+        jo.createFromExcelToFile(inputParameter);
+        File file1 = new File(outputExcel);
         File file2 = new File("src/test/resources/testReferenceGetMethodList.yml");
         assertTrue(file1.isFile());
 
@@ -241,7 +278,7 @@ class JoaswizardTest implements Constants {
         inputParameter.setOutputFile(outputDBFieldsExcel);
         inputParameter.addMethods("get");
 
-        jo.createFromExcel(inputParameter);
+        jo.createFromExcelToFile(inputParameter);
         File file1 = new File(outputDBFieldsExcel);
         File file2 = new File("src/test/resources/testReferenceGetMethodList.yml");
         assertTrue(file1.isFile());
@@ -266,7 +303,7 @@ class JoaswizardTest implements Constants {
         inputParameter.setOutputFile(outputMySQLDBFieldsExcel);
         inputParameter.addMethods("get");
 
-        jo.createFromExcel(inputParameter);
+        jo.createFromExcelToFile(inputParameter);
         File file1 = new File(outputMySQLDBFieldsExcel);
         File file2 = new File("src/test/resources/testReferenceGetMethodList.yml");
         assertTrue(file1.isFile());
@@ -290,7 +327,7 @@ class JoaswizardTest implements Constants {
         inputParameter.addMethods("put");
         inputParameter.addMethods("get");
 
-        jo.createAllFromSingleYamlObjectToFile(inputParameter);
+        jo.createFromSingleYamlToFile(inputParameter);
         File file1 = new File(outputSingleYamlObject);
         File file2 = new File("src/test/resources/testReferenceSingleYamlObject.yml");
         assertTrue(file1.isFile());
@@ -313,7 +350,7 @@ class JoaswizardTest implements Constants {
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
         inputParameter.setCrud();
 
-        jo.createAllFromSingleYamlObjectToFile(inputParameter);
+        jo.createFromSingleYamlToFile(inputParameter);
         File file1 = new File(outputCrudSingleYamlObject);
         File file2 = new File("src/test/resources/testReferenceCrudSingleYamlObject.yml");
         assertTrue(file1.isFile());
@@ -338,7 +375,7 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(13)
     void testMainYaml() {
-        Main.main(new String[]{"src/test/resources/sample.yaml", outputMainYaml, "pet", "name", "yamlfile", "delete,post,patch"});
+        Main.main(new String[]{"src/test/resources/PetObject.yml", outputMainYaml, "pet", "name", "yamlfile", "delete,post,patch"});
         File file1 = new File(outputMainYaml);
         assertTrue(file1.isFile());
 
@@ -346,6 +383,18 @@ class JoaswizardTest implements Constants {
             file1.delete();
             assertTrue(file1.isFile() == false);
         }
+    }
+
+    @Test
+    void testYaml() {
+        Main.main(new String[]{"src/test/resources/sample.yaml", outputMainYaml, "shoe", "name", "yamlfile", "delete,post,patch"});
+        File file1 = new File(outputMainYaml);
+        assertTrue(file1.isFile());
+
+//        if (cleanUp) {
+//            file1.delete();
+//            assertTrue(file1.isFile() == false);
+//        }
     }
 
     @Test

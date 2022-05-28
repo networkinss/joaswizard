@@ -10,11 +10,11 @@ import java.util.*;
 import java.util.logging.*;
 
 /**
- * Author: Oliver Glas, https://inss.ch.
+ * Author: Oliver Glas, <a href="https://inss.ch">...</a>.
  */
 public class Joaswizard implements Constants {
 
-    private Logger logger = null;
+    private final Logger logger;
     private Data data = new Data();
 
     public Joaswizard() {
@@ -37,9 +37,9 @@ public class Joaswizard implements Constants {
         logger.info("Starting to create methods.");
         if (list == null || list.isEmpty()) return "{}";
         String result = new String();
-        if (list == null || list.isEmpty()) return "Error: no data.";
+//        if (list == null || list.isEmpty()) return "Error: no data.";
         for (InputParameter inputParameter : list) {
-            result = result + fromPathsCrudTemplate(inputParameter);
+            result = result + fromPathsTemplate(inputParameter);
         }
         return result;
     }
@@ -79,7 +79,6 @@ public class Joaswizard implements Constants {
                 return ERROR;
             }
             sampleMap.put(OBJECTNAME, inputParameter.getCapResource());
-
             result = template.apply(sampleMap);
         } catch (IOException e) {
             e.printStackTrace();
@@ -113,32 +112,51 @@ public class Joaswizard implements Constants {
         return result;
     }
 
-    public boolean createFromExcelInputstream(InputParameter inputParameter, InputStream inputStream) {
-        ExcelWrapper excelWrapper = new ExcelWrapper();
-        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelStream(inputStream);
-        return Boolean.parseBoolean(createExcel(integerListHashMap, inputParameter, WRITETOFILE));
-    }
-
-    public String createExcelInputstreamToString(InputParameter inputParameter, InputStream inputStream) {
+    /**
+     * @param inputParameter
+     * @param inputStream
+     * @return null if an error occured.
+     */
+    public String createFromExcelInputstreamToString(InputParameter inputParameter, InputStream inputStream) {
         if (inputStream == null) {
             logger.severe("File was empty.");
-            return "false";
+            return null;
         }
+        inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelStream(inputStream);
-        return createExcel(integerListHashMap, inputParameter, WRITETOSTRING);
+        if (integerListHashMap == null) return null;
+        List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, inputParameter);
+        return fullMultipleObjects(inputParameterList, inputParameter);
     }
 
-    public boolean createFromExcel(InputParameter input) {
+    public boolean createFromExcelToFile(InputParameter inputParameter) {
+        if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
+            inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
+        }
+        inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
         ExcelWrapper excelWrapper = new ExcelWrapper();
-        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(input.getInputFile());
-        return Boolean.parseBoolean(createExcel(integerListHashMap, input, WRITETOFILE));
+        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(inputParameter.getInputFile());
+        if (integerListHashMap == null) return false;
+        List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, inputParameter);
+        String result = fullMultipleObjects(inputParameterList, inputParameter);
+        boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, inputParameter.getOutputFile());
+        if (ok) {
+            logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
+        } else {
+            logger.severe("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
+        }
+        return ok;
     }
 
-    private String createExcel(HashMap<String, List<Map<String, String>>> integerListHashMap, InputParameter input, String action) {
-        if (integerListHashMap == null) return "false";
-        input.setSourceType(InputParameter.Sourcetype.EXCEL);
-        List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, input);
+    /**
+     * Create full OAS3 document from multiple objects.
+     *
+     * @param inputParameterList
+     * @param inputParameter
+     * @return
+     */
+    private String fullMultipleObjects(List<InputParameter> inputParameterList, InputParameter inputParameter) {
         String paths = this.createMethodsFromList(inputParameterList);
         if (paths.startsWith(ERROR)) {
             logger.severe("Could not process data for OAS paths. " + paths);
@@ -152,39 +170,43 @@ public class Joaswizard implements Constants {
             objects.append(result).append(nexLine);
         }
         resouces.delete(resouces.length() - 2, resouces.length());
-        input.setResource(resouces.toString());
+        inputParameter.setResource(resouces.toString());
 
-        String info = this.createInfo(input);
+        String info = this.createInfo(inputParameter);
         String components = this.createComponentsSchemas();
 
-        String result = info + paths + nexLine + components + objects;
-        if (action.equals(WRITETOFILE)) {
-            boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, input.getOutputFile());
-            if (ok) {
-                logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
-            } else {
-                logger.severe("Could not write file " + Constants.CURRENT_FOLDER + input.getOutputFile());
-            }
-            return Boolean.valueOf(ok).toString();
-        }
-        return result;
+        return info + paths + nexLine + components + objects;
     }
 
     /**
      * Creates defined methods from a yaml string for a single object.
      * Returns if an error ocrrued or not.
      *
-     * @param input input parameter values.
+     * @param inputParameter input parameter values.
      * @return true if the file was created.
      */
-    public boolean createAllFromSingleYamlObjectToFile(InputParameter input) {
-        String result = this.fullDocument(input);
+    public boolean createFromSingleYamlToFile(InputParameter inputParameter) {
+        if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
+            if (Util.fileExists(inputParameter.getInputFile()) == false) {
+                logger.severe("Yaml file not found: " + inputParameter.getInputFile());
+                return false;
+            }
+            inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
+        }
+        if (inputParameter.getSampleYamlData() == null) {
+            logger.severe("No Yaml data provided.");
+            return false;
+        }
+        if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
+            inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
+        }
+        String result = this.fullDocument(inputParameter);
         if (result == null) return false;
-        boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, input.getOutputFile());
+        boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
-            logger.info("OpenAPI content written to " + input.getOutputFile() + ".");
+            logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
         } else {
-            logger.severe("Could not write file " + Constants.CURRENT_FOLDER + input.getOutputFile());
+            logger.severe("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
         }
         return ok;
     }
@@ -193,15 +215,14 @@ public class Joaswizard implements Constants {
      * Creates full document from inputParameter object.
      * Returns OAS3 document as String object.
      *
-     * @param input  input parameter values.
+     * @param inputParameter input parameter values.
      * @return OAS3 as string.
      */
-    public String fullDocument(InputParameter input) {
+    public String fullDocument(InputParameter inputParameter) {
         StringBuilder document = new StringBuilder();
-
-        String info = this.createInfo(input);
-        String oasPaths = this.fromPathsCrudTemplate(input);
-        String schemaObjects = this.createSchemaObjects(input);
+        String info = this.createInfo(inputParameter);
+        String oasPaths = this.fromPathsTemplate(inputParameter);
+        String schemaObjects = this.createSchemaObjects(inputParameter);
         if (ERROR.equals(schemaObjects)) return null;
         String componentsSection = this.createComponentsSchemas();
         document.append(info);
@@ -212,10 +233,8 @@ public class Joaswizard implements Constants {
         return document.toString();
     }
 
-    private String fromPathsCrudTemplate(InputParameter inputParameter) {
-        if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
-            inputParameter.setOutputFile("get_" + Constants.DEFAULT_OUTPUT_FILE);
-        }
+    //#4
+    private String fromPathsTemplate(InputParameter inputParameter) {
         if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.YAMLFILE)) {
             inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
             if (inputParameter.getSampleYamlData() == null || inputParameter.getSampleYamlData().length() < 3) {
@@ -277,16 +296,13 @@ public class Joaswizard implements Constants {
      * @param inputParameter input parameter values.
      * @return true if file was created.
      */
-    public boolean createCrudFile(InputParameter inputParameter) {
-        logger.info("Jo starts to create crud file.");
+    public boolean createCrudFileFromYaml(InputParameter inputParameter) {
+        logger.info("Jo starts to create crud file from Yaml input.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
-        boolean ok = this.createAllFromSingleYamlObjectToFile(inputParameter);
-        if (ok) logger.info("Jo finished creating OAS3 crud file.");
-        else logger.severe("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
-        return ok;
+        return this.createFromSingleYamlToFile(inputParameter);
     }
 
-
+    //#2
     private void createMustacheDataFromYaml(InputParameter inputParameter) {
         /** if STRING the data are already there. */
         LinkedHashMap<String, Object> map = null;
@@ -301,24 +317,16 @@ public class Joaswizard implements Constants {
         } catch (Exception e) {
             logger.severe("Could not read Yaml file: " + inputParameter.getInputFile() + ". Check if it has Yaml format.");
         }
-        this.createMustacheData(inputParameter, map);
-    }
 
-    /**
-     * Providing HashMap this.data with input data for the Mustache engine.
-     */
-    private void createMustacheData(InputParameter inputParameter, LinkedHashMap<String, Object> map) {
         /** Read input data sample. */
         HashMap resultMap = new HashMap<>();
-        if (map == null || map.isEmpty()) {
-            return;
-        }
+
         String firstKey = map.keySet().iterator().next();
         Object ob = map.get(firstKey);
         String cl = ob.getClass().toString();
-        if (cl.equals("class java.util.LinkedHashMap") == true) {
+        if (cl.equals("class java.util.LinkedHashMap")) {
             map = (LinkedHashMap<String, Object>) ob;
-            inputParameter.setResource(firstKey);
+            inputParameter.setResource(firstKey); //TODO
         }
 
         List<PropertyData> list = new ArrayList<>();

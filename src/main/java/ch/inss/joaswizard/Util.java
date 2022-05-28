@@ -80,6 +80,14 @@ public class Util implements Constants {
         return result;
     }
 
+    static boolean fileExists(String file) {
+        File filePath = new File(file);
+        if (filePath.isFile()) {
+            return true;
+        }
+        return false;
+    }
+
     String readFromClasspath(String file) {
 //        File filePath = new File(file);
         InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
@@ -92,10 +100,14 @@ public class Util implements Constants {
         return writer.toString();
     }
 
+    /*** #1
+     *  Generate a LinkedHashMap from a String in Yaml format.
+     * @param strYaml
+     * @return
+     */
     static LinkedHashMap<String, Object> readYamlFromString(String strYaml) {
         Yaml yaml = new Yaml();
         LinkedHashMap<String, Object> result = yaml.load(strYaml);
-
         return result;
     }
 
