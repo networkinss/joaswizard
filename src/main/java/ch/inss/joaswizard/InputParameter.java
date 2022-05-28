@@ -20,6 +20,7 @@ public class InputParameter {
     private String[] tags;
     private Sourcetype sourceType;
     private Set<Method> methods = new HashSet<>();
+    private HashMap<String, Object> schemaData = new HashMap<>();
 
     //    private boolean doInfo = true;
 //    private boolean doPaths = true;
@@ -93,16 +94,16 @@ public class InputParameter {
         return methods;
     }
 
-    public void setMedhodList(List<String> list) {
-        if (list == null) return;
-        for (String a : list) {
-            this.addMethods(a);
-        }
-    }
+//    public void setMedhodList(List<String> list) {
+//        if (list == null) return;
+//        for (String a : list) {
+//            this.addMethods(a);
+//        }
+//    }
 
     /**
-     *
      * You can add one or more methods separated by ",".
+     *
      * @param m A HTTP method.
      */
     public void addMethods(String m) {
@@ -135,6 +136,14 @@ public class InputParameter {
         this.methods.add(Method.PUT);
         this.methods.add(Method.POST);
         this.methods.add(Method.DELETE);
+    }
+
+    public HashMap<String, Object> getSchemaData() {
+        return schemaData;
+    }
+
+    public void setSchemaData(HashMap<String, Object> schemaData) {
+        this.schemaData = schemaData;
     }
 
     public boolean isGet() {

@@ -6,7 +6,7 @@ public class Data {
     private HashMap<String, HashMap<String, Object>> allDataMaps;
 
     public Data() {
-        this.allDataMaps = new HashMap<String, HashMap<String, Object>>();
+        this.allDataMaps = new HashMap<>();
     }
 
     public HashMap<String, Object> getDataMap(String resourceKey) {

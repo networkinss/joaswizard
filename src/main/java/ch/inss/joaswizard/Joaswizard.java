@@ -67,13 +67,16 @@ public class Joaswizard implements Constants {
         try {
             Template template = mf.compile(schemaTemplate);
             if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
+                if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
+                    inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
+                }
                 this.createMustacheDataFromYaml(inputParameter);
             }
             if (this.data.size() == 0) {
                 logger.severe("No data. Please define input file or set sample yaml.");
                 return ERROR;
             }
-            HashMap sampleMap = data.getDataMap(inputParameter.getResource());
+            HashMap sampleMap = this.data.getDataMap(inputParameter.getResource());
             if (sampleMap == null || sampleMap.size() == 0) {
                 logger.severe("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");
                 return ERROR;
@@ -161,16 +164,16 @@ public class Joaswizard implements Constants {
         if (paths.startsWith(ERROR)) {
             logger.severe("Could not process data for OAS paths. " + paths);
         }
-        StringBuilder resouces = new StringBuilder();
+        StringBuilder resources = new StringBuilder();
         StringBuilder objects = new StringBuilder();
         for (InputParameter parameter : inputParameterList) {
-            resouces.append(parameter.getResource()).append(", ");
+            resources.append(parameter.getResource()).append(", ");
             String result = this.createSchemaObjects(parameter);
             if (ERROR.equals(result)) return "false";
             objects.append(result).append(nexLine);
         }
-        resouces.delete(resouces.length() - 2, resouces.length());
-        inputParameter.setResource(resouces.toString());
+        resources.delete(resources.length() - 2, resources.length());
+        inputParameter.setResource(resources.toString());
 
         String info = this.createInfo(inputParameter);
         String components = this.createComponentsSchemas();
@@ -251,7 +254,6 @@ public class Joaswizard implements Constants {
         logger.fine(inputParameter.toString());
         Handlebars mf = new Handlebars();
         String result = null;
-        boolean allquery = inputParameter.isAllquery();
         try {
             Template template = mf.compile(pathComponentCrudTemplate);
 
@@ -303,16 +305,13 @@ public class Joaswizard implements Constants {
     }
 
     //#2
-    private void createMustacheDataFromYaml(InputParameter inputParameter) {
+    private Data createMustacheDataFromYaml(InputParameter inputParameter) {
         /** if STRING the data are already there. */
         LinkedHashMap<String, Object> map = null;
         try {
-            if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
-                inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
-            }
             map = Util.readYamlFromString(inputParameter.getSampleYamlData());
             if (map == null || map.isEmpty()) {
-                return;
+                return null;
             }
         } catch (Exception e) {
             logger.severe("Could not read Yaml file: " + inputParameter.getInputFile() + ". Check if it has Yaml format.");
@@ -339,7 +338,11 @@ public class Joaswizard implements Constants {
             list.add(sampleData);
         }
         resultMap.put("data", list);
+        Data resultData = new Data();
         this.data.addDataMap(inputParameter.getResource(), resultMap);
+        resultData.addDataMap(inputParameter.getResource(), resultMap);
+        return resultData;
+
 //        inputParameter.setDataMap(resultMap);
     }
 
@@ -349,9 +352,11 @@ public class Joaswizard implements Constants {
      * 1. Read values from Excel in columns with name: Datatype, Format, Pattern.
      * 2. If not defined there, it will check mapping.
      * 3. If no mapping is defined, it will guess. If it can be parsed to a number, it will be type number. All other is a string.
+     *
+     * @return
      */
-    private void createMustacheDataFromExcel(InputParameter inputParameter, List<Map<String, String>> mapList) {
-        LinkedHashMap<String, Object> resultMap = new LinkedHashMap<>();
+    private HashMap<String, Object> createMustacheDataFromExcel(InputParameter inputParameter, List<Map<String, String>> mapList) {
+        HashMap<String, Object> resultMap = new HashMap<>();
         List<PropertyData> list = new ArrayList<>();
 
         /* If not in OasType field defined, it will try to take the type from the column DbType. */
@@ -491,6 +496,8 @@ public class Joaswizard implements Constants {
         }
         resultMap.put("data", list);
         this.data.addDataMap(inputParameter.getResource(), resultMap);
+//        this.data.addDataMap(inputParameter.getResource(), resultMap);
+        return resultMap;
     }
 
     private String getOasEnum(String e, String type) {
@@ -526,7 +533,7 @@ public class Joaswizard implements Constants {
             StringBuilder yaml = new StringBuilder(index + ": " + "´\n");
             InputParameter inputParameter = new InputParameter(in.getInputFile(), in.getOutputFile(), in.getSourceType(), in.getMethodList(), in.getMappingFile(), in.isPrefixMatch());
             inputParameter.setResource(index);
-            this.createMustacheDataFromExcel(inputParameter, mapList);
+            inputParameter.setSchemaData(this.createMustacheDataFromExcel(inputParameter, mapList));
             result.add(inputParameter);
         }
         return result;
