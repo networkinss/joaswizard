@@ -65,10 +65,10 @@ public class Joaswizard implements Constants {
         try {
             Template template = mf.compile(schemaTemplate);
             if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
-                if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
-                    inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
-                }
-                this.createMustacheDataFromYaml(inputParameter);
+//                if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
+//                    inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
+//                }
+                this.createMustacheDataFromYaml(inputParameter);  //TODO move to previous step
             }
             if (inputParameter.getSchemaData() == null || inputParameter.getSchemaData().isEmpty()) {
                 logger.severe("No data. Please define input file or set sample yaml.");
@@ -129,7 +129,8 @@ public class Joaswizard implements Constants {
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelStream(inputStream);
         if (integerListHashMap == null) return null;
         List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, inputParameter);
-        return fullMultipleObjects(inputParameterList, inputParameter);
+
+        return fullMultipleObjects(inputParameterList);
     }
 
     public boolean createFromExcelToFile(InputParameter inputParameter) {
@@ -141,7 +142,8 @@ public class Joaswizard implements Constants {
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(inputParameter.getInputFile());
         if (integerListHashMap == null) return false;
         List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, inputParameter);
-        String result = fullMultipleObjects(inputParameterList, inputParameter);
+
+        String result = fullMultipleObjects(inputParameterList);
         boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
@@ -155,28 +157,26 @@ public class Joaswizard implements Constants {
      * Create full OAS3 document from multiple objects.
      *
      * @param inputParameterList
-     * @param inputParameter
-     * @return
+     * @return Full OAS3 document or null if an error occurred.
      */
-    private String fullMultipleObjects(List<InputParameter> inputParameterList, InputParameter inputParameter) {
+    private String fullMultipleObjects(List<InputParameter> inputParameterList) {
+        if (inputParameterList == null || inputParameterList.isEmpty()) return null;
         String paths = this.createMethodsFromList(inputParameterList);
         if (paths.startsWith(ERROR)) {
             logger.severe("Could not process data for OAS paths. " + paths);
         }
         StringBuilder resources = new StringBuilder();
         StringBuilder objects = new StringBuilder();
-        for (InputParameter parameter : inputParameterList) {
-            resources.append(parameter.getResource()).append(", ");
-            String result = this.createSchemaObjects(parameter);
-            if (ERROR.equals(result)) return "false";
+        for (InputParameter input : inputParameterList) {
+            resources.append(input.getResource()).append(", ");
+            String result = this.createSchemaObjects(input);
+            if (ERROR.equals(result)) return null;
             objects.append(result).append(nexLine);
         }
         resources.delete(resources.length() - 2, resources.length());
-        inputParameter.setResource(resources.toString());
-
-        String info = this.createInfo(inputParameter);
+        inputParameterList.get(0).setResource(resources.toString());
+        String info = this.createInfo(inputParameterList.get(0));
         String components = this.createComponentsSchemas();
-
         return info + paths + nexLine + components + objects;
     }
 
@@ -188,6 +188,8 @@ public class Joaswizard implements Constants {
      * @return true if the file was created.
      */
     public boolean createFromSingleYamlToFile(InputParameter inputParameter) {
+        if (inputParameter == null) return false;
+        List<InputParameter> inputParameterList = new ArrayList<>();
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
             if (Util.fileExists(inputParameter.getInputFile()) == false) {
                 logger.severe("Yaml file not found: " + inputParameter.getInputFile());
@@ -202,7 +204,9 @@ public class Joaswizard implements Constants {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
-        String result = this.fullDocument(inputParameter);
+        inputParameterList.add(inputParameter);
+//        String result = this.fullDocument(inputParameterList.get(0));
+        String result = this.fullMultipleObjects(inputParameterList);
         if (result == null) return false;
         boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
@@ -220,19 +224,16 @@ public class Joaswizard implements Constants {
      * @param inputParameter input parameter values.
      * @return OAS3 as string.
      */
-    public String fullDocument(InputParameter inputParameter) {
-        StringBuilder document = new StringBuilder();
-        String info = this.createInfo(inputParameter);
-        String oasPaths = this.fromPathsTemplate(inputParameter);
-        String schemaObjects = this.createSchemaObjects(inputParameter);
-        if (ERROR.equals(schemaObjects)) return null;
-        String componentsSection = this.createComponentsSchemas();
-        document.append(info);
-        document.append(oasPaths).append(nexLine);
-        document.append(componentsSection);
-        document.append(schemaObjects);
-        return document.toString();
-    }
+//    public String fullDocument(InputParameter inputParameter) {
+//        StringBuilder document = new StringBuilder();
+//        String info = this.createInfo(inputParameter);
+//        String oasPaths = this.fromPathsTemplate(inputParameter);
+//        String schemaObjects = this.createSchemaObjects(inputParameter);
+//        if (ERROR.equals(schemaObjects)) return null;
+//        String componentsSection = this.createComponentsSchemas();
+//        document.append(info).append(oasPaths).append(nexLine).append(componentsSection).append(schemaObjects);
+//        return document.toString();
+//    }
 
     //#4
     private String fromPathsTemplate(InputParameter inputParameter) {
@@ -489,7 +490,6 @@ public class Joaswizard implements Constants {
         }
         resultMap.put("data", list);
         inputParameter.setSchemaData(resultMap);
-//        this.data.addDataMap(inputParameter.getResource(), resultMap);
         return resultMap;
     }
 
