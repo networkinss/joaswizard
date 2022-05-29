@@ -15,7 +15,6 @@ import java.util.logging.*;
 public class Joaswizard implements Constants {
 
     private final Logger logger;
-    private Data data = new Data();
 
     public Joaswizard() {
         logger = Logger.getLogger(Joaswizard.class.getName());
@@ -37,7 +36,6 @@ public class Joaswizard implements Constants {
         logger.info("Starting to create methods.");
         if (list == null || list.isEmpty()) return "{}";
         String result = new String();
-//        if (list == null || list.isEmpty()) return "Error: no data.";
         for (InputParameter inputParameter : list) {
             result = result + fromPathsTemplate(inputParameter);
         }
@@ -72,11 +70,12 @@ public class Joaswizard implements Constants {
                 }
                 this.createMustacheDataFromYaml(inputParameter);
             }
-            if (this.data.size() == 0) {
+            if (inputParameter.getSchemaData() == null || inputParameter.getSchemaData().isEmpty()) {
                 logger.severe("No data. Please define input file or set sample yaml.");
                 return ERROR;
             }
-            HashMap sampleMap = this.data.getDataMap(inputParameter.getResource());
+            HashMap sampleMap = inputParameter.getSchemaData();
+//            HashMap sampleMap = this.data.getDataMap(inputParameter.getResource());
             if (sampleMap == null || sampleMap.size() == 0) {
                 logger.severe("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");
                 return ERROR;
@@ -232,7 +231,6 @@ public class Joaswizard implements Constants {
         document.append(oasPaths).append(nexLine);
         document.append(componentsSection);
         document.append(schemaObjects);
-//        String result = info + oasPaths + components + document;
         return document.toString();
     }
 
@@ -246,7 +244,7 @@ public class Joaswizard implements Constants {
             }
         }
         if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL)) {
-            if (this.data == null || this.data.size() == 0) {
+            if (inputParameter.getSchemaData() == null || inputParameter.getSchemaData().isEmpty()) {
                 logger.severe("No data. Please define input file or set sample yaml.");
                 return "Error";
             }
@@ -305,13 +303,13 @@ public class Joaswizard implements Constants {
     }
 
     //#2
-    private Data createMustacheDataFromYaml(InputParameter inputParameter) {
+    private void createMustacheDataFromYaml(InputParameter inputParameter) {
         /** if STRING the data are already there. */
         LinkedHashMap<String, Object> map = null;
         try {
             map = Util.readYamlFromString(inputParameter.getSampleYamlData());
             if (map == null || map.isEmpty()) {
-                return null;
+                return;
             }
         } catch (Exception e) {
             logger.severe("Could not read Yaml file: " + inputParameter.getInputFile() + ". Check if it has Yaml format.");
@@ -338,12 +336,7 @@ public class Joaswizard implements Constants {
             list.add(sampleData);
         }
         resultMap.put("data", list);
-        Data resultData = new Data();
-        this.data.addDataMap(inputParameter.getResource(), resultMap);
-        resultData.addDataMap(inputParameter.getResource(), resultMap);
-        return resultData;
-
-//        inputParameter.setDataMap(resultMap);
+        inputParameter.setSchemaData(resultMap);
     }
 
     /**
@@ -495,7 +488,7 @@ public class Joaswizard implements Constants {
             list.add(propertyData);
         }
         resultMap.put("data", list);
-        this.data.addDataMap(inputParameter.getResource(), resultMap);
+        inputParameter.setSchemaData(resultMap);
 //        this.data.addDataMap(inputParameter.getResource(), resultMap);
         return resultMap;
     }

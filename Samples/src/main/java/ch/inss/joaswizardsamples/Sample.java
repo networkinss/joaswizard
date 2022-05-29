@@ -16,7 +16,7 @@ public class Sample {
         inputParameter.setResourceId("id");
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
         Joaswizard joaswizard = new Joaswizard();
-        joaswizard.createCrudFile(inputParameter);
+        joaswizard.createCrudFileFromYaml(inputParameter);
         System.out.println();
         System.out.println("OpenAPI document created: openapi_fromyaml.yaml");
         
@@ -46,7 +46,7 @@ public class Sample {
         inputParameter.addMethods("get");
         /* Process file and generate OpenAPI specification which will be in the output folder. */
         Joaswizard joaswizard = new Joaswizard();
-        joaswizard.createFromExcel(inputParameter);
+        joaswizard.createFromExcelToFile(inputParameter);
         System.out.println();
         System.out.println("OpenAPI document created: " + inputParameter.getOutputFile());
     }
