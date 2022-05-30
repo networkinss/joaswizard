@@ -16,7 +16,7 @@ public class Sample {
         inputParameter.setResourceId("id");
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
         Joaswizard joaswizard = new Joaswizard();
-        joaswizard.createCrudFileFromYaml(inputParameter);
+        joaswizard.createCrudFromYamlToFile(inputParameter);
         System.out.println();
         System.out.println("OpenAPI document created: openapi_fromyaml.yaml");
         
