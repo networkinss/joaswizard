@@ -64,12 +64,6 @@ public class Joaswizard implements Constants {
         String result = null;
         try {
             Template template = mf.compile(schemaTemplate);
-            if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
-//                if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
-//                    inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
-//                }
-                this.createMustacheDataFromYaml(inputParameter);  //TODO move to previous step
-            }
             if (inputParameter.getSchemaData() == null || inputParameter.getSchemaData().isEmpty()) {
                 logger.severe("No data. Please define input file or set sample yaml.");
                 return ERROR;
@@ -77,7 +71,7 @@ public class Joaswizard implements Constants {
             HashMap sampleMap = inputParameter.getSchemaData();
 //            HashMap sampleMap = this.data.getDataMap(inputParameter.getResource());
             if (sampleMap == null || sampleMap.size() == 0) {
-                logger.severe("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");
+                logger.severe("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");  //TODO check
                 return ERROR;
             }
             sampleMap.put(OBJECTNAME, inputParameter.getCapResource());
@@ -128,7 +122,7 @@ public class Joaswizard implements Constants {
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelStream(inputStream);
         if (integerListHashMap == null) return null;
-        List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, inputParameter);
+        List<InputParameter> inputParameterList = this.createExcelInputParameterList(integerListHashMap, inputParameter);
 
         return fullMultipleObjects(inputParameterList);
     }
@@ -141,7 +135,7 @@ public class Joaswizard implements Constants {
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(inputParameter.getInputFile());
         if (integerListHashMap == null) return false;
-        List<InputParameter> inputParameterList = this.createInputParameterList(integerListHashMap, inputParameter);
+        List<InputParameter> inputParameterList = this.createExcelInputParameterList(integerListHashMap, inputParameter);
 
         String result = fullMultipleObjects(inputParameterList);
         boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, inputParameter.getOutputFile());
@@ -204,8 +198,10 @@ public class Joaswizard implements Constants {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
+        this.createMustacheDataFromYaml(inputParameter);
         inputParameterList.add(inputParameter);
 //        String result = this.fullDocument(inputParameterList.get(0));
+
         String result = this.fullMultipleObjects(inputParameterList);
         if (result == null) return false;
         boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, inputParameter.getOutputFile());
@@ -270,9 +266,9 @@ public class Joaswizard implements Constants {
     /**
      * Gives back an Inputparameter instance with pre-filled default values.
      *
-     * @param input  input parameter values.
+     * @param input      input parameter values.
      * @param sourcetype Sourc type.
-     * @param resource resource name.
+     * @param resource   resource name.
      * @return Default input parameter values.
      */
     public InputParameter inputMandatory(String input, String sourcetype, String resource) {
@@ -303,10 +299,10 @@ public class Joaswizard implements Constants {
         return this.createFromSingleYamlToFile(inputParameter);
     }
 
-    //#2
-    private void createMustacheDataFromYaml(InputParameter inputParameter) {
+    public void createMustacheDataFromYaml(InputParameter inputParameter) {
         /** if STRING the data are already there. */
         LinkedHashMap<String, Object> map = null;
+        HashMap resultMap = new HashMap<>();
         try {
             map = Util.readYamlFromString(inputParameter.getSampleYamlData());
             if (map == null || map.isEmpty()) {
@@ -314,11 +310,10 @@ public class Joaswizard implements Constants {
             }
         } catch (Exception e) {
             logger.severe("Could not read Yaml file: " + inputParameter.getInputFile() + ". Check if it has Yaml format.");
+            return;
         }
 
         /** Read input data sample. */
-        HashMap resultMap = new HashMap<>();
-
         String firstKey = map.keySet().iterator().next();
         Object ob = map.get(firstKey);
         String cl = ob.getClass().toString();
@@ -518,8 +513,8 @@ public class Joaswizard implements Constants {
         return b.toString();
     }
 
-
-    private List<InputParameter> createInputParameterList(HashMap<String, List<Map<String, String>>> map, InputParameter in) {
+    //TODO set resource ?
+    private List<InputParameter> createExcelInputParameterList(HashMap<String, List<Map<String, String>>> map, InputParameter in) {
         List<InputParameter> result = new ArrayList<>();
         for (String index : map.keySet()) {
             List<Map<String, String>> mapList = map.get(index);

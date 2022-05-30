@@ -27,6 +27,8 @@ class JoaswizardTest implements Constants {
     private final static String outputPet = output + "test03_OutputPet.yml";
     private final static String outputContact1 = output + "test01_OutputContact.yml";
     private final static String outputContact2 = output + "test02_OutputContact.yml";
+    private final static String outputSchema1 = "test04_OutputSchema1.yml";
+    private final static String outputSchema2 = "test04_OutputSchema2.yml";
     private final static String outputString = output + "test05_OutputString.yml";
     private final static String outputExcel = output + "test08_OutputExcelsheet.yml";
     private final static String outputDBFieldsExcel = output + "test09_OutputDBFieldsExcelsheet.yml";
@@ -107,26 +109,26 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(4)
     void testSchemaPet() throws Exception {
-        InputParameter inputParameter = new InputParameter();
-        inputParameter.setResourceId("name");
-        inputParameter.setResource("PET");
-
         InputParameter p1 = new InputParameter();
         p1.setResourceId("name");
         p1.setInputFile("src/test/resources/PetObject.yml");
         p1.setSampleYamlData(Util.readFromFile(p1.getInputFile()));
+        jo.createMustacheDataFromYaml(p1);
         String schema1 = jo.createSchemaObjects(p1);
-        Util.writeStringToData("output", schema1, "testOutputSchema_Object.yml");
+        Util.writeStringToData(output, schema1, outputSchema1);
 
-        inputParameter.setInputFile("src/test/resources/Pet.yml");
-        inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
-        String schema = jo.createSchemaObjects(inputParameter);
+        InputParameter p2 = new InputParameter();
+        p2.setResourceId("name");
+        p2.setResource("PET");
+        p2.setInputFile("src/test/resources/Pet.yml");
+        p2.setSampleYamlData(Util.readFromFile(p2.getInputFile()));
+        jo.createMustacheDataFromYaml(p2);
+        String schema2 = jo.createSchemaObjects(p2);
+        Util.writeStringToData(output, schema2, outputSchema2);
 
-        Util.writeStringToData("output", schema, "testOutputSchema.yml");
-
-        File file1 = new File(output + "testOutputSchema.yml");
+        File file1 = new File(output + outputSchema1);
         File file2 = new File("src/test/resources/testReferenceSchemaPet.yml");
-        File file3 = new File(output + "testOutputSchema_Object.yml");
+        File file3 = new File(output + outputSchema2);
         assertTrue(file1.isFile());
         assertTrue(file3.isFile());
 
