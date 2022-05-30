@@ -134,7 +134,7 @@ public class Main implements Constants {
         Joaswizard joaswizard = new Joaswizard();
         boolean ok = false;
         if (methods.equalsIgnoreCase("crud") && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL) == false) {
-            ok = joaswizard.createCrudFileFromYaml(inputParameter);
+            ok = joaswizard.createCrudFromYamlToFile(inputParameter);
         } else if (inputParameter.getSourceType().toString().equalsIgnoreCase(InputParameter.Sourcetype.EXCEL.toString())) {
             ok = joaswizard.createFromExcelToFile(inputParameter);
         } else {
@@ -170,6 +170,6 @@ public class Main implements Constants {
             inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
         }
         Joaswizard joaswizard = new Joaswizard();
-        joaswizard.createCrudFileFromYaml(inputParameter);
+        joaswizard.createCrudFromYamlToFile(inputParameter);
     }
 }

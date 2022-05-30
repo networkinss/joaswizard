@@ -27,6 +27,7 @@ public class Joaswizard implements Constants {
     }
 
     /**
+     * OAS3 part: paths
      * Create all methods for the paths as defined in input parameter object list.
      *
      * @param list list of input parameter values.
@@ -42,7 +43,7 @@ public class Joaswizard implements Constants {
         return result;
     }
 
-    /**
+    /** OAS3 part: start tag and error model for components schemas.
      * Creates only error model and the start of components schemas.
      *
      * @return String of beginning of components schemas including a standard error model.
@@ -51,7 +52,7 @@ public class Joaswizard implements Constants {
         return new Util().readFromClasspath(componentsErrorTemplate + ".hbs") + nexLine;
     }
 
-    /**
+    /** OAS3 part: objects in components schemas.
      * Creates one components schema as defined in input paramter.
      *
      * @param inputParameter input parameter values.
@@ -83,7 +84,7 @@ public class Joaswizard implements Constants {
         return result;
     }
 
-    /**
+    /** OAS3 part: info
      * Creates one components schema as defined in input paramter.
      *
      * @param inputParameter input parameter values.
@@ -147,7 +148,7 @@ public class Joaswizard implements Constants {
         return ok;
     }
 
-    /**
+    /** OAS3 full document.
      * Create full OAS3 document from multiple objects.
      *
      * @param inputParameterList
@@ -175,6 +176,18 @@ public class Joaswizard implements Constants {
     }
 
     /**
+     * Create all CRUD operations for one object and stores it in a file..
+     *
+     * @param inputParameter input parameter values.
+     * @return true if file was created.
+     */
+    public boolean createCrudFromYamlToFile(InputParameter inputParameter) {
+        logger.info("Jo starts to create crud file from Yaml input.");
+        inputParameter.addMethod(InputParameter.Method.CRUD);
+        return this.createFromSingleYamlToFile(inputParameter);
+    }
+
+    /**
      * Creates defined methods from a yaml string for a single object.
      * Returns if an error ocrrued or not.
      *
@@ -182,27 +195,7 @@ public class Joaswizard implements Constants {
      * @return true if the file was created.
      */
     public boolean createFromSingleYamlToFile(InputParameter inputParameter) {
-        if (inputParameter == null) return false;
-        List<InputParameter> inputParameterList = new ArrayList<>();
-        if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
-            if (Util.fileExists(inputParameter.getInputFile()) == false) {
-                logger.severe("Yaml file not found: " + inputParameter.getInputFile());
-                return false;
-            }
-            inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
-        }
-        if (inputParameter.getSampleYamlData() == null) {
-            logger.severe("No Yaml data provided.");
-            return false;
-        }
-        if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
-            inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
-        }
-        this.createMustacheDataFromYaml(inputParameter);
-        inputParameterList.add(inputParameter);
-//        String result = this.fullDocument(inputParameterList.get(0));
-
-        String result = this.fullMultipleObjects(inputParameterList);
+        String result = this.createFromSingleYamlToString(inputParameter);
         if (result == null) return false;
         boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
@@ -212,6 +205,50 @@ public class Joaswizard implements Constants {
         }
         return ok;
     }
+
+    /**
+     * For convenience takes Yaml format as input and gives back full OAS3 document a string
+     * with all CRUD operations as string.
+     *
+     * @param inputParameter
+     * @return Full OAS3 document with CRUD operations.
+     */
+    public String createCrudFromYamlToString(InputParameter inputParameter) {
+        logger.info("Jo starts to create crud file from Yaml input.");
+        inputParameter.addMethod(InputParameter.Method.CRUD);
+        return this.createFromSingleYamlToString(inputParameter);
+    }
+
+    /**
+     * Returns a full OAS3 document.
+     *
+     * @param inputParameter
+     * @return Full OAS3 document as string.
+     */
+    public String createFromSingleYamlToString(InputParameter inputParameter) {
+        if (inputParameter == null) return null;
+        List<InputParameter> inputParameterList = new ArrayList<>();
+        if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
+            if (Util.fileExists(inputParameter.getInputFile()) == false) {
+                logger.severe("Yaml file not found: " + inputParameter.getInputFile());
+                return null;
+            }
+            inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
+        }
+        if (inputParameter.getSampleYamlData() == null) {
+            logger.severe("No Yaml data provided.");
+            return null;
+        }
+        if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
+            inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
+        }
+        this.createMustacheDataFromYaml(inputParameter);
+        inputParameterList.add(inputParameter);
+//        String result = this.fullDocument(inputParameterList.get(0));
+
+        return this.fullMultipleObjects(inputParameterList);
+    }
+
 
     /**
      * Creates full document from inputParameter object.
@@ -231,7 +268,6 @@ public class Joaswizard implements Constants {
 //        return document.toString();
 //    }
 
-    //#4
     private String fromPathsTemplate(InputParameter inputParameter) {
         if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.YAMLFILE)) {
             inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
@@ -287,17 +323,6 @@ public class Joaswizard implements Constants {
         return in;
     }
 
-    /**
-     * Create all CRUD operations for one object and stores it in a file..
-     *
-     * @param inputParameter input parameter values.
-     * @return true if file was created.
-     */
-    public boolean createCrudFileFromYaml(InputParameter inputParameter) {
-        logger.info("Jo starts to create crud file from Yaml input.");
-        inputParameter.addMethod(InputParameter.Method.CRUD);
-        return this.createFromSingleYamlToFile(inputParameter);
-    }
 
     public void createMustacheDataFromYaml(InputParameter inputParameter) {
         /** if STRING the data are already there. */

@@ -153,7 +153,7 @@ class JoaswizardTest implements Constants {
         inputParameter.setResourceId("name");
         inputParameter.setResource("contact");
 
-        jo.createCrudFileFromYaml(inputParameter);
+        jo.createCrudFromYamlToFile(inputParameter);
 
         File file1 = new File(outputString);
         File file2 = new File("src/test/resources/testReferenceString.yml");
