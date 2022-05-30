@@ -233,6 +233,7 @@ components:
         tags:
           type: array
           items:
+            type: string
           minLength: 5
           example: [dog, 4paws]
       required:

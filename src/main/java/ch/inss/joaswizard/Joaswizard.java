@@ -50,7 +50,7 @@ public class Joaswizard implements Constants {
      * @return String of beginning of components schemas including a standard error model.
      */
     public String createComponentsSchemas() {
-        return new Util().readFromClasspath(componentsErrorTemplate + ".hbs") + nexLine;
+        return new Util().readFromClasspath(componentsErrorTemplate + ".hbs") + nextLine;
     }
 
     /**
@@ -170,13 +170,13 @@ public class Joaswizard implements Constants {
             resources.append(input.getResource()).append(", ");
             String result = this.createSchemaObjects(input);
             if (ERROR.equals(result)) return null;
-            objects.append(result).append(nexLine);
+            objects.append(result).append(nextLine);
         }
         resources.delete(resources.length() - 2, resources.length());
         inputParameterList.get(0).setResource(resources.toString());
         String info = this.createInfo(inputParameterList.get(0));
         String components = this.createComponentsSchemas();
-        return info + paths + nexLine + components + objects;
+        return info + paths + nextLine + components + objects;
     }
 
     /**
@@ -231,7 +231,7 @@ public class Joaswizard implements Constants {
      */
     public String createFromSingleYamlToString(InputParameter inputParameter) {
         if (inputParameter == null) return null;
-        List<InputParameter> inputParameterList = new ArrayList<>();
+//        List<InputParameter> inputParameterList = new ArrayList<>();
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
             if (Util.fileExists(inputParameter.getInputFile()) == false) {
                 logger.severe("Yaml file not found: " + inputParameter.getInputFile());
@@ -246,8 +246,8 @@ public class Joaswizard implements Constants {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
-        this.createMustacheDataFromYaml(inputParameter);
-        inputParameterList.add(inputParameter);
+        List<InputParameter> inputParameterList = this.createMustacheDataFromYaml(inputParameter);
+//        inputParameterList.add(inputParameter);
 //        String result = this.fullDocument(inputParameterList.get(0));
 
         return this.fullMultipleObjects(inputParameterList);
@@ -272,34 +272,33 @@ public class Joaswizard implements Constants {
 //        return document.toString();
 //    }
     private String fromPathsTemplate(InputParameter inputParameter) {
-        if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.YAMLFILE)) {
-            inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
-            if (inputParameter.getSampleYamlData() == null || inputParameter.getSampleYamlData().length() < 3) {
-                logger.severe("No sample yaml with data. Please define input file or set sample yaml.");
-                return null;
-            }
-        }
-        if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL)) {
-            if (inputParameter.getSchemaData() == null || inputParameter.getSchemaData().isEmpty()) {
-                logger.severe("No data. Please define input file or set sample yaml.");
-                return "Error";
-            }
-        }
+//        if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.YAMLFILE)) {
+//            inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
+//            if (inputParameter.getSampleYamlData() == null || inputParameter.getSampleYamlData().length() < 3) {
+//                logger.severe("No sample yaml with data. Please define input file or set sample yaml.");
+//                return null;
+//            }
+//        }
+//        if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL)) {
+//            if (inputParameter.getSchemaData() == null || inputParameter.getSchemaData().isEmpty()) {
+//                logger.severe("No data. Please define input file or set sample yaml.");
+//                return "Error";
+//            }
+//        }
         logger.fine(inputParameter.toString());
         Handlebars mf = new Handlebars();
         String result = null;
         try {
             Template template = mf.compile(pathComponentCrudTemplate);
 
-            /* Read input data sample. */
-            if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
-                this.createMustacheDataFromYaml(inputParameter);
-            }
+//            if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
+//                this.createMustacheDataFromYaml(inputParameter);
+//            }
             result = template.apply(inputParameter);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return nexLine + result;
+        return nextLine + result;
     }
 
     /**
@@ -327,81 +326,98 @@ public class Joaswizard implements Constants {
     }
 
 
-    public void createMustacheDataFromYaml(InputParameter inputParameter) {
+    public List<InputParameter> createMustacheDataFromYaml(InputParameter mainInputParameter) {
         /** if STRING the data are already there. */
-        LinkedHashMap<String, Object> map = null;
-        HashMap resultMap = new HashMap<>();
+        LinkedHashMap<String, Object> allObjectsMap = null;
+
+        List<InputParameter> inputParameterList = new ArrayList<>();
         try {
-            map = Util.readYamlFromString(inputParameter.getSampleYamlData());
-            if (map == null || map.isEmpty()) {
-                return;
+            allObjectsMap = Util.readYamlFromString(mainInputParameter.getSampleYamlData());
+            if (allObjectsMap == null || allObjectsMap.isEmpty()) {
+                return null;
             }
         } catch (Exception e) {
-            logger.severe("Could not read Yaml file: " + inputParameter.getInputFile() + ". Check if it has Yaml format.");
-            return;
+            logger.severe("Could not read Yaml file: " + mainInputParameter.getInputFile() + ". Check if it has Yaml format.");
+            return null;
         }
 
-        /** Read input data sample. */
-        String firstKey = map.keySet().iterator().next();
-        Object ob = map.get(firstKey);
-        String cl = ob.getClass().toString();
-        if (cl.equals("class java.util.LinkedHashMap")) {
-            map = (LinkedHashMap<String, Object>) ob;
-            inputParameter.setResource(firstKey); //TODO
-        }
+        /** Loop for objects. */
+        for (String key : allObjectsMap.keySet()) {
+            InputParameter inputParameter = new InputParameter(mainInputParameter);
+            HashMap<String, Object> resultMap = new HashMap<>();
+            boolean breakLoop = false;
+            LinkedHashMap<String, Object> propMap = null;
+//        String firstKey = map.keySet().iterator().next();
+            /** Read input data sample. */
+            Object ob = allObjectsMap.get(key);
+            String cl = ob.getClass().toString();
+            if (cl.equals("class java.util.LinkedHashMap")) {
+                propMap = (LinkedHashMap<String, Object>) ob;
+                inputParameter.setResource(key); //TODO
+            } else {
+                propMap = allObjectsMap;
+                breakLoop = true;
+            }
 
-        List<PropertyData> list = new ArrayList<>();
-        for (String key : map.keySet()) {
-            String value = map.get(key).toString().trim();  //TODO check null ?
-            boolean isNumeric = true;
-            boolean isArray = false;
-            boolean isNumber = false;
-            int minLength = 1;
-            String type = null;
-            if (value.startsWith("[") && value.endsWith("]")) {
-                String arrValue = value.substring(1, value.length() - 1);
-                String[] arr = arrValue.split(",");
-                isArray = true;
-                for (String a : arr) {
-                    isNumeric = isNumeric && Util.isNumber(a);
-                    if (isNumeric) {
-                        isNumber = isNumber || a.contains(".");
+            /** Loop for the properties of one object. */
+            List<PropertyData> list = new ArrayList<>();
+            for (String propKey : propMap.keySet()) {
+                String value = propMap.get(propKey).toString().trim();  //TODO check null ?
+                boolean isNumeric = true;
+                boolean isArray = false;
+                boolean isNumber = false;
+                int minLength = 1;
+                String type = null;
+                if (value.startsWith("[") && value.endsWith("]")) {
+                    String arrValue = value.substring(1, value.length() - 1);
+                    String[] arr = arrValue.split(",");
+                    isArray = true;
+                    for (String a : arr) {
+                        isNumeric = isNumeric && Util.isNumber(a);
+                        if (isNumeric) {
+                            isNumber = isNumber || a.contains(".");
+                        }
+                        if (a.length() > minLength) minLength = a.trim().length();
                     }
-                    if (a.length() > minLength) minLength = a.trim().length();
+                } else {
+                    isNumeric = isNumeric && Util.isNumber(value);
+                    if (isNumeric) {
+                        isNumber = isNumber || value.contains(".");
+                    }
                 }
-            } else {
-                isNumeric = isNumeric && Util.isNumber(value);
-                if (isNumeric) {
-                    isNumber = isNumber || value.contains(".");
+                if (isArray) {
+                    type = "array";
+                } else if (isNumeric) {
+                    if (isNumber) type = "number";
+                    else type = "integer";
+                } else {
+                    type = "string";
+                    minLength = value.trim().length();
                 }
-            }
-            if (isArray) {
-                type = "array";
-            } else if (isNumeric) {
-                if (isNumber) type = "number";
-                else type = "integer";
-            } else {
-                type = "string";
-                minLength = value.trim().length();
-            }
 
-            PropertyData propertyData = new PropertyData(key, type);
-            if (isArray) {
-                propertyData.setArray(true);
-                if (isNumber) propertyData.setTypeArray("number");
-                else if (isNumeric) propertyData.setTypeArray("integer");
-                else {
-                    propertyData.setTypeArray("string");
-                    propertyData.setMinlength(minLength);
+                PropertyData propertyData = new PropertyData(propKey, type);
+                if (isArray) {
+                    propertyData.setArray(true);
+                    if (isNumber) propertyData.setTypeArray("number");
+                    else if (isNumeric) propertyData.setTypeArray("integer");
+                    else {
+                        propertyData.setTypeArray("string");
+                        propertyData.setMinlength(minLength);
+                    }
                 }
+                propertyData.setExamplevalue(value);
+                if (type.equals("string")) propertyData.setMinlength(minLength);
+                propertyData.setRequired(true);
+
+                list.add(propertyData);
             }
-            propertyData.setExamplevalue(value);
-            if (type.equals("string")) propertyData.setMinlength(minLength);
-            propertyData.setRequired(true);
-            list.add(propertyData);
+            resultMap.put("data", list);
+            inputParameter.setSchemaData(resultMap);
+            inputParameterList.add(inputParameter);
+            if (breakLoop) break;
         }
-        resultMap.put("data", list);
-        inputParameter.setSchemaData(resultMap);
+
+        return inputParameterList;
     }
 
     /**
@@ -577,7 +593,7 @@ public class Joaswizard implements Constants {
                         item = "'" + item + "'";
                     }
                 }
-                b.append("- ").append(item).append(nexLine);
+                b.append("- ").append(item).append(nextLine);
             }
             b.deleteCharAt(b.length() - 1);
 //            sampleData.setEnumvalues(b.toString());
@@ -592,7 +608,8 @@ public class Joaswizard implements Constants {
         for (String index : map.keySet()) {
             List<Map<String, String>> mapList = map.get(index);
             StringBuilder yaml = new StringBuilder(index + ": " + "´\n");
-            InputParameter inputParameter = new InputParameter(in.getInputFile(), in.getOutputFile(), in.getSourceType(), in.getMethodList(), in.getMappingFile(), in.isPrefixMatch());
+            InputParameter inputParameter = new InputParameter(in);
+//            InputParameter inputParameter = new InputParameter(in.getInputFile(), in.getOutputFile(), in.getSourceType(), in.getMethodList(), in.getMappingFile(), in.isPrefixMatch());
             inputParameter.setResource(index);
             inputParameter.setSchemaData(this.createMustacheDataFromExcel(inputParameter, mapList));
             result.add(inputParameter);

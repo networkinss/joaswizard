@@ -3,7 +3,8 @@
       properties:{{#data}}
         {{lowKey}}:
           type: {{type}}{{#array}}
-          items:{{/array}}{{#format}}
+          items:
+            type: {{typeArray}}{{/array}}{{#format}}
           format: {{format}}{{/format}}{{#pattern}}
           pattern: {{{pattern}}}{{/pattern}}{{#enumvalues}}
           enum:

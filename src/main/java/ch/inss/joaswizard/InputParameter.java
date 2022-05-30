@@ -54,6 +54,24 @@ public class InputParameter {
         this.initialize();
     }
 
+    public InputParameter(InputParameter in) {
+        this.resource = in.getResource();
+        this.resourceId = in.getResourceId();
+        this.sampleYamlData = in.getSampleYamlData();
+        this.inputFile = in.getInputFile();
+        this.outputFile = in.getOutputFile();
+        this.internalid = in.getInternalid();
+        this.mappingFile = in.getMappingFile();
+        this.tags = in.getTags();
+        this.arrayItems = in.getArrayItems();
+        this.sourceType = in.getSourceType();
+        this.methods = in.getMethodList();
+        this.schemaData = in.getSchemaData();
+        this.stopOnError = in.isStopOnError();
+        this.doDefaultSamples = in.isDoDefaultSamples();
+        this.prefixMatch = in.isPrefixMatch();
+    }
+
     public InputParameter() {
         this.initialize();
     }
