@@ -221,18 +221,18 @@ components:
       properties:
         firstname:
           type: string
-          minLength: 1
+          minLength: 3
           example: Max
         name:
           type: string
-          minLength: 1
+          minLength: 10
           example: Mustermann
         phone:
-          type: number
+          type: integer
           example: 123456789
         email:
           type: string
-          minLength: 1
+          minLength: 15
           example: max@example.com
       required:
       - firstname

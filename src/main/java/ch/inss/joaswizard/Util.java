@@ -129,7 +129,7 @@ public class Util implements Constants {
 
     /** regex =  "[0-9.]+", null = false, */
     static boolean isNumber(String str) {
-        return str != null && str.matches("[0-9.]+");
+        return str != null && str.trim().matches("[0-9.]+");
     }
 
     /**

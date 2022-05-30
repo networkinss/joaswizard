@@ -19,6 +19,8 @@ public class PropertyData {
     private String enumvalues;
     private Boolean required;
     private String description;
+    private Boolean isArray;
+    private String typeArray;
 
     public PropertyData(String key, String type) {
         this.key = key;
@@ -89,6 +91,21 @@ public class PropertyData {
         return type;
     }
 
+    public Boolean getArray() {
+        return isArray;
+    }
+
+    public void setArray(Boolean array) {
+        isArray = array;
+    }
+
+    public String getTypeArray() {
+        return typeArray;
+    }
+
+    public void setTypeArray(String typeArray) {
+        this.typeArray = typeArray;
+    }
 //    public void setType(String type) {
 //        this.type = type;
 //    }
@@ -96,6 +113,7 @@ public class PropertyData {
     public String getKey() {
         return key;
     }
+
     public String getCapKey() {
         return StringUtils.capitalize(key.toLowerCase());
     }

@@ -1,5 +1,15 @@
 Pet:
   name: Underdog
+  amount: 3
   price: 12.05
   status: "available"
   tags: [ dog,4paws ]
+Customer:
+  firstname: John
+  lastname: Doe
+  age: 22
+invoice:
+  product: Pet
+  amount: 1
+  price: 12.05
+

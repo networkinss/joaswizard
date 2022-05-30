@@ -18,6 +18,7 @@ public class InputParameter {
     private String mappingFile;
 
     private String[] tags;
+    private String[] arrayItems;
     private Sourcetype sourceType;
     private Set<Method> methods = new HashSet<>();
     private HashMap<String, Object> schemaData = new HashMap<>();
@@ -25,6 +26,7 @@ public class InputParameter {
     //    private boolean doInfo = true;
 //    private boolean doPaths = true;
 //    private boolean doSchemas = true;
+    private boolean stopOnError = false;
     private boolean doDefaultSamples = false;
 
     /**
@@ -210,6 +212,14 @@ public class InputParameter {
         this.doDefaultSamples = doDefaultSamples;
     }
 
+    public boolean isStopOnError() {
+        return stopOnError;
+    }
+
+    public void setStopOnError(boolean stopOnError) {
+        this.stopOnError = stopOnError;
+    }
+
     public boolean isPrefixMatch() {
         return prefixMatch;
     }
@@ -307,6 +317,14 @@ public class InputParameter {
 
     public void setTags(String[] tags) {
         this.tags = tags;
+    }
+
+    public String[] getArrayItems() {
+        return arrayItems;
+    }
+
+    public void setArrayItems(String[] arrayItems) {
+        this.arrayItems = arrayItems;
     }
 
     @Override

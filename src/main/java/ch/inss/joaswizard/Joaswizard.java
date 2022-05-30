@@ -43,7 +43,8 @@ public class Joaswizard implements Constants {
         return result;
     }
 
-    /** OAS3 part: start tag and error model for components schemas.
+    /**
+     * OAS3 part: start tag and error model for components schemas.
      * Creates only error model and the start of components schemas.
      *
      * @return String of beginning of components schemas including a standard error model.
@@ -52,7 +53,8 @@ public class Joaswizard implements Constants {
         return new Util().readFromClasspath(componentsErrorTemplate + ".hbs") + nexLine;
     }
 
-    /** OAS3 part: objects in components schemas.
+    /**
+     * OAS3 part: objects in components schemas.
      * Creates one components schema as defined in input paramter.
      *
      * @param inputParameter input parameter values.
@@ -84,7 +86,8 @@ public class Joaswizard implements Constants {
         return result;
     }
 
-    /** OAS3 part: info
+    /**
+     * OAS3 part: info
      * Creates one components schema as defined in input paramter.
      *
      * @param inputParameter input parameter values.
@@ -148,7 +151,8 @@ public class Joaswizard implements Constants {
         return ok;
     }
 
-    /** OAS3 full document.
+    /**
+     * OAS3 full document.
      * Create full OAS3 document from multiple objects.
      *
      * @param inputParameterList
@@ -267,7 +271,6 @@ public class Joaswizard implements Constants {
 //        document.append(info).append(oasPaths).append(nexLine).append(componentsSection).append(schemaObjects);
 //        return document.toString();
 //    }
-
     private String fromPathsTemplate(InputParameter inputParameter) {
         if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.YAMLFILE)) {
             inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
@@ -349,12 +352,53 @@ public class Joaswizard implements Constants {
 
         List<PropertyData> list = new ArrayList<>();
         for (String key : map.keySet()) {
-            String value = map.get(key).toString();
-            PropertyData sampleData = new PropertyData(key, Util.isNumber(value) ? "number" : "string");
-            if (!Util.isNumber(value)) sampleData.setMinlength(1);
-            sampleData.setExamplevalue(value);
-            sampleData.setRequired(true);
-            list.add(sampleData);
+            String value = map.get(key).toString().trim();  //TODO check null ?
+            boolean isNumeric = true;
+            boolean isArray = false;
+            boolean isNumber = false;
+            int minLength = 1;
+            String type = null;
+            if (value.startsWith("[") && value.endsWith("]")) {
+                String arrValue = value.substring(1, value.length() - 1);
+                String[] arr = arrValue.split(",");
+                isArray = true;
+                for (String a : arr) {
+                    isNumeric = isNumeric && Util.isNumber(a);
+                    if (isNumeric) {
+                        isNumber = isNumber || a.contains(".");
+                    }
+                    if (a.length() > minLength) minLength = a.trim().length();
+                }
+            } else {
+                isNumeric = isNumeric && Util.isNumber(value);
+                if (isNumeric) {
+                    isNumber = isNumber || value.contains(".");
+                }
+            }
+            if (isArray) {
+                type = "array";
+            } else if (isNumeric) {
+                if (isNumber) type = "number";
+                else type = "integer";
+            } else {
+                type = "string";
+                minLength = value.trim().length();
+            }
+
+            PropertyData propertyData = new PropertyData(key, type);
+            if (isArray) {
+                propertyData.setArray(true);
+                if (isNumber) propertyData.setTypeArray("number");
+                else if (isNumeric) propertyData.setTypeArray("integer");
+                else {
+                    propertyData.setTypeArray("string");
+                    propertyData.setMinlength(minLength);
+                }
+            }
+            propertyData.setExamplevalue(value);
+            if (type.equals("string")) propertyData.setMinlength(minLength);
+            propertyData.setRequired(true);
+            list.add(propertyData);
         }
         resultMap.put("data", list);
         inputParameter.setSchemaData(resultMap);
@@ -425,6 +469,11 @@ public class Joaswizard implements Constants {
                 }
             }
             if ((type == null || type.equals(""))) {
+                if (inputParameter.isStopOnError()) {
+                    logger.severe("Type mapping error in line " + idx + ", key: " + key);
+                    logger.severe("Type cannot be mapped or is not valid. Breaking because stopOnError is set to true.");
+                    return null;
+                }
                 if (sampleValue != null) {
                     type = (Util.isNumber(sampleValue) ? "integer" : "string");
                 } else {
@@ -487,7 +536,6 @@ public class Joaswizard implements Constants {
                 oasDescription = oasDescription.replace('\'', ' ').replace('"', ' ');
                 propertyData.setDescriptionApostrophe(oasDescription);
             }
-
 
             propertyData.setPattern(sheetCIMap.get(Header.OASPATTERN.toString()));
             if (sheetCIMap.containsKey(Header.OASREQUIRED)) {

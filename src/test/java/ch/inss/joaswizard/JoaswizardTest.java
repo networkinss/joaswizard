@@ -134,11 +134,11 @@ class JoaswizardTest implements Constants {
 
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file3, "utf-8"), "There is a breaking change, outputfile is not equal to " + file3.getCanonicalPath());
-        if (cleanUp) {
-            file1.delete();
-            file3.delete();
-            assertTrue(file1.isFile() == false);
-        }
+//        if (cleanUp) {
+//            file1.delete();
+//            file3.delete();
+//            assertTrue(file1.isFile() == false);
+//        }
     }
 
 
