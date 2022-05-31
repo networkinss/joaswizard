@@ -52,6 +52,8 @@ Include tags for generation.
 
 It is a normal Java Maven project. You will need Java SDK 11 and Maven to build it.  
 `mvn clean install`
+I forked Handlebars to remove logging from it. The logging binding from Handlebars can cause issues with your own
+application.
 
 ## Maven Integration
 
@@ -100,22 +102,53 @@ Use any of the public methods of the class Joaswizard.
 
 ### Samples for library
 
-You find samples how to use Jo as a library in the folder Samples.  
+You find samples how to use Jo as a library in the folder Samples.
 
 ### Input data
 
 You can define an object either in Yaml format (file or string).  
 Or in an Excel workbook with many sheets, one for each object.
 
+The approach with both formats is quite different, and you would get different results if you were using the same input
+data for both.  
+In Excel you define precisely what OAS type shall be used.  
+In Yaml you give sample data and Jo will guess the OAS type based on that.
+
 #### Yaml
-Yaml is easy.<br>
+
+Yaml is easy.  
 You can either point to the file which contains some Yaml style properties or put direcly a string.
-Example for a file content:  
+A minimum may not even contain the object, but it will be asked for using the command line.  
+Example for a minimal file content:
+
 ```
 name: Underdog  
 price: 12.05  
 status: "available"  
 tags: [ dog,4paws ]  
+```
+
+However, usually you will define more objects, including object names.  
+In the below example 'Underdog' will be a string, amount an integer, price a number, tags an array of string, and
+.possiblerabatt an array of integers.
+
+```
+PET:
+  name: Underdog
+  amount: 3
+  price: 12.05
+  status: "available"
+  tags: [ dog,4paws ]
+  possiblerabatt: [10,15,20]
+Customer:
+  firstname: John
+  lastname: Doe
+  age: 22
+  city: Zurich
+invoice:
+  product: Pet
+  amount: 1
+  price: 12.05
 ```
 
 Sample file for Yaml:

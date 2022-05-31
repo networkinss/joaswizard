@@ -1,0 +1,75 @@
+    Pet:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 8
+          example: Underdog
+        amount:
+          type: integer
+          example: 3
+        price:
+          type: number
+          example: 12.05
+        status:
+          type: string
+          minLength: 9
+          example: available
+        tags:
+          type: array
+          items:
+            type: string
+          minLength: 5
+          example: [dog, 4paws]
+        possiblerabatt:
+          type: array
+          items:
+            type: integer
+          example: [10, 15, 20]
+      required:
+      - name
+      - amount
+      - price
+      - status
+      - tags
+      - possiblerabatt
+    Customer:
+      type: object
+      properties:
+        firstname:
+          type: string
+          minLength: 4
+          example: John
+        lastname:
+          type: string
+          minLength: 3
+          example: Doe
+        age:
+          type: integer
+          example: 22
+        city:
+          type: string
+          minLength: 6
+          example: Zurich
+      required:
+      - firstname
+      - lastname
+      - age
+      - city
+    Invoice:
+      type: object
+      properties:
+        product:
+          type: string
+          minLength: 3
+          example: Pet
+        amount:
+          type: integer
+          example: 1
+        price:
+          type: number
+          example: 12.05
+      required:
+      - product
+      - amount
+      - price
