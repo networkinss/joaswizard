@@ -16,11 +16,32 @@ public class Sample {
         inputParameter.setResourceId("id");
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
         Joaswizard joaswizard = new Joaswizard();
-        joaswizard.createCrudFromYamlToFile(inputParameter);
+        boolean ok = joaswizard.createCrudFromYamlToFile(inputParameter);
         System.out.println();
-        System.out.println("OpenAPI document created: openapi_fromyaml.yaml");
-        
+        if(ok){
+            System.out.println("OpenAPI document created: openapi_fromyaml.yaml");
+        }else{
+            System.out.println("An error occurred, document creation failed.");
+        }
     }
+
+    public void createOpenApiFromMultipleYamlObjects() {
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setInputFile("./YamlObjects.yml");
+        inputParameter.setOutputFile("openapi_frommultipleyamlobjects.yaml");
+        inputParameter.setResource("pet");
+        inputParameter.setResourceId("id");
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
+        Joaswizard joaswizard = new Joaswizard();
+        boolean ok = joaswizard.createCrudFromYamlToFile(inputParameter);
+        System.out.println();
+        if(ok){
+            System.out.println("OpenAPI document created: openapi_frommultipleyamlobjects.yaml");
+        }else{
+            System.out.println("An error occurred, document creation failed.");
+        }
+    }
+
     public void createOpenApiFromExcel(String file) {
         this.createOpenApiFromExcel(file, null);
     }

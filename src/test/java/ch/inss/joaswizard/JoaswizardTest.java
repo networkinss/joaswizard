@@ -37,6 +37,7 @@ class JoaswizardTest implements Constants {
     private final static String outputMainYaml = output + "test13_MainYamloutput.yaml";
     private final static String outputSingleYamlObject = output + "test10_OutputSingleYamlObject.yml";
     private final static String outputCrudSingleYamlObject = output + "test11_OutputCrudSingleYamlObject.yml";
+    private final static String outputCrudMultipleYamlObject = output + "test13_OutputCrudMultipleYamlObject.yml";
 
     private static Joaswizard jo = new Joaswizard();
     private static boolean cleanUp = true;
@@ -111,7 +112,7 @@ class JoaswizardTest implements Constants {
     void testSchemaPet() throws Exception {
         InputParameter p1 = new InputParameter();
         p1.setResourceId("name");
-        p1.setInputFile("src/test/resources/PetObject.yml");
+        p1.setInputFile("src/test/resources/YamlObjects.yml");
         p1.setSampleYamlData(Util.readFromFile(p1.getInputFile()));
         List<InputParameter> inputParameterList1 = jo.createMustacheDataFromYaml(p1);
         String schema1 = "";
@@ -341,7 +342,7 @@ class JoaswizardTest implements Constants {
         inputParameter.addMethods("put");
         inputParameter.addMethods("get");
 
-        jo.createFromSingleYamlToFile(inputParameter);
+        jo.createFromYamlToFile(inputParameter);
         File file1 = new File(outputSingleYamlObject);
         File file2 = new File("src/test/resources/testReferenceSingleYamlObject.yml");
         assertTrue(file1.isFile());
@@ -364,7 +365,7 @@ class JoaswizardTest implements Constants {
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
         inputParameter.setCrud();
 
-        jo.createFromSingleYamlToFile(inputParameter);
+        jo.createFromYamlToFile(inputParameter);
         File file1 = new File(outputCrudSingleYamlObject);
         File file2 = new File("src/test/resources/testReferenceCrudSingleYamlObject.yml");
         assertTrue(file1.isFile());
@@ -378,6 +379,29 @@ class JoaswizardTest implements Constants {
 
     @Test
     @Order(13)
+    void testCreateCrudFromMultipleYamlObject() throws Exception {
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setResourceId("name");
+        inputParameter.setResource("pet");
+        inputParameter.setInputFile("src/test/resources/YamlObjects.yml");
+        inputParameter.setOutputFile(outputCrudMultipleYamlObject);
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
+        inputParameter.setCrud();
+
+        jo.createFromYamlToFile(inputParameter);
+        File file1 = new File(outputCrudMultipleYamlObject);
+        File file2 = new File("src/test/resources/testReferenceCrudMultipleYamlObject.yml");
+        assertTrue(file1.isFile());
+
+        Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
+        if (cleanUp) {
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
+    }
+
+    @Test
+    @Order(14)
     void testIsValidType() {
         InputParameter inputParameter = new InputParameter();
         assertTrue(inputParameter.isValidSourcetype("excel"));
@@ -387,9 +411,9 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(14)
+    @Order(15)
     void testMainYaml() {
-        Main.main(new String[]{"src/test/resources/PetObject.yml", outputMainYaml, "pet", "name", "yamlfile", "delete,post,patch"});
+        Main.main(new String[]{"src/test/resources/YamlObjects.yml", outputMainYaml, "pet", "name", "yamlfile", "delete,post,patch"});
         File file1 = new File(outputMainYaml);
         assertTrue(file1.isFile());
 
@@ -400,7 +424,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(15)
+    @Order(16)
     void testYaml() {
         Main.main(new String[]{"src/test/resources/sample.yaml", outputMainYaml, "shoe", "name", "yamlfile", "delete,post,patch"});
         File file1 = new File(outputMainYaml);
@@ -413,7 +437,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(16)
+    @Order(17)
     void testMainExcel() throws Exception {
         Main.main(new String[]{"src/test/resources/objectimport.xlsx", outputMainExcel, "pet", "name", "excel", "delete,post,patch"});
         File file1 = new File(outputMainExcel);
@@ -426,7 +450,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(17)
+    @Order(18)
     void testReadMapping() throws Exception {
         String file = Util.readFromFile("src/main/resources/mapping.json");
         JSONParser parser = new JSONParser();

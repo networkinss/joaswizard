@@ -188,18 +188,18 @@ public class Joaswizard implements Constants {
     public boolean createCrudFromYamlToFile(InputParameter inputParameter) {
         logger.info("Jo starts to create crud file from Yaml input.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
-        return this.createFromSingleYamlToFile(inputParameter);
+        return this.createFromYamlToFile(inputParameter);
     }
 
     /**
-     * Creates defined methods from a yaml string for a single object.
+     * Creates defined methods from a Yaml string with objects.
      * Returns if an error ocrrued or not.
      *
      * @param inputParameter input parameter values.
      * @return true if the file was created.
      */
-    public boolean createFromSingleYamlToFile(InputParameter inputParameter) {
-        String result = this.createFromSingleYamlToString(inputParameter);
+    public boolean createFromYamlToFile(InputParameter inputParameter) {
+        String result = this.createFromYamlToString(inputParameter);
         if (result == null) return false;
         boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
@@ -220,7 +220,7 @@ public class Joaswizard implements Constants {
     public String createCrudFromYamlToString(InputParameter inputParameter) {
         logger.info("Jo starts to create crud file from Yaml input.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
-        return this.createFromSingleYamlToString(inputParameter);
+        return this.createFromYamlToString(inputParameter);
     }
 
     /**
@@ -229,7 +229,7 @@ public class Joaswizard implements Constants {
      * @param inputParameter
      * @return Full OAS3 document as string.
      */
-    public String createFromSingleYamlToString(InputParameter inputParameter) {
+    public String createFromYamlToString(InputParameter inputParameter) {
         if (inputParameter == null) return null;
 //        List<InputParameter> inputParameterList = new ArrayList<>();
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {

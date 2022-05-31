@@ -33,3 +33,5 @@ output
 /.run/
 /Samples/openapi_fromMySQLExcel.yaml
 /Samples/openapi_fromyaml.yaml
+/Samples/openapi_frommultipleyamlobjects.yaml
+/Samples/openapi_fromexcel.yaml

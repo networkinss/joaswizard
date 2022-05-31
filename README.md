@@ -1,29 +1,32 @@
 # Jo as wizard
 
-Jo as wizard (short: Jo, coming from J OAS wizard) helps to create a complete OAS3 specification without having to know OpenAPI.      
-All you need to do is to define the properties of an object in Yaml format, the name of the object and the field name
+Jo as wizard (short: Jo, coming from J OAS wizard) helps to create a complete OAS3 specification without having to know
+OpenAPI.      
+All you need to do is to define the properties of an object in Yaml format or an Excel file, the name of the object and
+the field name
 used for the ID.  
-Only with that information will Jo as wizard create a complete OpenAPi specification which includes:
+Only with that information will Jo as wizard create a complete OpenAPi specification within 5 minutes which includes:
 
 * CRUD operations (GET all, GET by id, POST, PUT, DELETE).
 * Object schemas.
 * Default info section
 
-First aim is to create a complete OpenAPI specification with a minimum of data. 
-All you need is a file with a content like:
+First aim is to create a complete OpenAPI specification with a minimum of effort and data.
+All you need is a Yaml formatted file with a content like:
 ```
 name: Underdog  
 price: 12.05  
 status: "available"  
 tags: [ dog,4paws ]  
 ```
+
 and you will be able to create a full OAS3 document with one execution and a few parameters.  
-Second aim is to generate mass data from Excel files.  
+Second aim is to generate mass data from Excel files.
 
 Repository: https://github.com/networkinss/joaswizard.  
-This project is inspired by https://github.com/isa-group/oas-wizard.  
-It is a complete re-write in Java instead of Node.js and a lot of extensions.  
-This is for better integration in Java applications, but also to be more flexible handling mustache engine.
+This project was initially inspired by https://github.com/isa-group/oas-wizard.  
+It is a complete re-write in Java instead of Node.js and a lot of dynamic parameters and extensions.  
+This is for better integration in Java applications, but also to be more flexible handling Handlebars engine.
 
 ## Use case
 
@@ -36,16 +39,16 @@ This library will help you in case of:
 
 ## Features
 
-It is still in development.  
 Implemented features:
 * Create OpenAPI document with all CRUD operations just from object properties.
 * Create OpenAPI document with defined list of methods.
 * Create OpenAPI document from a Yaml object file.
 * Create OpenAPI document from a Yaml object string.
 * Create OpenAPI document from an Excel workbook with several sheets, each representing one object.
+* Define your own mapping as needed for database to OAS3 types.
 
-Future extensions:
-Parameter to use custom Handlebar template files.
+Possible future extensions:  
+Parameter to use custom Handlebar template files.  
 Include tags for generation.
 
 ## Build
@@ -62,13 +65,15 @@ Add dependency to pom.xml.
 <dependency>     
     <groupId>ch.inss.joaswizard</groupId>     
     <artifactId>joaswizard</artifactId>   
-    <version>0.9.2</version>   
+    <version>0.9.4</version>   
 </dependency>  
 ```
 
 ## Usage
 
-You can use Joaswizard either as a command line tool or as a library.
+You can use Joaswizard either as a command line tool or as a library.  
+Its main purpose is to work as a library.  
+However, the command line can be used to quickly create OAS3 documents within some minutes.
 
 ### as command line tool
 
@@ -83,13 +88,13 @@ java -jar joaswizard-*.jar <input.yaml> <output.yaml> <objectname> <idfieldname>
 * `<objectname>` is the name of the object which you defined in the <input.yaml> file.  
 * `<idfieldname>` must be a fieldname used in <input.yaml> file to define which field shall be used as an ID. Will be the path variable for ID requests.
 * `<sourcetype>` is one of yamlfile, excelfile or yamlstring.
-* `<methods>` are all REST methods that shall be used. You can use crud or post, put, get, delete and patch.  
-
+* `<methods>` are all REST methods that shall be used (comma separated). You can use crud or post, put, get, delete and
+  patch.
 
 You can execute it without parameter. Jo will ask for the parameter.  
 `java -jar joaswizard-*.jar`
 
-### Samples for commandline 
+### Sample for commandline
 
 With all parameters. Jo would ask for skipped parameters, if any.  
 `java -jar joaswizard-*.jar Samples/pet.yml openapipet.yaml pet name yamlfile delete,post,patch`
@@ -111,7 +116,7 @@ Or in an Excel workbook with many sheets, one for each object.
 
 The approach with both formats is quite different, and you would get different results if you were using the same input
 data for both.  
-In Excel you define precisely what OAS type shall be used.  
+In Excel you define precisely what OAS type shall be used (maybe with mapping).  
 In Yaml you give sample data and Jo will guess the OAS type based on that.
 
 #### Yaml
@@ -155,13 +160,13 @@ Sample file for Yaml:
 `src/test/resources/sample.yaml`
 
 Or you can put the Yaml formatted string directly.  
-You can check the JUnit test `testCreateFromString()`.
+You can check the JUnit test `testCreateFromString()` for that.
 
 #### Excel
 
 Excel is very useful for mass conversion.  
 Every sheet is an component schema object. The sheetname is the name of the object.    
-First line can contain the following header:
+First line (headers) can contain the following header names:
 
 * Name -> Required. Name of the property of the object.
 * DbType -> Database type. This can be mapped as defined in the mapping.json (src/main/resources/mapping.json). Will be
@@ -178,7 +183,7 @@ First line can contain the following header:
 * DbNullable -> If required or not (true/false), but with opposite value like OasRequired. True means field value is optional. False means it is required.
 
 Excel headers are not case-sensitive.  
-the `mapping.json` is the mapping file for the field `DbType`.
+The `mapping.json` is the mapping file for the field `DbType`.
 There is a default mapping.json in the application.  
 However, it will first look if there is one mapping.json in the same folder and take
 that one if available.  
@@ -196,7 +201,7 @@ Sample Excel file:
 ### Sample code
 
 Samples are in the folder Samples.  
-There are sample methods how to use Yaml properties as input or Excel files.
+There are sample methods how to use Yaml properties or Excel files as input.  
 There is also a method to show how to use custom mappings DBTypes to OASTypes for MySQL database types.  
 With the correct mapping you don't have to define each OASType manually.  
 Also the JUnit tests of Samples

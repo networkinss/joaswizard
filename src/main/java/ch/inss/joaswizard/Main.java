@@ -138,7 +138,7 @@ public class Main implements Constants {
         } else if (inputParameter.getSourceType().toString().equalsIgnoreCase(InputParameter.Sourcetype.EXCEL.toString())) {
             ok = joaswizard.createFromExcelToFile(inputParameter);
         } else {
-            ok = joaswizard.createFromSingleYamlToFile(inputParameter);
+            ok = joaswizard.createFromYamlToFile(inputParameter);
         }
         if(ok)  {
             logger.info("Created openapi file in " + inputParameter.getOutputFile());

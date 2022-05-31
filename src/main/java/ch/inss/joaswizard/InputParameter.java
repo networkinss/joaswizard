@@ -254,6 +254,11 @@ public class InputParameter {
         return closeCurlyBrace;
     }
 
+    /**
+     * Set the Yaml object properties as Base64 encoded string.
+     *
+     * @param sampleYaml
+     */
     public void setSampleYamlBase64(String sampleYaml) {
         Base64.Decoder decoder = Base64.getDecoder();
         // Decoding string  
