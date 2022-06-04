@@ -23,9 +23,10 @@ public class InputParameter {
     private Set<Method> methods = new HashSet<>();
     private HashMap<String, Object> schemaData = new HashMap<>();
 
-    //    private boolean doInfo = true;
-//    private boolean doPaths = true;
-//    private boolean doSchemas = true;
+    private boolean doInfo = true;
+    private boolean doPaths = true;
+    private boolean doSchemas = true;
+
     private boolean stopOnError = false;
     private boolean doDefaultSamples = false;
 
@@ -113,13 +114,6 @@ public class InputParameter {
     public Set<Method> getMethodList() {
         return methods;
     }
-
-//    public void setMedhodList(List<String> list) {
-//        if (list == null) return;
-//        for (String a : list) {
-//            this.addMethods(a);
-//        }
-//    }
 
     /**
      * You can add one or more methods separated by ",".
@@ -238,6 +232,30 @@ public class InputParameter {
         this.stopOnError = stopOnError;
     }
 
+    public boolean isDoInfo() {
+        return doInfo;
+    }
+
+    public void setDoInfo(boolean doInfo) {
+        this.doInfo = doInfo;
+    }
+
+    public boolean isDoPaths() {
+        return doPaths;
+    }
+
+    public void setDoPaths(boolean doPaths) {
+        this.doPaths = doPaths;
+    }
+
+    public boolean isDoSchemas() {
+        return doSchemas;
+    }
+
+    public void setDoSchemas(boolean doSchemas) {
+        this.doSchemas = doSchemas;
+    }
+
     public boolean isPrefixMatch() {
         return prefixMatch;
     }
@@ -271,6 +289,7 @@ public class InputParameter {
 
     /**
      * The sample data frm which the output will be generated.
+     *
      * @param sampleYamlData Sample properties in Yaml format.
      */
     public void setSampleYamlData(String sampleYamlData) {
@@ -283,6 +302,7 @@ public class InputParameter {
 
     /**
      * The path to the input file. The content must be stored within the sampleYaml field.
+     *
      * @param inputFile Path to the input file.
      */
     public void setInputFile(String inputFile) {
@@ -362,14 +382,13 @@ public class InputParameter {
                 ", tags=" + Arrays.toString(tags) +
                 ", sourceType=" + sourceType +
                 ", methods=" + methods +
-//                ", doInfo=" + doInfo +
+                ", doInfo=" + doInfo +
 //                ", doPaths=" + doPaths +
 //                ", doSchemas=" + doSchemas +
                 ", openCurlyBrace='" + openCurlyBrace + '\'' +
                 ", closeCurlyBrace='" + closeCurlyBrace + '\'' +
                 '}';
     }
-
 
 
     public static enum Method {
@@ -415,6 +434,7 @@ public class InputParameter {
 
     /**
      * Check if methods are valid. You can put several methods separated by ",".
+     *
      * @param m HTTP method as string.
      * @return If it is a valid HTTP method.
      */

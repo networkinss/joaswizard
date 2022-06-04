@@ -34,12 +34,20 @@ public class Joaswizard implements Constants {
      * @return String of OAS3 path section.
      */
     public String createMethodsFromList(List<InputParameter> list) {
-        logger.info("Starting to create methods.");
-        if (list == null || list.isEmpty()) return "{}";
+        logger.info("Start creating methods.");
+        if (list == null || list.isEmpty()) {
+            logger.info("Skipping methods, list is empty.");
+            return "{}";
+        }
         String result = new String();
         for (InputParameter inputParameter : list) {
+            if (inputParameter.isDoPaths() == false) {
+                logger.info("Skipping creating methods (DoPaths = false) for " + inputParameter.getResourceId());
+                continue;
+            }
             result = result + fromPathsTemplate(inputParameter);
         }
+        logger.info("End creating methods.");
         return result;
     }
 
@@ -49,8 +57,13 @@ public class Joaswizard implements Constants {
      *
      * @return String of beginning of components schemas including a standard error model.
      */
-    public String createComponentsSchemas() {
-        return new Util().readFromClasspath(componentsErrorTemplate + ".hbs") + nextLine;
+    public String createComponentsSchemas(boolean doSchemas) {
+        if (doSchemas) {
+            logger.info("Adding beginning of components schemas section and default error model.");
+            return new Util().readFromClasspath(componentsErrorTemplate + ".hbs") + nextLine;
+        }
+        logger.info("Skipping beginning of components schemas section (doSchemaas = false).");
+        return "";
     }
 
     /**
@@ -61,7 +74,10 @@ public class Joaswizard implements Constants {
      * @return String of components schemas object.
      */
     public String createSchemaObjects(InputParameter inputParameter) {
-        logger.info("Starting create schema.");
+        if (inputParameter.isDoSchemas() == false) {
+            logger.info("Skipping create schema (doSchemas = false).");
+        }
+        logger.info("Start creating schema objects.");
         logger.fine("Input parameter: \n" + inputParameter);
         Handlebars mf = new Handlebars();
         String result = null;
@@ -83,6 +99,7 @@ public class Joaswizard implements Constants {
             e.printStackTrace();
             logger.severe(e.getLocalizedMessage());
         }
+        logger.info("End creating schema objects.");
         return result;
     }
 
@@ -94,6 +111,10 @@ public class Joaswizard implements Constants {
      * @return String of OAS3 info section.
      */
     public String createInfo(InputParameter inputParameter) {
+        if (inputParameter.isDoInfo() == false) {
+            logger.info("Skipping info section (doInfo = false).");
+            return "";
+        }
         logger.info("Start creating info.");
         logger.fine("Input parameter: \n" + inputParameter);
         Handlebars mf = new Handlebars();
@@ -109,6 +130,7 @@ public class Joaswizard implements Constants {
             e.printStackTrace();
             logger.severe(e.getLocalizedMessage());
         }
+        logger.info("End creating info.");
         return result;
     }
 
@@ -175,7 +197,7 @@ public class Joaswizard implements Constants {
         resources.delete(resources.length() - 2, resources.length());
         inputParameterList.get(0).setResource(resources.toString());
         String info = this.createInfo(inputParameterList.get(0));
-        String components = this.createComponentsSchemas();
+        String components = this.createComponentsSchemas(inputParameterList.get(0).isDoSchemas());
         return info + paths + nextLine + components + objects;
     }
 
@@ -247,53 +269,20 @@ public class Joaswizard implements Constants {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
         List<InputParameter> inputParameterList = this.createMustacheDataFromYaml(inputParameter);
-//        inputParameterList.add(inputParameter);
-//        String result = this.fullDocument(inputParameterList.get(0));
-
         return this.fullMultipleObjects(inputParameterList);
     }
 
-
     /**
-     * Creates full document from inputParameter object.
-     * Returns OAS3 document as String object.
-     *
-     * @param inputParameter input parameter values.
-     * @return OAS3 as string.
+     * @param inputParameter
+     * @return
      */
-//    public String fullDocument(InputParameter inputParameter) {
-//        StringBuilder document = new StringBuilder();
-//        String info = this.createInfo(inputParameter);
-//        String oasPaths = this.fromPathsTemplate(inputParameter);
-//        String schemaObjects = this.createSchemaObjects(inputParameter);
-//        if (ERROR.equals(schemaObjects)) return null;
-//        String componentsSection = this.createComponentsSchemas();
-//        document.append(info).append(oasPaths).append(nexLine).append(componentsSection).append(schemaObjects);
-//        return document.toString();
-//    }
     private String fromPathsTemplate(InputParameter inputParameter) {
-//        if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.YAMLFILE)) {
-//            inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
-//            if (inputParameter.getSampleYamlData() == null || inputParameter.getSampleYamlData().length() < 3) {
-//                logger.severe("No sample yaml with data. Please define input file or set sample yaml.");
-//                return null;
-//            }
-//        }
-//        if (inputParameter.getSourceType() != null && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL)) {
-//            if (inputParameter.getSchemaData() == null || inputParameter.getSchemaData().isEmpty()) {
-//                logger.severe("No data. Please define input file or set sample yaml.");
-//                return "Error";
-//            }
-//        }
+
         logger.fine(inputParameter.toString());
         Handlebars mf = new Handlebars();
         String result = null;
         try {
             Template template = mf.compile(pathComponentCrudTemplate);
-
-//            if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
-//                this.createMustacheDataFromYaml(inputParameter);
-//            }
             result = template.apply(inputParameter);
         } catch (IOException e) {
             e.printStackTrace();
@@ -438,29 +427,34 @@ public class Joaswizard implements Constants {
         if (jsonMappingMap == null) {
             jsonMappingMap = new CaseInsensitiveMap<>();
         }
-        String prefix = "Sheet " + inputParameter.getResource() + ": ";
+        String logPrefix = "Sheet " + inputParameter.getResource() + ": ";
         int idx = 0;
         int countEmpty = 0;
+        checkHeaderValidity(mapList.get(0), inputParameter.getResource());
         /** Define each property of one object. */
         for (Map<String, String> sheetMap : mapList) {
             CaseInsensitiveMap<String, String> sheetCIMap = new CaseInsensitiveMap(sheetMap);
             idx++;
+
             String key = sheetCIMap.get(Header.NAME);
-            if (key == null || key.equals("")) key = UNDEFINED;
-            else key = key.trim();
             String sampleValue = sheetCIMap.get(Header.OASEXAMPLE);
             String type = null;
             if (sheetCIMap.containsKey(Header.OASTYPE)) type = sheetCIMap.get(Header.OASTYPE);
-            logger.fine("Line " + idx + ", key: " + key);
-            if (key.equals(UNDEFINED) && (sampleValue == null || sampleValue.equals("") && (type == null || type.equals("")))) {
-                logger.fine(prefix + "Empty row or not enough data to build an OAS3 schema object (at line: " + idx + ").");
+            if ((key == null || key.equals("")) && (sampleValue == null || sampleValue.equals("") && (type == null || type.equals("")))) {
+                logger.fine(logPrefix + "Empty row or not enough data to build an OAS3 schema object (at line: " + idx + ").");
                 countEmpty++;
                 if (countEmpty > 2) {
-                    logger.info("Found 3 or more empty lines beginning row " + (idx - 1) + ", assuming no more data and stop reading lines here..");
+                    logger.info(logPrefix + "Found 3 or more empty lines beginning row " + (idx - 1) + ", assuming no more data and stop reading lines here..");
                     break;
                 }
                 continue;
             }
+            if (key == null || key.equals("")) {
+                key = UNDEFINED;
+                logger.warning(logPrefix + "Excel header '" + Header.NAME + "' is missing'.");
+            } else key = key.trim();
+            logger.fine("Line " + idx + ", key: " + key);
+
 
             HashMap<String, String> mappingMap = new HashMap<>();
             /** Define type (OasType). */
@@ -498,7 +492,7 @@ public class Joaswizard implements Constants {
             } else if (type != null) {
                 type = type.trim().toLowerCase();
                 if (Arrays.asList(DATATYPELIST).contains(type) == false) {
-                    logger.warning(prefix + "Type not valid: " + type + ". Jo changes type to string.");
+                    logger.warning(logPrefix + "Type not valid: " + type + ". Jo changes type to string.");
                     type = "string";
                 }
             }
@@ -533,7 +527,7 @@ public class Joaswizard implements Constants {
                 if (((type.equalsIgnoreCase("number") || type.equalsIgnoreCase("integer")) && format.equalsIgnoreCase("string"))
                         || (type.equalsIgnoreCase("number") && (format.equalsIgnoreCase("int32") || format.equalsIgnoreCase("int64")))
                         || (type.equalsIgnoreCase("integer") && (format.equalsIgnoreCase("flaot") || format.equalsIgnoreCase("double")))) {
-                    logger.warning(prefix + "Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);
+                    logger.warning(logPrefix + "Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);
                     propertyData.setFormat(null);
                 } else propertyData.setFormat(format.trim());
             }
@@ -568,13 +562,25 @@ public class Joaswizard implements Constants {
             if (Util.isNumber(max)) {
                 propertyData.setMaxLength(Integer.parseInt(max));
             } else if (max != null && max.equals("") == false) {
-                logger.warning(prefix + "Value for maxLength is not a number: " + max);
+                logger.warning(logPrefix + "Value for maxLength is not a number: " + max);
             }
             list.add(propertyData);
         }
         resultMap.put("data", list);
         inputParameter.setSchemaData(resultMap);
         return resultMap;
+    }
+
+    private void checkHeaderValidity(Map<String, String> map, String sheetName) {
+        if (map == null) return;
+        for (String key : map.keySet()) {
+            if (key == "") continue;
+            try {
+                Header header = Header.valueOf(key.toUpperCase());
+            } catch (IllegalArgumentException iae) {
+                logger.warning("Unknown Excel header: '" + key + "' in sheet " + sheetName + ".");
+            }
+        }
     }
 
     private String getOasEnum(String e, String type) {
@@ -609,7 +615,6 @@ public class Joaswizard implements Constants {
             List<Map<String, String>> mapList = map.get(index);
             StringBuilder yaml = new StringBuilder(index + ": " + "´\n");
             InputParameter inputParameter = new InputParameter(in);
-//            InputParameter inputParameter = new InputParameter(in.getInputFile(), in.getOutputFile(), in.getSourceType(), in.getMethodList(), in.getMappingFile(), in.isPrefixMatch());
             inputParameter.setResource(index);
             inputParameter.setSchemaData(this.createMustacheDataFromExcel(inputParameter, mapList));
             result.add(inputParameter);
