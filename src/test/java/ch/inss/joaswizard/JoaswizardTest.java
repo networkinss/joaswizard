@@ -30,6 +30,7 @@ class JoaswizardTest implements Constants {
     private final static String outputSchema1 = "test04_OutputSchema1.yml";
     private final static String outputSchema2 = "test04_OutputSchema2.yml";
     private final static String outputString = output + "test05_OutputString.yml";
+    private final static String outputGetPet = "test06_OutputGetPet.yml";
     private final static String outputExcel = output + "test08_OutputExcelsheet.yml";
     private final static String outputDBFieldsExcel = output + "test09_OutputDBFieldsExcelsheet.yml";
     private final static String outputMySQLDBFieldsExcel = output + "test09_OutputMySQLDBFieldsExcelsheet.yml";
@@ -188,7 +189,7 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(6)
     void testGetPet() throws Exception {
-        String outputGetPet = "get_openapi.yaml";
+//        String outputGetPet = "get_openapi.yaml";
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
         inputParameter.setResource("pet");
@@ -207,7 +208,7 @@ class JoaswizardTest implements Constants {
 
         final List<String> list = new ArrayList<>();
         list.add("/pet/{name}:");
-        list.add("description: Returns all pets");
+        list.add("description: List of pets.");
         list.add("$ref: '#/components/schemas/Pet'");
         try (Stream<String> lines = Files.lines(Paths.get(output + outputGetPet))) {
             Stream<String> f = lines.filter(l -> list.contains(l.trim()));

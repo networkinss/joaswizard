@@ -1,6 +1,6 @@
-  {{#if allquery}}/{{lowerResource}}:{{/if}}{{#if get}}
+  {{#if allquery}}/{{lowerResources}}:{{/if}}{{#if get}}
     get:
-      description: List of {{lowerResources}}
+      description: List of {{lowerResources}}.
       summary: List of {{lowerResources}}
       operationId: get{{capResource}}List
       responses:
@@ -31,8 +31,8 @@
               schema:
                 $ref: '#/components/schemas/ErrorModel'{{/if}}{{#if post}}
     post:
-      description: Creates a new {{lowerResource}}
-      summary: Creates a new {{lowerResource}}
+      description: Creates new {{lowerResource}}.
+      summary: Creates new {{lowerResource}}
       operationId: add{{capResource}}
       responses:
         '201':
@@ -65,7 +65,7 @@
         required: true{{/if}}{{#if pathIdQuery}}
   /{{lowerResource}}/{{openCurlyBrace}}{{resourceId}}{{closeCurlyBrace}}:{{/if}}{{#if get}}
     get:
-      description: Returns {{lowerResource}} by {{resourceId}}
+      description: Returns {{lowerResource}} by {{resourceId}}.
       summary: Returns {{lowerResource}} by {{resourceId}}
       operationId: find{{capResource}}By{{resourceId}}
       parameters:
@@ -107,8 +107,8 @@
               schema:
                 $ref: '#/components/schemas/ErrorModel'{{/if}}{{#if delete}}
     delete:
-      description: deletes a single {{lowerResource}} based on the {{resourceId}}
-      summary: deletes a single {{lowerResource}} based on the {{resourceId}}
+      description: Deletes {{lowerResource}} by {{resourceId}}.
+      summary: Deletes {{lowerResource}} by {{resourceId}}
       operationId: delete{{capResource}}
       parameters:
         - name: {{resourceId}}
@@ -145,8 +145,8 @@
               schema:
                 $ref: '#/components/schemas/ErrorModel'{{/if}}{{#if put}}
     put:
-      description: Update a {{lowerResource}} based on its {{resourceId}}
-      summary: Update a {{lowerResource}} based on its {{resourceId}}
+      description: Updates {{lowerResource}} by {{resourceId}}.
+      summary: Updates {{lowerResource}} by {{resourceId}}
       operationId: update{{capResource}}
       parameters:
         - name: {{resourceId}}
@@ -191,7 +191,7 @@
         description: {{capResource}} to be updated
         required: true{{/if}}{{#if patch}}
     patch:
-      description: Patches {{lowerResource}} by {{resourceId}}
+      description: Patches {{lowerResource}} by {{resourceId}},
       summary: Patches {{lowerResource}} by {{resourceId}}
       operationId: patch{{capResource}}
       parameters:

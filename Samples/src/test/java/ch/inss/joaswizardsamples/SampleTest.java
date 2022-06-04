@@ -1,16 +1,6 @@
 package ch.inss.joaswizardsamples;
 
-//import ch.inss.joaswizard.InputParameter;
-//import junit.framework.TestCase;
-//import org.apache.commons.io.FileUtils;
-//import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 
 import java.io.File;
 import java.nio.file.Files;
@@ -19,10 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class SampleTest {
 
     final static String sep = System.getProperty("file.separator");
 
+    @Test
     public void testCreateOpenApiFromYaml()throws Exception {
         Sample sample = new Sample();
         sample.createOpenApiFromYaml();
@@ -32,8 +26,8 @@ public class SampleTest {
         assertTrue(file1.isFile());
 
         final List<String> list = new ArrayList<>();
-        list.add("operationId: getAllPets");
-        list.add("description: deletes a single pet based on the id");
+        list.add("operationId: getPetList");
+        list.add("description: Deletes pet by id.");
         list.add("example: Underdog");
         try (Stream<String> lines = Files.lines(Paths.get(output))) {
             Stream<String> f = lines.filter(l -> list.contains(l.trim()));
@@ -45,6 +39,7 @@ public class SampleTest {
         assertTrue(file1.isFile() == false);
     }
 
+    @Test
     public void testCreateOpenApiFromArguments() throws Exception{
         Sample sample = new Sample();
         String output = "openapi_fromparameters.yaml";
@@ -55,7 +50,7 @@ public class SampleTest {
 
         final List<String> list = new ArrayList<>();
         list.add("operationId: addPet");
-        list.add("description: Patches a pet based on its name");
+        list.add("description: Patches pet by name,");
         list.add("example: Underdog");
         try (Stream<String> lines = Files.lines(Paths.get(output))) {
             Stream<String> f = lines.filter(l -> list.contains(l.trim()));
@@ -77,8 +72,8 @@ public class SampleTest {
         assertTrue(file1.isFile());
 
         final List<String> list = new ArrayList<>();
-        list.add("operationId: getAllInvoices");
-        list.add("description: Returns all Customers");
+        list.add("operationId: getInvoiceList");
+        list.add("description: List of customers.");
         list.add("example: U3dhZ2dlciByb2Nrcw==");
         try (Stream<String> lines = Files.lines(Paths.get(output))) {
             Stream<String> f = lines.filter(l -> list.contains(l.trim()));
@@ -100,8 +95,8 @@ public class SampleTest {
         assertTrue(file1.isFile());
 
         final List<String> list = new ArrayList<>();
-        list.add("operationId: getAllInvoices");
-        list.add("description: Returns all Customers");
+        list.add("operationId: getInvoiceList");
+        list.add("summary: List of customers");
         list.add("example: U3dhZ2dlciByb2Nrcw==");
         try (Stream<String> lines = Files.lines(Paths.get(output))) {
             Stream<String> f = lines.filter(l -> list.contains(l.trim()));
@@ -117,7 +112,7 @@ public class SampleTest {
     public void testCreateOpenApiFromCustomMappingExcel() throws Exception {
         Sample sample = new Sample();
         String dir = "mysql" + sep;
-        String output = "openapi_fromMySQLexcel.yaml";
+        String output = "openapi_fromMySQLExcel.yaml";
 
         sample.createOpenApiFromExcel(dir + "mySQLObjectimport.xlsx",dir + "mysqlMapping.json",output);
 
@@ -126,8 +121,8 @@ public class SampleTest {
         assertTrue(file1.isFile());
 
         final List<String> list = new ArrayList<>();
-        list.add("operationId: getAllInvoices");
-        list.add("description: Returns all Customers");
+        list.add("operationId: getInvoiceList");
+        list.add("description: List of customers.");
         list.add("example: U3dhZ2dlciByb2Nrcw==");
         try (Stream<String> lines = Files.lines(Paths.get(output))) {
             Stream<String> f = lines.filter(l -> list.contains(l.trim()));
