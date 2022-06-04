@@ -15,13 +15,14 @@ servers:
   - url: http://localhost:8080/v1
     description: Local environment.
 paths:
-  /{{lowerResources}}:
+  /{{lowerResource}}:
     get:
-      description: Returns all {{resources}}
-      operationId: get{{capResources}}
+      description: Returns a list of {{resources}}
+      summary: Returns a list of {{resources}}
+      operationId: get{{capResources}}List
       responses:
         '200':
-          description: {{capResource}} List
+          description: List of {{capResource}}
           content:
             application/json:
               schema:
@@ -48,6 +49,7 @@ paths:
                 $ref: '#/components/schemas/ErrorModel'
     post:
       description: Creates a new {{resource}}
+      summary: Creates a new {{resource}}
       operationId: add{{capResource}}
       responses:
         '201':
@@ -80,8 +82,8 @@ paths:
         required: true
   /{{lowerResource}}/{{openCurlyBrace}}{{resourceId}}{{closeCurlyBrace}}:
     get:
-      description: >-
-        Returns a {{resource}} by {{resourceId}}
+      description: Returns a {{resource}} by {{resourceId}}
+      summary: Returns a {{resource}} by {{resourceId}}
       operationId: find{{capResource}}By{{resourceId}}
       parameters:
         - name: {{resourceId}}
@@ -123,7 +125,8 @@ paths:
                 $ref: '#/components/schemas/ErrorModel'
 
     delete:
-      description: deletes a single {{resource}} based on the {{resourceId}}
+      description: deletes a single {{resource}} based on {{resourceId}}
+      summary: deletes a single {{resource}} based on {{resourceId}}
       operationId: delete{{capResource}}
       parameters:
         - name: {{resourceId}}
@@ -160,7 +163,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
     put:
-      description: Update a {{resource}} based on its {{resourceId}}
+      description: Updates a {{resource}} by {{resourceId}}
+      summary: Updates a {{resource}} by {{resourceId}}
       operationId: update{{capResource}}
       parameters:
         - name: {{resourceId}}

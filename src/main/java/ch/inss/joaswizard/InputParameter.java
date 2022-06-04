@@ -137,6 +137,18 @@ public class InputParameter {
         }
     }
 
+    public void setMethods(Set<Method> methods) {
+        for (Method s : methods) {
+            this.addMethod(s);
+        }
+    }
+
+    public void setMethods(List<String> methods) {
+        for (String s : methods) {
+            this.addMethods(s);
+        }
+    }
+
     public void addMethod(Method method) {
         if (method == Method.CRUD) {
             this.setCrud();

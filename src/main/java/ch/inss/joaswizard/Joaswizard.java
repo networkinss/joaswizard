@@ -547,6 +547,7 @@ public class Joaswizard implements Constants {
             }
 
             propertyData.setPattern(sheetCIMap.get(Header.OASPATTERN.toString()));
+
             if (sheetCIMap.containsKey(Header.OASREQUIRED)) {
                 propertyData.setRequired(Boolean.parseBoolean(sheetCIMap.get(Header.OASREQUIRED)));
             } else if (sheetCIMap.containsKey(Header.DBNULLABLE)) {
