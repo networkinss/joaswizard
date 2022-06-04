@@ -451,10 +451,9 @@ public class Joaswizard implements Constants {
             }
             if (key == null || key.equals("")) {
                 key = UNDEFINED;
-                logger.warning(logPrefix + "Excel header '" + Header.NAME + "' is missing'.");
+                logger.warning(logPrefix + "Excel header '" + Header.NAME + "' is missing'. Name of object will be 'undefined'.");
             } else key = key.trim();
-            logger.fine("Line " + idx + ", key: " + key);
-
+            logger.fine(logPrefix + "Line " + idx + ", key: " + key);
 
             HashMap<String, String> mappingMap = new HashMap<>();
             /** Define type (OasType). */
