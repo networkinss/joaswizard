@@ -4,7 +4,7 @@
   <groupId>ch.inss.joaswizard</groupId>
   <artifactId>joaswizard</artifactId>
   <packaging>jar</packaging>
-  <version>0.9.5-SNAPSHOT</version>
+  <version>0.9.5</version>
   <name>Jo as wizard</name>
   <description>Jo as wizard helps to create a complete OAS3 specification from object properties only.</description>
   <url>https://github.com/networkinss/joaswizard</url>

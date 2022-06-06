@@ -287,7 +287,7 @@ public class InputParameter {
     /**
      * Set the Yaml object properties as Base64 encoded string.
      *
-     * @param sampleYaml
+     * @param sampleYaml sample data properties in yaml format base64 encoded.
      */
     public void setSampleYamlBase64(String sampleYaml) {
         Base64.Decoder decoder = Base64.getDecoder();

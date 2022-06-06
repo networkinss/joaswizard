@@ -55,6 +55,8 @@ public class Joaswizard implements Constants {
      * OAS3 part: start tag and error model for components schemas.
      * Creates only error model and the start of components schemas.
      *
+     * 
+     * @param doSchemas false skip this method.
      * @return String of beginning of components schemas including a standard error model.
      */
     public String createComponentsSchemas(boolean doSchemas) {
@@ -135,8 +137,8 @@ public class Joaswizard implements Constants {
     }
 
     /**
-     * @param inputParameter
-     * @param inputStream
+     * @param inputParameter parameter.
+     * @param inputStream input Excel file as InputStream.
      * @return null if an error occured.
      */
     public String createFromExcelInputstreamToString(InputParameter inputParameter, InputStream inputStream) {
@@ -236,7 +238,7 @@ public class Joaswizard implements Constants {
      * For convenience takes Yaml format as input and gives back full OAS3 document a string
      * with all CRUD operations as string.
      *
-     * @param inputParameter
+     * @param inputParameter parameter.
      * @return Full OAS3 document with CRUD operations.
      */
     public String createCrudFromYamlToString(InputParameter inputParameter) {
@@ -248,7 +250,7 @@ public class Joaswizard implements Constants {
     /**
      * Returns a full OAS3 document.
      *
-     * @param inputParameter
+     * @param inputParameter parameter.
      * @return Full OAS3 document as string.
      */
     public String createFromYamlToString(InputParameter inputParameter) {
