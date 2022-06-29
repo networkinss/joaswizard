@@ -15,5 +15,6 @@ jobs:
       # Run Spectral
       - uses: stoplightio/spectral-action@latest
         with:
-          file_glob: 'src/test/resources/testReferenceCrudMultipleYamlObject.yml' # File pattern for your API design files
+          file_glob: 'src/test/resources/testReferenceContact.yml' # File pattern for your API design files
+#          file_glob: 'src/test/resources/testReferenceCrudMultipleYamlObject.yml' # File pattern for your API design files
           spectral_ruleset: spectral.json
