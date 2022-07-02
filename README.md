@@ -58,7 +58,9 @@ It is a normal Java Maven project. You will need Java SDK 11 and Maven to build 
 I forked Handlebars to remove logging from it. The logging binding from Handlebars can cause issues with your own
 application.
 To check the API style of an output:
-npx @stoplight/spectral-cli lint src/test/resources/testReferenceCrudMultipleYamlObject.yml -r .spectral.json -o
+```
+npx @stoplight/spectral-cli lint src/test/resources/testReferenceCrudMultipleYamlObject.yml -r .spectral.json
+```
 test-results/spectral-results.xml -f junit
 
 ## Maven Integration

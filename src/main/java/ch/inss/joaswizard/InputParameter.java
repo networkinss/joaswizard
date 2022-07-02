@@ -138,12 +138,14 @@ public class InputParameter {
     }
 
     public void setMethods(Set<Method> methods) {
+        if (methods == null) return;
         for (Method s : methods) {
             this.addMethod(s);
         }
     }
 
     public void setMethods(List<String> methods) {
+        if (methods == null) return;
         for (String s : methods) {
             this.addMethods(s);
         }
