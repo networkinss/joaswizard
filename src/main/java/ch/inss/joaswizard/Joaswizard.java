@@ -260,28 +260,34 @@ public class Joaswizard implements Constants {
      * @return Full OAS3 document as string.
      */
     public String createFromYamlToString(InputParameter inputParameter) {
-        if (inputParameter == null) return null;
+        if (validateInput(inputParameter)) return null;
+        List<InputParameter> inputParameterList = this.createMustacheDataFromYaml(inputParameter);
+        return this.fullMultipleObjects(inputParameterList);
+    }
+
+    private boolean validateInput(InputParameter inputParameter) {
+        if (inputParameter == null) return true;
 //        List<InputParameter> inputParameterList = new ArrayList<>();
+        //TODO check move to InputParameter class.
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
             if (Util.fileExists(inputParameter.getInputFile()) == false) {
                 logger.severe("Yaml file not found: " + inputParameter.getInputFile());
-                return null;
+                return true;
             }
             inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
         }
         if (inputParameter.getSampleYamlData() == null) {
             logger.severe("No Yaml data provided.");
-            return null;
+            return true;
         }
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
         if (inputParameter.checkValid() == false) {
             logger.severe("Input parameter are not consistent.");
-            return null;
+            return false;
         }
-        List<InputParameter> inputParameterList = this.createMustacheDataFromYaml(inputParameter);
-        return this.fullMultipleObjects(inputParameterList);
+        return false;
     }
 
     /**
