@@ -190,11 +190,17 @@ public class Joaswizard implements Constants {
         }
         StringBuilder resources = new StringBuilder();
         StringBuilder objects = new StringBuilder();
+        int max = 0;
         for (InputParameter input : inputParameterList) {
             resources.append(input.getResource()).append(", ");
             String result = this.createSchemaObjects(input);
             if (ERROR.equals(result)) return null;
             objects.append(result).append(nextLine);
+            if (input.getMaxobjects() > max) {
+                logger.warning("Maximum number of object (" + input.getMaxobjects() + ") is breached, next objects are skipped.");
+                break;
+            }
+            max++;
         }
         resources.delete(resources.length() - 2, resources.length());
         inputParameterList.get(0).setResource(resources.toString());
@@ -333,8 +339,11 @@ public class Joaswizard implements Constants {
         }
 
         /** Loop for objects. */
+        int max = 0;
         for (String key : allObjectsMap.keySet()) {
             InputParameter inputParameter = new InputParameter(mainInputParameter);
+            max++;
+            if (max > inputParameter.getMaxobjects()) break;
             HashMap<String, Object> resultMap = new HashMap<>();
             boolean breakLoop = false;
             LinkedHashMap<String, Object> propMap = null;
@@ -349,6 +358,7 @@ public class Joaswizard implements Constants {
                 propMap = allObjectsMap;
                 breakLoop = true;
             }
+
 
             /** Loop for the properties of one object. */
             List<PropertyData> list = new ArrayList<>();

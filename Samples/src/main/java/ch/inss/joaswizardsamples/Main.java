@@ -3,7 +3,7 @@ package ch.inss.joaswizardsamples;
 public class Main {
 
     /** Create OAS3 document with all CRUD operations for one object. */
-    public static void main(String[] args) {
+    public static void mainx(String[] args) {
         if (args.length == 0) {
             help();
             System.exit(0);

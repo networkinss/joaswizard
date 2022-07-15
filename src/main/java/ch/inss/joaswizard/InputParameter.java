@@ -16,7 +16,7 @@ public class InputParameter {
     private String outputFile;
     private String internalid;
     private String mappingFile;
-    private Integer maxobjects;
+    private Integer maxobjects = 100;
     private String[] tags;
     private String[] arrayItems;
     private Sourcetype sourceType;
@@ -71,6 +71,7 @@ public class InputParameter {
         this.stopOnError = in.isStopOnError();
         this.doDefaultSamples = in.isDoDefaultSamples();
         this.prefixMatch = in.isPrefixMatch();
+        this.maxobjects = in.getMaxobjects();
     }
 
     public InputParameter() {
@@ -370,6 +371,10 @@ public class InputParameter {
         this.maxobjects = maxobjects;
     }
 
+    public Integer getMaxobjects() {
+        return maxobjects;
+    }
+
     public String[] getTags() {
         return tags;
     }
@@ -407,12 +412,13 @@ public class InputParameter {
     }
 
 
-    public static enum Method {
+    public enum Method {
         POST,
         PUT,
         GET,
         DELETE,
         PATCH,
+        QUERY,
         CRUD,
         EMPTY
     }
