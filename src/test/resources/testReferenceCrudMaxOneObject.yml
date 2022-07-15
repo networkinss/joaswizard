@@ -11,7 +11,7 @@ info:
     name: Apache 2.0 license
     url: http://opensource.org/licenses/Apache-2.0
 servers:
-  - url: http://localhost:8080/v1
+  - url: http://localhost:8080
     description: Local environment.
 
 paths:

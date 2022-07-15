@@ -30,6 +30,8 @@ public class InputParameter {
     private boolean stopOnError = false;
     private boolean doDefaultSamples = false;
 
+    private OasInfo oasInfo;
+
     /**
      * This is for the mapping.json used for database types.
      * If true, DB types like CHAR(80) in the DBType column of an Excel file will match to CHAR in the mapping.json.
@@ -395,6 +397,14 @@ public class InputParameter {
 
     public void setArrayItems(String[] arrayItems) {
         this.arrayItems = arrayItems;
+    }
+
+    public OasInfo getOasInfo() {
+        return oasInfo;
+    }
+
+    public void setOasInfo(OasInfo oasInfo) {
+        this.oasInfo = oasInfo;
     }
 
     @Override
