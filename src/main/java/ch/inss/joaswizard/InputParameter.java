@@ -16,7 +16,7 @@ public class InputParameter {
     private String outputFile;
     private String internalid;
     private String mappingFile;
-
+    private Integer maxobjects;
     private String[] tags;
     private String[] arrayItems;
     private Sourcetype sourceType;
@@ -364,6 +364,10 @@ public class InputParameter {
 
     public void setMappingFile(String mappingFile) {
         this.mappingFile = mappingFile;
+    }
+
+    public void setMaxobjects(Integer maxobjects) {
+        this.maxobjects = maxobjects;
     }
 
     public String[] getTags() {
