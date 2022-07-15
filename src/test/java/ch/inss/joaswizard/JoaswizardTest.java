@@ -29,16 +29,18 @@ class JoaswizardTest implements Constants {
     private final static String outputContact2 = output + "test02_OutputContact.yml";
     private final static String outputSchema1 = "test04_OutputSchema1.yml";
     private final static String outputSchema2 = "test04_OutputSchema2.yml";
-    private final static String outputString = output + "test05_OutputString.yml";
-    private final static String outputGetPet = "test06_OutputGetPet.yml";
-    private final static String outputExcel = output + "test08_OutputExcelsheet.yml";
-    private final static String outputDBFieldsExcel = output + "test09_OutputDBFieldsExcelsheet.yml";
-    private final static String outputMySQLDBFieldsExcel = output + "test09_OutputMySQLDBFieldsExcelsheet.yml";
-    private final static String outputMainExcel = output + "test14_MainExceloutput.yaml";
-    private final static String outputMainYaml = output + "test13_MainYamloutput.yaml";
-    private final static String outputSingleYamlObject = output + "test10_OutputSingleYamlObject.yml";
-    private final static String outputCrudSingleYamlObject = output + "test11_OutputCrudSingleYamlObject.yml";
-    private final static String outputCrudMultipleYamlObject = output + "test13_OutputCrudMultipleYamlObject.yml";
+    private final static String outputMinimalString = output + "test05_OutputMinimalString.yml";
+    private final static String outputString = output + "test06_OutputString.yml";
+    private final static String outputGetPet = "test07_OutputGetPet.yml";
+    private final static String outputExcel = output + "test09_OutputExcelsheet.yml";
+    private final static String outputDBFieldsExcel = output + "test10_OutputDBFieldsExcelsheet.yml";
+    private final static String outputMySQLDBFieldsExcel = output + "test10_OutputMySQLDBFieldsExcelsheet.yml";
+    private final static String outputMainExcel = output + "test15_MainExceloutput.yaml";
+    private final static String outputMainYaml = output + "test14_MainYamloutput.yaml";
+    private final static String outputSingleYamlObject = output + "test11_OutputSingleYamlObject.yml";
+    private final static String outputCrudSingleYamlObject = output + "test12_OutputCrudSingleYamlObject.yml";
+    private final static String outputCrudMultipleYamlObject = output + "test14_OutputCrudMultipleYamlObject.yml";
+    private final static String outputCrudMaxOneObject = output + "test14_OutputCrudMaxOneObject.yml";
 
     private static Joaswizard jo = new Joaswizard();
     private static boolean cleanUp = true;
@@ -151,9 +153,41 @@ class JoaswizardTest implements Constants {
         }
     }
 
-
     @Test
     @Order(5)
+    void testCreateFromMinimalString() throws Exception {
+        String string64 = "price: 12.05";
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLSTRING);
+        inputParameter.setSampleYamlData(string64);
+        inputParameter.setOutputFile(outputMinimalString);
+//        inputParameter.setResourceId("ID");
+        inputParameter.setResource("object");
+
+        jo.createCrudFromYamlToFile(inputParameter);
+
+        File file1 = new File(outputMinimalString);
+        File file2 = new File("src/test/resources/testReferenceMinimalString.yml");
+        assertTrue(file1.isFile());
+
+        final List<String> list = new ArrayList<>();
+        list.add("title: Object API");
+        list.add("$ref: '#/components/schemas/Object'");
+        list.add("example: 12.05");
+        try (Stream<String> lines = Files.lines(Paths.get(outputMinimalString))) {
+            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+        }
+
+        Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
+        if (cleanUp) {
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
+    }
+
+
+    @Test
+    @Order(6)
     void testCreateFromString() throws Exception {
         String string64 = "Zmlyc3RuYW1lOiBNYXgKbmFtZTogTXVzdGVybWFubgpwaG9uZTogMTIzNDU2Nzg5CmVtYWlsOiAibWF4QGV4YW1wbGUuY29tIg==";
         InputParameter inputParameter = new InputParameter();
@@ -187,7 +221,7 @@ class JoaswizardTest implements Constants {
      * Tests only the path section with get methods.
      */
     @Test
-    @Order(6)
+    @Order(7)
     void testGetPet() throws Exception {
 //        String outputGetPet = "get_openapi.yaml";
         InputParameter inputParameter = new InputParameter();
@@ -257,7 +291,7 @@ class JoaswizardTest implements Constants {
 //    }
 
     @Test
-    @Order(7)
+    @Order(8)
     void testExcelWrapper() throws Exception {
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile("src/test/resources/objectimport.xlsx");
@@ -265,7 +299,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     void testExcel() throws Exception {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
@@ -286,7 +320,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     void testExcelDBFields() throws Exception {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
@@ -307,7 +341,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     void testExcelMySQLDBFields() throws Exception {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
@@ -332,7 +366,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(11)
+    @Order(12)
     void testCreateMethodsFromSingleYamlObject() throws Exception {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
@@ -356,7 +390,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(12)
+    @Order(13)
     void testCreateCrudFromSingleYamlObject() throws Exception {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
@@ -379,7 +413,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(13)
+    @Order(14)
     void testCreateCrudFromMultipleYamlObject() throws Exception {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
@@ -402,7 +436,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(14)
+    @Order(15)
     void testIsValidType() {
         InputParameter inputParameter = new InputParameter();
         assertTrue(inputParameter.isValidSourcetype("excel"));
@@ -412,7 +446,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(15)
+    @Order(16)
     void testMainYaml() {
         Main.main(new String[]{"src/test/resources/YamlObjects.yml", outputMainYaml, "pet", "name", "yamlfile", "delete,post,patch"});
         File file1 = new File(outputMainYaml);
@@ -425,7 +459,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(16)
+    @Order(17)
     void testYaml() {
         Main.main(new String[]{"src/test/resources/sample.yaml", outputMainYaml, "shoe", "name", "yamlfile", "delete,post,patch"});
         File file1 = new File(outputMainYaml);
@@ -438,7 +472,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(17)
+    @Order(18)
     void testMainExcel() throws Exception {
         Main.main(new String[]{"src/test/resources/objectimport.xlsx", outputMainExcel, "pet", "name", "excel", "delete,post,patch"});
         File file1 = new File(outputMainExcel);
@@ -451,7 +485,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(18)
+    @Order(19)
     void testReadMapping() throws Exception {
         String file = Util.readFromFile("src/main/resources/mapping.json");
         JSONParser parser = new JSONParser();
@@ -466,5 +500,30 @@ class JoaswizardTest implements Constants {
         assertTrue("date-time".equals(oasformat));
         assertTrue("".equals(oaspattern));
     }
+
+    @Test
+    @Order(14)
+    void testCreateCrudFromMaxOneObject() throws Exception {
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setResourceId("name");
+        inputParameter.setResource("pet");
+        inputParameter.setInputFile("src/test/resources/YamlObjects.yml");
+        inputParameter.setOutputFile(outputCrudMaxOneObject);
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE.toString());
+        inputParameter.setCrud();
+        inputParameter.setMaxobjects(1);
+
+        jo.createFromYamlToFile(inputParameter);
+        File file1 = new File(outputCrudMaxOneObject);
+        File file2 = new File("src/test/resources/testReferenceCrudMaxOneObject.yml");
+        assertTrue(file1.isFile());
+
+        Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
+        if (cleanUp) {
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
+    }
+
 
 }

@@ -190,11 +190,17 @@ public class Joaswizard implements Constants {
         }
         StringBuilder resources = new StringBuilder();
         StringBuilder objects = new StringBuilder();
+        int max = 0;
         for (InputParameter input : inputParameterList) {
             resources.append(input.getResource()).append(", ");
             String result = this.createSchemaObjects(input);
             if (ERROR.equals(result)) return null;
             objects.append(result).append(nextLine);
+            if (max > input.getMaxobjects()) {
+                logger.warning("Maximum number of object (" + input.getMaxobjects() + ") is breached, next objects are skipped.");
+                break;
+            }
+            max++;
         }
         resources.delete(resources.length() - 2, resources.length());
         inputParameterList.get(0).setResource(resources.toString());
@@ -254,24 +260,34 @@ public class Joaswizard implements Constants {
      * @return Full OAS3 document as string.
      */
     public String createFromYamlToString(InputParameter inputParameter) {
-        if (inputParameter == null) return null;
+        if (validateInput(inputParameter)) return null;
+        List<InputParameter> inputParameterList = this.createMustacheDataFromYaml(inputParameter);
+        return this.fullMultipleObjects(inputParameterList);
+    }
+
+    private boolean validateInput(InputParameter inputParameter) {
+        if (inputParameter == null) return true;
 //        List<InputParameter> inputParameterList = new ArrayList<>();
+        //TODO check move to InputParameter class.
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
             if (Util.fileExists(inputParameter.getInputFile()) == false) {
                 logger.severe("Yaml file not found: " + inputParameter.getInputFile());
-                return null;
+                return true;
             }
             inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
         }
         if (inputParameter.getSampleYamlData() == null) {
             logger.severe("No Yaml data provided.");
-            return null;
+            return true;
         }
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
-        List<InputParameter> inputParameterList = this.createMustacheDataFromYaml(inputParameter);
-        return this.fullMultipleObjects(inputParameterList);
+        if (inputParameter.checkValid() == false) {
+            logger.severe("Input parameter are not consistent.");
+            return false;
+        }
+        return false;
     }
 
     /**
@@ -333,8 +349,11 @@ public class Joaswizard implements Constants {
         }
 
         /** Loop for objects. */
+        int max = 0;
         for (String key : allObjectsMap.keySet()) {
             InputParameter inputParameter = new InputParameter(mainInputParameter);
+            max++;
+            if (max > inputParameter.getMaxobjects()) break;
             HashMap<String, Object> resultMap = new HashMap<>();
             boolean breakLoop = false;
             LinkedHashMap<String, Object> propMap = null;
@@ -349,6 +368,7 @@ public class Joaswizard implements Constants {
                 propMap = allObjectsMap;
                 breakLoop = true;
             }
+
 
             /** Loop for the properties of one object. */
             List<PropertyData> list = new ArrayList<>();
