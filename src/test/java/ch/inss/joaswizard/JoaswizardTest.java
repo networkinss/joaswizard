@@ -162,7 +162,7 @@ class JoaswizardTest implements Constants {
         inputParameter.setSampleYamlData(string64);
         inputParameter.setOutputFile(outputMinimalString);
 //        inputParameter.setResourceId("ID");
-//        inputParameter.setResource("object");
+        inputParameter.setResource("object");
 
         jo.createCrudFromYamlToFile(inputParameter);
 
@@ -515,14 +515,14 @@ class JoaswizardTest implements Constants {
 
         jo.createFromYamlToFile(inputParameter);
         File file1 = new File(outputCrudMaxOneObject);
-        File file2 = new File("src/test/resources/testReferenceCrudMultipleYamlObject.yml");
+        File file2 = new File("src/test/resources/testReferenceCrudMaxOneObject.yml");
         assertTrue(file1.isFile());
 
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
-//        if (cleanUp) {
-//            file1.delete();
-//            assertTrue(file1.isFile() == false);
-//        }
+        if (cleanUp) {
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
     }
 
 

@@ -196,7 +196,7 @@ public class Joaswizard implements Constants {
             String result = this.createSchemaObjects(input);
             if (ERROR.equals(result)) return null;
             objects.append(result).append(nextLine);
-            if (input.getMaxobjects() > max) {
+            if (max > input.getMaxobjects()) {
                 logger.warning("Maximum number of object (" + input.getMaxobjects() + ") is breached, next objects are skipped.");
                 break;
             }
@@ -275,6 +275,10 @@ public class Joaswizard implements Constants {
         }
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
+        }
+        if (inputParameter.checkValid() == false) {
+            logger.severe("Input parameter are not consistent.");
+            return null;
         }
         List<InputParameter> inputParameterList = this.createMustacheDataFromYaml(inputParameter);
         return this.fullMultipleObjects(inputParameterList);

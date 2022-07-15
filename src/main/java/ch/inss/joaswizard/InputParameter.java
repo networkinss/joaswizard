@@ -109,6 +109,10 @@ public class InputParameter {
         } else if (this.sourceType == Sourcetype.YAMLSTRING) {
             valid = this.sampleYamlData != null && this.resource != null && this.resourceId != null;
         }
+        if (this.resource == null) {
+            logger.severe("Resource must be set. Define resouce (object name).");
+            valid = false;
+        }
         return valid;
     }
 
