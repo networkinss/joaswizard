@@ -544,7 +544,6 @@ class JoaswizardTest implements Constants {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setSourceType(InputParameter.Sourcetype.YAMLSTRING);
         inputParameter.setSampleYamlBase64(string64);
-//        inputParameter.setOutputFile(outputString);
         inputParameter.setResourceId("name");
         inputParameter.setResource("contact");
 
