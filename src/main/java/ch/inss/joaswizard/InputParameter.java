@@ -2,10 +2,12 @@ package ch.inss.joaswizard;
 
 import org.apache.commons.lang3.StringUtils;
 
+//import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+//import org.apache.commons.beanutils.BeanUtils;
 
 public class InputParameter {
 
@@ -74,6 +76,7 @@ public class InputParameter {
         this.doDefaultSamples = in.isDoDefaultSamples();
         this.prefixMatch = in.isPrefixMatch();
         this.maxobjects = in.getMaxobjects();
+        this.oasInfo = in.getOasInfo();
     }
 
     public InputParameter() {
@@ -95,6 +98,7 @@ public class InputParameter {
         logger.addHandler(Main.consoleHandler);
         logger.setLevel(Level.INFO);
         logger.setUseParentHandlers(false);
+        this.oasInfo = new OasInfo();
     }
 
     /**
@@ -180,6 +184,23 @@ public class InputParameter {
     public void setSchemaData(HashMap<String, Object> schemaData) {
         this.schemaData = schemaData;
     }
+
+//    public HashMap<String, Object> getInfoData() {
+//        HashMap<String, Object> infoData = new HashMap<>();
+//        if(this.oasInfo == null ) return infoData;
+//        Map<String, String> describe;
+//        try {
+//            describe = BeanUtils.describe(this.oasInfo);
+//        } catch (IllegalAccessException e) {
+//            return infoData;
+//        } catch (InvocationTargetException e) {
+//            return infoData;
+//        } catch (NoSuchMethodException e) {
+//            return infoData;
+//        }
+//        infoData.putAll(describe);
+//        return infoData;
+//    }
 
     public boolean isGet() {
         return this.methods.contains(Method.GET);

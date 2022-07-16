@@ -3,7 +3,7 @@ info:
   version: 1.0.0
   title: Pet API
   description: >-
-    This is an OpenAPI Specification created by oasjwizard (https://github.com/networkinss/oasjwizard), 
+    This is an OpenAPI Specification created by oasjwizard (https://github.com/networkinss/oasjwizard). 
     inspired by oas-wizard (https://github.com/pafmon/oas-wizard).  
   contact:
     name: Oliver Glas

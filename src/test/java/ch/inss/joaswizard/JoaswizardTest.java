@@ -14,10 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 
@@ -60,7 +57,7 @@ class JoaswizardTest implements Constants {
         final List<String> list = new ArrayList<>();
         list.add("title: Contact API");
         list.add("$ref: '#/components/schemas/Contact'");
-        list.add("Contact:");
+        list.add("name: John Doe");
         try (Stream<String> lines = Files.lines(Paths.get(outputContact1))) {
             Stream<String> f = lines.filter(l -> list.contains(l.trim()));
             long x = f.count();
@@ -72,7 +69,6 @@ class JoaswizardTest implements Constants {
             file1.delete();
             assertTrue(file1.isFile() == false);
         }
-
     }
 
     @Test
@@ -539,7 +535,35 @@ class JoaswizardTest implements Constants {
 
         assertNotNull(output);
         Assertions.assertTrue(jo.getErrorMessage().startsWith("Error: "));
+    }
 
+    @Test
+    @Order(22)
+    void testCustomInfo() throws Exception {
+        String string64 = "Zmlyc3RuYW1lOiBNYXgKbmFtZTogTXVzdGVybWFubgpwaG9uZTogMTIzNDU2Nzg5CmVtYWlsOiAibWF4QGV4YW1wbGUuY29tIg==";
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLSTRING);
+        inputParameter.setSampleYamlBase64(string64);
+//        inputParameter.setOutputFile(outputString);
+        inputParameter.setResourceId("name");
+        inputParameter.setResource("contact");
+
+        OasInfo oasInfo = new OasInfo();
+        oasInfo.setContactName("Jane Doe");
+        oasInfo.setContactMmail("jane.doe@example.com");
+        oasInfo.setDescription("Generated for JUnit test.");
+        inputParameter.setOasInfo(oasInfo);
+
+        String[] outArr = jo.createCrudFromYamlToString(inputParameter).split("\n");
+
+        final List<String> list = new ArrayList<>();
+        list.add("Generated for JUnit test.");
+        list.add("jane.doe@example.com");
+        list.add("name: Jane Doe");
+
+        try (Stream<String> lines = Arrays.asList(outArr).stream()) {
+            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+        }
     }
 
 
