@@ -502,7 +502,7 @@ class JoaswizardTest implements Constants {
     }
 
     @Test
-    @Order(14)
+    @Order(20)
     void testCreateCrudFromMaxOneObject() throws Exception {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("name");
@@ -523,6 +523,23 @@ class JoaswizardTest implements Constants {
             file1.delete();
             assertTrue(file1.isFile() == false);
         }
+    }
+
+    @Test
+    @Order(21)
+    void testWrongInput() throws Exception {
+        String string64 = "price"; //Wrong input, not Yaml format.
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLSTRING);
+        inputParameter.setSampleYamlData(string64);
+        inputParameter.setOutputFile(outputMinimalString);
+        inputParameter.setResource("object");
+
+        String output = jo.createCrudFromYamlToString(inputParameter);
+
+        assertNotNull(output);
+        Assertions.assertTrue(jo.getErrorMessage().startsWith("Error: "));
+
     }
 
 

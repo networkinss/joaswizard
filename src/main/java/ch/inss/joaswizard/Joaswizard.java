@@ -16,6 +16,34 @@ public class Joaswizard implements Constants {
 
     private final Logger logger;
 
+    private String errorMessage;
+    private String warningMessage;
+    private String okMessage;
+
+    public String getErrorMessage() {
+        return "Error: " + errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public String getWarningMessage() {
+        return warningMessage;
+    }
+
+    public void setWarningMessage(String warningMessage) {
+        this.warningMessage = warningMessage;
+    }
+
+    public String getOkMessage() {
+        return okMessage;
+    }
+
+    public void setOkMessage(String okMessage) {
+        this.okMessage = okMessage;
+    }
+
     public Joaswizard() {
         logger = Logger.getLogger(Joaswizard.class.getName());
         for (Handler handler : logger.getHandlers()) {
@@ -55,7 +83,6 @@ public class Joaswizard implements Constants {
      * OAS3 part: start tag and error model for components schemas.
      * Creates only error model and the start of components schemas.
      *
-     * 
      * @param doSchemas false skip this method.
      * @return String of beginning of components schemas including a standard error model.
      */
@@ -86,20 +113,20 @@ public class Joaswizard implements Constants {
         try {
             Template template = mf.compile(schemaTemplate);
             if (inputParameter.getSchemaData() == null || inputParameter.getSchemaData().isEmpty()) {
-                logger.severe("No data. Please define input file or set sample yaml.");
+                this.logErrorMessage("No data. Please define input file or set sample yaml.");
                 return ERROR;
             }
             HashMap sampleMap = inputParameter.getSchemaData();
 //            HashMap sampleMap = this.data.getDataMap(inputParameter.getResource());
             if (sampleMap == null || sampleMap.size() == 0) {
-                logger.severe("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");  //TODO check
+                this.logErrorMessage("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");  //TODO check
                 return ERROR;
             }
             sampleMap.put(OBJECTNAME, inputParameter.getCapResource());
             result = template.apply(sampleMap);
         } catch (IOException e) {
             e.printStackTrace();
-            logger.severe(e.getLocalizedMessage());
+            this.logErrorMessage(e.getLocalizedMessage());
         }
         logger.info("End creating schema objects.");
         return result;
@@ -124,13 +151,13 @@ public class Joaswizard implements Constants {
         try {
             Template template = mf.compile(infoTemplate);
             if (inputParameter.getResource() == null || inputParameter.getResource().length() == 0) {
-                logger.severe("No resource defined.");
+                this.logErrorMessage("No resource defined.");
                 return "Error";
             }
             result = template.apply(inputParameter);
         } catch (IOException e) {
             e.printStackTrace();
-            logger.severe(e.getLocalizedMessage());
+            this.logErrorMessage(e.getLocalizedMessage());
         }
         logger.info("End creating info.");
         return result;
@@ -138,12 +165,12 @@ public class Joaswizard implements Constants {
 
     /**
      * @param inputParameter parameter.
-     * @param inputStream input Excel file as InputStream.
+     * @param inputStream    input Excel file as InputStream.
      * @return null if an error occured.
      */
     public String createFromExcelInputstreamToString(InputParameter inputParameter, InputStream inputStream) {
         if (inputStream == null) {
-            logger.severe("File was empty.");
+            this.logErrorMessage("File was empty.");
             return null;
         }
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
@@ -170,7 +197,7 @@ public class Joaswizard implements Constants {
         if (ok) {
             logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
         } else {
-            logger.severe("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
+            this.logErrorMessage("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
         }
         return ok;
     }
@@ -186,7 +213,7 @@ public class Joaswizard implements Constants {
         if (inputParameterList == null || inputParameterList.isEmpty()) return null;
         String paths = this.createMethodsFromList(inputParameterList);
         if (paths.startsWith(ERROR)) {
-            logger.severe("Could not process data for OAS paths. " + paths);
+            this.logErrorMessage("Could not process data for OAS paths. " + paths);
         }
         StringBuilder resources = new StringBuilder();
         StringBuilder objects = new StringBuilder();
@@ -197,7 +224,7 @@ public class Joaswizard implements Constants {
             if (ERROR.equals(result)) return null;
             objects.append(result).append(nextLine);
             if (max > input.getMaxobjects()) {
-                logger.warning("Maximum number of object (" + input.getMaxobjects() + ") is breached, next objects are skipped.");
+                this.logWarningMessage("Maximum number of object (" + input.getMaxobjects() + ") is breached, next objects are skipped. There were some objects skipped because of the limitation of number objects to " + input.getMaxobjects());
                 break;
             }
             max++;
@@ -235,7 +262,7 @@ public class Joaswizard implements Constants {
         if (ok) {
             logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
         } else {
-            logger.severe("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
+            this.logErrorMessage("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
         }
         return ok;
     }
@@ -245,12 +272,17 @@ public class Joaswizard implements Constants {
      * with all CRUD operations as string.
      *
      * @param inputParameter parameter.
-     * @return Full OAS3 document with CRUD operations.
+     * @return String with full OAS3 document with CRUD operations. Can be null in case an error occured. Like e.g. input was not in Yaml format.
      */
     public String createCrudFromYamlToString(InputParameter inputParameter) {
         logger.info("Jo starts to create crud file from Yaml input.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
-        return this.createFromYamlToString(inputParameter);
+        String result = this.createFromYamlToString(inputParameter);
+        if (result == null) {
+            if (this.errorMessage == null) this.errorMessage = ERROR;
+            return this.errorMessage;
+        }
+        return result;
     }
 
     /**
@@ -271,20 +303,20 @@ public class Joaswizard implements Constants {
         //TODO check move to InputParameter class.
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
             if (Util.fileExists(inputParameter.getInputFile()) == false) {
-                logger.severe("Yaml file not found: " + inputParameter.getInputFile());
+                this.logErrorMessage("Yaml file not found: " + inputParameter.getInputFile());
                 return true;
             }
             inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
         }
         if (inputParameter.getSampleYamlData() == null) {
-            logger.severe("No Yaml data provided.");
+            this.logErrorMessage("No Yaml data provided.");
             return true;
         }
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
         }
         if (inputParameter.checkValid() == false) {
-            logger.severe("Input parameter are not consistent.");
+            this.logErrorMessage("Input parameter are not consistent.");
             return false;
         }
         return false;
@@ -344,7 +376,8 @@ public class Joaswizard implements Constants {
                 return null;
             }
         } catch (Exception e) {
-            logger.severe("Could not read Yaml file: " + mainInputParameter.getInputFile() + ". Check if it has Yaml format.");
+            this.logErrorMessage("Could not read Yaml file: " + mainInputParameter.getInputFile() + ". Check if it has Yaml format.");
+            this.setErrorMessage("Input is not Yaml format.");
             return null;
         }
 
@@ -353,7 +386,10 @@ public class Joaswizard implements Constants {
         for (String key : allObjectsMap.keySet()) {
             InputParameter inputParameter = new InputParameter(mainInputParameter);
             max++;
-            if (max > inputParameter.getMaxobjects()) break;
+            if (max > inputParameter.getMaxobjects()) {
+                this.warningMessage = this.warningMessage + " There were some objects skipped because of the limitation of number objects to " + inputParameter.getMaxobjects();
+                break;
+            }
             HashMap<String, Object> resultMap = new HashMap<>();
             boolean breakLoop = false;
             LinkedHashMap<String, Object> propMap = null;
@@ -473,7 +509,7 @@ public class Joaswizard implements Constants {
             }
             if (key == null || key.equals("")) {
                 key = UNDEFINED;
-                logger.warning(logPrefix + "Excel header '" + Header.NAME + "' is missing'. Name of object will be 'undefined'.");
+                this.logWarningMessage(logPrefix + "Excel header '" + Header.NAME + "' is missing'. Name of object will be 'undefined'.");
             } else key = key.trim();
             logger.fine(logPrefix + "Line " + idx + ", key: " + key);
 
@@ -501,8 +537,8 @@ public class Joaswizard implements Constants {
             }
             if ((type == null || type.equals(""))) {
                 if (inputParameter.isStopOnError()) {
-                    logger.severe("Type mapping error in line " + idx + ", key: " + key);
-                    logger.severe("Type cannot be mapped or is not valid. Breaking because stopOnError is set to true.");
+                    this.logErrorMessage("Type mapping error in line " + idx + ", key: " + key);
+                    this.logErrorMessage("Type cannot be mapped or is not valid. Breaking because stopOnError is set to true.");
                     return null;
                 }
                 if (sampleValue != null) {
@@ -513,7 +549,7 @@ public class Joaswizard implements Constants {
             } else if (type != null) {
                 type = type.trim().toLowerCase();
                 if (Arrays.asList(DATATYPELIST).contains(type) == false) {
-                    logger.warning(logPrefix + "Type not valid: " + type + ". Jo changes type to string.");
+                    this.logWarningMessage(logPrefix + "Type not valid: " + type + ". Jo changes type to string.");
                     type = "string";
                 }
             }
@@ -548,7 +584,7 @@ public class Joaswizard implements Constants {
                 if (((type.equalsIgnoreCase("number") || type.equalsIgnoreCase("integer")) && format.equalsIgnoreCase("string"))
                         || (type.equalsIgnoreCase("number") && (format.equalsIgnoreCase("int32") || format.equalsIgnoreCase("int64")))
                         || (type.equalsIgnoreCase("integer") && (format.equalsIgnoreCase("flaot") || format.equalsIgnoreCase("double")))) {
-                    logger.warning(logPrefix + "Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);
+                    this.logWarningMessage(logPrefix + "Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);
                     propertyData.setFormat(null);
                 } else propertyData.setFormat(format.trim());
             }
@@ -584,7 +620,7 @@ public class Joaswizard implements Constants {
             if (Util.isNumber(max)) {
                 propertyData.setMaxLength(Integer.parseInt(max));
             } else if (max != null && max.equals("") == false) {
-                logger.warning(logPrefix + "Value for maxLength is not a number: " + max);
+                this.logWarningMessage(logPrefix + "Value for maxLength is not a number: " + max);
             }
             list.add(propertyData);
         }
@@ -600,7 +636,7 @@ public class Joaswizard implements Constants {
             try {
                 Header header = Header.valueOf(key.toUpperCase());
             } catch (IllegalArgumentException iae) {
-                logger.warning("Unknown Excel header: '" + key + "' in sheet " + sheetName + ".");
+                this.logWarningMessage("Unknown Excel header: '" + key + "' in sheet " + sheetName + ".");
             }
         }
     }
@@ -642,6 +678,16 @@ public class Joaswizard implements Constants {
             result.add(inputParameter);
         }
         return result;
+    }
+
+    private void logErrorMessage(String message) {
+        logger.severe(message);
+        this.errorMessage = message;
+    }
+
+    private void logWarningMessage(String message) {
+        logger.warning(message);
+        this.warningMessage = message;
     }
 }
     
