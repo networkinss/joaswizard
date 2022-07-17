@@ -15,6 +15,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -166,12 +167,14 @@ class JoaswizardTest implements Constants {
         File file2 = new File("src/test/resources/testReferenceMinimalString.yml");
         assertTrue(file1.isFile());
 
-        final List<String> list = new ArrayList<>();
-        list.add("title: Object API");
-        list.add("$ref: '#/components/schemas/Object'");
-        list.add("example: 12.05");
-        try (Stream<String> lines = Files.lines(Paths.get(outputMinimalString))) {
-            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+        final List<String> checkList = new ArrayList<>();
+        checkList.add("title: Object API");
+        checkList.add("$ref: '#/components/schemas/Object'");
+        checkList.add("example: 12.05");
+
+        List<String> allLines = Files.readAllLines(Paths.get(outputMinimalString)).stream().map(String::trim).collect(Collectors.toList());
+        try (Stream<String> lines = checkList.stream()) {//Files.lines(Paths.get(outputMinimalString))) {
+            assertTrue(lines.allMatch(l -> allLines.contains(l)));
         }
 
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
@@ -199,11 +202,12 @@ class JoaswizardTest implements Constants {
         File file2 = new File("src/test/resources/testReferenceString.yml");
         assertTrue(file1.isFile());
 
-        final List<String> list = new ArrayList<>();
-        list.add("title: Contact API");
-        list.add("$ref: '#/components/schemas/Contact'");
-        try (Stream<String> lines = Files.lines(Paths.get(outputString))) {
-            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+        final List<String> checkList = new ArrayList<>();
+        checkList.add("title: Contact API");
+        checkList.add("$ref: '#/components/schemas/Contact'");
+        List<String> allLines = Files.readAllLines(Paths.get(outputString)).stream().map(String::trim).collect(Collectors.toList());
+        try (Stream<String> lines = checkList.stream()) {
+            assertTrue(lines.allMatch(l -> allLines.contains(l)));
         }
 
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
@@ -554,16 +558,14 @@ class JoaswizardTest implements Constants {
         inputParameter.setOasInfo(oasInfo);
 
         String[] outArr = jo.createCrudFromYamlToString(inputParameter).split("\n");
-
+        final List<String> allLines = Arrays.asList(outArr).stream().map(String::trim).collect(Collectors.toList());
         final List<String> list = new ArrayList<>();
         list.add("Generated for JUnit test.");
         list.add("jane.doe@example.com");
         list.add("name: Jane Doe");
 
-        try (Stream<String> lines = Arrays.asList(outArr).stream()) {
-            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+        try (Stream<String> lines = list.stream()) {
+            assertTrue(lines.allMatch(l -> allLines.contains(l)));
         }
     }
-
-
 }
