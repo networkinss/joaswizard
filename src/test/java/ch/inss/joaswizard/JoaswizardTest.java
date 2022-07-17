@@ -8,15 +8,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 
 class JoaswizardTest implements Constants {
 
@@ -38,6 +37,7 @@ class JoaswizardTest implements Constants {
     private final static String outputCrudSingleYamlObject = output + "test12_OutputCrudSingleYamlObject.yml";
     private final static String outputCrudMultipleYamlObject = output + "test14_OutputCrudMultipleYamlObject.yml";
     private final static String outputCrudMaxOneObject = output + "test14_OutputCrudMaxOneObject.yml";
+    private final static String outputCustomInfo = "test22_CustomInfo.yml";
 
     private static Joaswizard jo = new Joaswizard();
     private static boolean cleanUp = true;
@@ -166,12 +166,14 @@ class JoaswizardTest implements Constants {
         File file2 = new File("src/test/resources/testReferenceMinimalString.yml");
         assertTrue(file1.isFile());
 
-        final List<String> list = new ArrayList<>();
-        list.add("title: Object API");
-        list.add("$ref: '#/components/schemas/Object'");
-        list.add("example: 12.05");
-        try (Stream<String> lines = Files.lines(Paths.get(outputMinimalString))) {
-            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+        final List<String> checkList = new ArrayList<>();
+        checkList.add("title: Object API");
+        checkList.add("$ref: '#/components/schemas/Object'");
+        checkList.add("example: 12.05");
+
+        List<String> allLines = Files.readAllLines(Paths.get(outputMinimalString)).stream().map(String::trim).collect(Collectors.toList());
+        try (Stream<String> lines = checkList.stream()) {//Files.lines(Paths.get(outputMinimalString))) {
+            assertTrue(lines.allMatch(l -> allLines.contains(l)));
         }
 
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
@@ -180,7 +182,6 @@ class JoaswizardTest implements Constants {
             assertTrue(file1.isFile() == false);
         }
     }
-
 
     @Test
     @Order(6)
@@ -199,11 +200,12 @@ class JoaswizardTest implements Constants {
         File file2 = new File("src/test/resources/testReferenceString.yml");
         assertTrue(file1.isFile());
 
-        final List<String> list = new ArrayList<>();
-        list.add("title: Contact API");
-        list.add("$ref: '#/components/schemas/Contact'");
-        try (Stream<String> lines = Files.lines(Paths.get(outputString))) {
-            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+        final List<String> checkList = new ArrayList<>();
+        checkList.add("title: Contact API");
+        checkList.add("$ref: '#/components/schemas/Contact'");
+        List<String> allLines = Files.readAllLines(Paths.get(outputString)).stream().map(String::trim).collect(Collectors.toList());
+        try (Stream<String> lines = checkList.stream()) {
+            assertTrue(lines.allMatch(l -> allLines.contains(l)));
         }
 
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
@@ -250,41 +252,6 @@ class JoaswizardTest implements Constants {
             assertTrue(file1.isFile() == false);
         }
     }
-
-
-    //TODO check if there are multiple pet object to be created.
-//    @Test
-//    @Order(6)
-//    void testGetMultiplePets() throws Exception {
-//        InputParameter inputParameter = new InputParameter();
-//        inputParameter.setResourceId("name");
-//        inputParameter.setResource("pet");
-//        inputParameter.addMethods("GET");
-//        inputParameter.setInputFile("src/test/resources/Pet.yml");
-//        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
-//        List<InputParameter> inputList = new ArrayList<>();
-//        inputList.add(inputParameter);
-//        String result = jo.createMethodsFromList(inputList);
-//        boolean ok = Util.writeStringToData(output, result, inputParameter.getOutputFile());
-//        assertTrue(ok);
-//
-//        File file1 = new File(output + "get_openapi.yaml");
-//        assertTrue(file1.isFile());
-//
-//        final List<String> list = new ArrayList<>();
-//        list.add("/pet/{name}:");
-//        list.add("description: Returns all pets");
-//        list.add("$ref: '#/components/schemas/Pet'");
-//        try (Stream<String> lines = Files.lines(Paths.get(output + "get_openapi.yaml"))) {
-//            Stream<String> f = lines.filter(l -> list.contains(l.trim()));
-//            long x = f.count();
-//            assertEquals(4.0, x);
-//        }
-//        if (cleanUp) {
-//            file1.delete();
-//            assertTrue(file1.isFile() == false);
-//        }
-//    }
 
     @Test
     @Order(8)
@@ -549,21 +516,24 @@ class JoaswizardTest implements Constants {
 
         OasInfo oasInfo = new OasInfo();
         oasInfo.setContactName("Jane Doe");
-        oasInfo.setContactMmail("jane.doe@example.com");
+        oasInfo.setContactEmail("jane.doe@example.com");
         oasInfo.setDescription("Generated for JUnit test.");
+        oasInfo.setTitle("Title coming from JUnit test.");
         inputParameter.setOasInfo(oasInfo);
 
-        String[] outArr = jo.createCrudFromYamlToString(inputParameter).split("\n");
-
-        final List<String> list = new ArrayList<>();
-        list.add("Generated for JUnit test.");
-        list.add("jane.doe@example.com");
-        list.add("name: Jane Doe");
-
-        try (Stream<String> lines = Arrays.asList(outArr).stream()) {
-            assertTrue(lines.anyMatch(l -> list.contains(l.trim())));
+        String output = jo.createCrudFromYamlToString(inputParameter);
+        String[] outArr = output.split("\n");
+        final List<String> allLines = Arrays.asList(outArr).stream().map(String::trim).collect(Collectors.toList());
+        final List<String> checkList = new ArrayList<>();
+        checkList.add("description: Generated for JUnit test.");
+        checkList.add("email: jane.doe@example.com");
+        checkList.add("name: Jane Doe");
+        checkList.add("title: Title coming from JUnit test.");
+        boolean ok = false;
+        try (Stream<String> lines = checkList.stream()) {
+            ok = lines.allMatch(l -> allLines.contains(l));
         }
+        if (ok == false) Util.writeStringToData("output", output, outputCustomInfo);
+        assertTrue(ok);
     }
-
-
 }

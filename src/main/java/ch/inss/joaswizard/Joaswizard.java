@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.logging.*;
 
 /**
- * Author: Oliver Glas, <a href="https://inss.ch">...</a>.
+ * Author: Oliver Glas.
  */
 public class Joaswizard implements Constants {
 
@@ -154,7 +154,11 @@ public class Joaswizard implements Constants {
                 this.logErrorMessage("No resource defined.");
                 return "Error";
             }
-            result = template.apply(inputParameter);
+            OasInfo oasInfo = inputParameter.getOasInfo();
+            if (oasInfo.getTitle() == null) {
+                oasInfo.setTitle(inputParameter.getCapResource() + " API");
+            }
+            result = template.apply(oasInfo);
         } catch (IOException e) {
             e.printStackTrace();
             this.logErrorMessage(e.getLocalizedMessage());
