@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.logging.*;
 
 /**
- * Author: Oliver Glas, <a href="https://inss.ch">...</a>.
+ * Author: Oliver Glas.
  */
 public class Joaswizard implements Constants {
 

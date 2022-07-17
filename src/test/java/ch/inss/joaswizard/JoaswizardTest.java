@@ -567,9 +567,11 @@ class JoaswizardTest implements Constants {
         checkList.add("email: jane.doe@example.com");
         checkList.add("name: Jane Doe");
         checkList.add("title: Title coming from JUnit test.");
-        Util.writeStringToData("output", output, outputCustomInfo);
+        boolean ok = false;
         try (Stream<String> lines = checkList.stream()) {
-            assertTrue(lines.allMatch(l -> allLines.contains(l)));
+            ok = lines.allMatch(l -> allLines.contains(l));
         }
+        if (ok == false) Util.writeStringToData("output", output, outputCustomInfo);
+        assertTrue(ok);
     }
 }
