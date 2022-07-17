@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
@@ -17,7 +16,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 
 class JoaswizardTest implements Constants {
 
@@ -185,7 +183,6 @@ class JoaswizardTest implements Constants {
         }
     }
 
-
     @Test
     @Order(6)
     void testCreateFromString() throws Exception {
@@ -255,41 +252,6 @@ class JoaswizardTest implements Constants {
             assertTrue(file1.isFile() == false);
         }
     }
-
-
-    //TODO check if there are multiple pet object to be created.
-//    @Test
-//    @Order(6)
-//    void testGetMultiplePets() throws Exception {
-//        InputParameter inputParameter = new InputParameter();
-//        inputParameter.setResourceId("name");
-//        inputParameter.setResource("pet");
-//        inputParameter.addMethods("GET");
-//        inputParameter.setInputFile("src/test/resources/Pet.yml");
-//        inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
-//        List<InputParameter> inputList = new ArrayList<>();
-//        inputList.add(inputParameter);
-//        String result = jo.createMethodsFromList(inputList);
-//        boolean ok = Util.writeStringToData(output, result, inputParameter.getOutputFile());
-//        assertTrue(ok);
-//
-//        File file1 = new File(output + "get_openapi.yaml");
-//        assertTrue(file1.isFile());
-//
-//        final List<String> list = new ArrayList<>();
-//        list.add("/pet/{name}:");
-//        list.add("description: Returns all pets");
-//        list.add("$ref: '#/components/schemas/Pet'");
-//        try (Stream<String> lines = Files.lines(Paths.get(output + "get_openapi.yaml"))) {
-//            Stream<String> f = lines.filter(l -> list.contains(l.trim()));
-//            long x = f.count();
-//            assertEquals(4.0, x);
-//        }
-//        if (cleanUp) {
-//            file1.delete();
-//            assertTrue(file1.isFile() == false);
-//        }
-//    }
 
     @Test
     @Order(8)

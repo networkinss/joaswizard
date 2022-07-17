@@ -4,7 +4,7 @@
   <groupId>ch.inss.joaswizard</groupId>
   <artifactId>joaswizard</artifactId>
   <packaging>jar</packaging>
-  <version>0.9.6</version>
+  <version>0.9.7</version>
   <name>Jo as wizard</name>
   <description>Jo as wizard helps to create a complete OAS3 specification from object properties only.</description>
   <url>https://github.com/networkinss/joaswizard</url>
@@ -319,14 +319,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
-    <!-- TEST -->
-    <!--    <dependency>-->
-    <!--      <groupId>org.hamcrest</groupId>-->
-    <!--      <artifactId>hamcrest</artifactId>-->
-    <!--      <version>2.2</version>-->
-    <!--      <scope>compile</scope>-->
-    <!--    </dependency>-->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
