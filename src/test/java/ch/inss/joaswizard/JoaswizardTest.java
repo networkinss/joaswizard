@@ -39,6 +39,7 @@ class JoaswizardTest implements Constants {
     private final static String outputCrudSingleYamlObject = output + "test12_OutputCrudSingleYamlObject.yml";
     private final static String outputCrudMultipleYamlObject = output + "test14_OutputCrudMultipleYamlObject.yml";
     private final static String outputCrudMaxOneObject = output + "test14_OutputCrudMaxOneObject.yml";
+    private final static String outputCustomInfo = "test22_CustomInfo.yml";
 
     private static Joaswizard jo = new Joaswizard();
     private static boolean cleanUp = true;
@@ -553,18 +554,21 @@ class JoaswizardTest implements Constants {
 
         OasInfo oasInfo = new OasInfo();
         oasInfo.setContactName("Jane Doe");
-        oasInfo.setContactMmail("jane.doe@example.com");
+        oasInfo.setContactEmail("jane.doe@example.com");
         oasInfo.setDescription("Generated for JUnit test.");
+        oasInfo.setTitle("Title coming from JUnit test.");
         inputParameter.setOasInfo(oasInfo);
 
-        String[] outArr = jo.createCrudFromYamlToString(inputParameter).split("\n");
+        String output = jo.createCrudFromYamlToString(inputParameter);
+        String[] outArr = output.split("\n");
         final List<String> allLines = Arrays.asList(outArr).stream().map(String::trim).collect(Collectors.toList());
-        final List<String> list = new ArrayList<>();
-        list.add("Generated for JUnit test.");
-        list.add("jane.doe@example.com");
-        list.add("name: Jane Doe");
-
-        try (Stream<String> lines = list.stream()) {
+        final List<String> checkList = new ArrayList<>();
+        checkList.add("description: Generated for JUnit test.");
+        checkList.add("email: jane.doe@example.com");
+        checkList.add("name: Jane Doe");
+        checkList.add("title: Title coming from JUnit test.");
+        Util.writeStringToData("output", output, outputCustomInfo);
+        try (Stream<String> lines = checkList.stream()) {
             assertTrue(lines.allMatch(l -> allLines.contains(l)));
         }
     }
