@@ -1,6 +1,7 @@
 package ch.inss.openapi.joaswizard;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFName;
@@ -32,7 +33,7 @@ public class ExcelWrapper {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             logger.severe(e.getLocalizedMessage());
-            logger.severe("Parse excel failed. Filename: " + initialFile.getAbsolutePath());
+            logger.severe("Parsing Excel failed. Filename: " + initialFile.getAbsolutePath());
         }
         return this.readExcelStream(fileStream);
     }
@@ -50,7 +51,7 @@ public class ExcelWrapper {
                 map.put(sheet.getSheetName(), list);
             }
         } catch (IOException e) {
-            logger.severe("Parsing excel failed.");
+            logger.severe("Parsing Excel failed.");
         }
         return map;
     }
@@ -90,7 +91,7 @@ public class ExcelWrapper {
             return "";
         }
 
-        switch (cell.getCellTypeEnum()) {
+        switch (cell.getCellType()) {
             case STRING:
             case FORMULA:
             case ERROR:
@@ -105,7 +106,6 @@ public class ExcelWrapper {
             default:
                 throw new RuntimeException("unknown cell type: " + cell.getCellType());
         }
-
     }
 
 
