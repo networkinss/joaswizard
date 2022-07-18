@@ -1,4 +1,4 @@
-package ch.inss.joaswizard;
+package ch.inss.openapi.joaswizard;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
@@ -188,7 +188,7 @@ public class Joaswizard implements Constants {
 
     public boolean createFromExcelToFile(InputParameter inputParameter) {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
-            inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
+            inputParameter.setOutputFile(DEFAULT_OUTPUT_FILE);
         }
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
         ExcelWrapper excelWrapper = new ExcelWrapper();
@@ -197,11 +197,11 @@ public class Joaswizard implements Constants {
         List<InputParameter> inputParameterList = this.createExcelInputParameterList(integerListHashMap, inputParameter);
 
         String result = fullMultipleObjects(inputParameterList);
-        boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, inputParameter.getOutputFile());
+        boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
         } else {
-            this.logErrorMessage("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
+            this.logErrorMessage("Could not write file " + CURRENT_FOLDER + inputParameter.getOutputFile());
         }
         return ok;
     }
@@ -262,11 +262,11 @@ public class Joaswizard implements Constants {
     public boolean createFromYamlToFile(InputParameter inputParameter) {
         String result = this.createFromYamlToString(inputParameter);
         if (result == null) return false;
-        boolean ok = Util.writeStringToData(Constants.CURRENT_FOLDER, result, inputParameter.getOutputFile());
+        boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
         } else {
-            this.logErrorMessage("Could not write file " + Constants.CURRENT_FOLDER + inputParameter.getOutputFile());
+            this.logErrorMessage("Could not write file " + CURRENT_FOLDER + inputParameter.getOutputFile());
         }
         return ok;
     }
@@ -317,7 +317,7 @@ public class Joaswizard implements Constants {
             return true;
         }
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
-            inputParameter.setOutputFile(Constants.DEFAULT_OUTPUT_FILE);
+            inputParameter.setOutputFile(DEFAULT_OUTPUT_FILE);
         }
         if (inputParameter.checkValid() == false) {
             this.logErrorMessage("Input parameter are not consistent.");

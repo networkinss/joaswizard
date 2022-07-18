@@ -1,4 +1,4 @@
-package ch.inss.joaswizard;
+package ch.inss.openapi.joaswizard;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

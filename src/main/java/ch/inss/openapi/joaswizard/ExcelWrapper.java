@@ -1,4 +1,4 @@
-package ch.inss.joaswizard;
+package ch.inss.openapi.joaswizard;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;

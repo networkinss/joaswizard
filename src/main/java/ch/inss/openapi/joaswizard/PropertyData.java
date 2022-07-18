@@ -1,4 +1,4 @@
-package ch.inss.joaswizard;
+package ch.inss.openapi.joaswizard;
 
 import org.apache.commons.lang3.StringUtils;
 

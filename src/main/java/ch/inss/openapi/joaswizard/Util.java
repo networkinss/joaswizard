@@ -1,4 +1,4 @@
-package ch.inss.joaswizard;
+package ch.inss.openapi.joaswizard;
 
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.io.IOUtils;
@@ -14,11 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static ch.inss.joaswizard.Main.consoleHandler;
 
 public class Util implements Constants {
     

@@ -1,4 +1,4 @@
-package ch.inss.joaswizard;
+package ch.inss.openapi.joaswizard;
 
 public interface Constants {
     String sep = System.getProperty("file.separator");

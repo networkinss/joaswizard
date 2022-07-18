@@ -1,5 +1,6 @@
-package ch.inss.joaswizard;
+package ch.inss.openapi.joaswizard;
 
+import ch.inss.openapi.joaswizard.*;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -41,7 +42,6 @@ class JoaswizardTest implements Constants {
 
     private static Joaswizard jo = new Joaswizard();
     private static boolean cleanUp = true;
-
     @BeforeAll
     static void initialize() {
         File outputFolder = new File(output);
@@ -49,7 +49,6 @@ class JoaswizardTest implements Constants {
             outputFolder.mkdir();
         }
     }
-
     @Test
     @Order(1)
     void testContact() throws Exception {
@@ -70,7 +69,6 @@ class JoaswizardTest implements Constants {
             assertTrue(file1.isFile() == false);
         }
     }
-
     @Test
     @Order(2)
     void testFullContact() throws Exception {
@@ -84,7 +82,6 @@ class JoaswizardTest implements Constants {
             assertTrue(file1.isFile() == false);
         }
     }
-
     @Test
     @Order(3)
     void testPet() throws Exception {
@@ -105,7 +102,6 @@ class JoaswizardTest implements Constants {
         }
 
     }
-
     @Test
     @Order(4)
     void testSchemaPet() throws Exception {
@@ -148,7 +144,6 @@ class JoaswizardTest implements Constants {
             assertTrue(file1.isFile() == false);
         }
     }
-
     @Test
     @Order(5)
     void testCreateFromMinimalString() throws Exception {
