@@ -21,8 +21,7 @@ public class Joaswizard implements Constants {
     private String okMessage;
 
     public String getErrorMessage() {
-        if (this.errorMessage != null) return "Error: " + errorMessage;
-        return null;
+        return this.errorMessage;
     }
 
     public void setErrorMessage(String errorMessage) {
