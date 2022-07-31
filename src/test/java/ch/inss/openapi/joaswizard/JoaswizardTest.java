@@ -1,6 +1,5 @@
 package ch.inss.openapi.joaswizard;
 
-import ch.inss.openapi.joaswizard.*;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,6 +16,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class JoaswizardTest implements Constants {
 
@@ -539,8 +539,7 @@ class JoaswizardTest implements Constants {
     void testExcelFromInputStream() throws Exception {
         InputParameter inputParameter = new InputParameter();
         inputParameter.addMethods("get");
-        File file = new File("src/test/resources/objectimport.xlsx");
-        FileInputStream input = new FileInputStream(file);
+        FileInputStream input = new FileInputStream("src/test/resources/objectimport.xlsx");
 
         String fromExcelInputstreamToString = jo.createFromExcelInputstreamToString(inputParameter, input);
 
