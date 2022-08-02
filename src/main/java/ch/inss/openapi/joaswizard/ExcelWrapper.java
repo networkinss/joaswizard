@@ -25,11 +25,11 @@ public class ExcelWrapper {
     }
 
     public HashMap<String, List<Map<String, String>>> readExcelfile(String file) {
-        InputStream fileStream = null;
+        FileInputStream fileStream = null;
         File initialFile = null;
         try {
-            initialFile = new File(file);
-            fileStream = new FileInputStream(initialFile);
+//            initialFile = new File(file);
+            fileStream = new FileInputStream(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             logger.severe(e.getLocalizedMessage());
@@ -38,7 +38,7 @@ public class ExcelWrapper {
         return this.readExcelStream(fileStream);
     }
 
-    public HashMap<String, List<Map<String, String>>> readExcelStream(InputStream fileStream) {
+    public HashMap<String, List<Map<String, String>>> readExcelStream(FileInputStream fileStream) {
         if (fileStream == null) return null;
         HashMap<String, List<Map<String, String>>> map = new HashMap<>();
         try {

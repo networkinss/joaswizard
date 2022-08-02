@@ -4,6 +4,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -172,7 +173,7 @@ public class Joaswizard implements Constants {
      * @param inputStream    input Excel file as InputStream.
      * @return null if an error occured.
      */
-    public String createFromExcelInputstreamToString(InputParameter inputParameter, InputStream inputStream) {
+    public String createFromExcelInputstreamToString(InputParameter inputParameter, FileInputStream inputStream) {
         if (inputStream == null) {
             this.logErrorMessage("File was empty.");
             return null;
