@@ -11,7 +11,7 @@ Only with that information will Jo as wizard create a complete OpenAPi specifica
 * Object schemas.
 * Default info section
 
-First aim is to create a complete OpenAPI specification with a minimum of effort and data.
+It is possible to create a complete OpenAPI specification with a minimum of effort and data.
 All you need is a Yaml formatted file with a content like:
 ```
 name: Underdog  
@@ -21,7 +21,7 @@ tags: [ dog,4paws ]
 ```
 
 and you will be able to create a full OAS3 document with one execution and a few parameters.  
-Second aim is to generate mass data from Excel files.
+Second option is to generate mass data from Excel files.
 
 Repository: https://github.com/networkinss/joaswizard.  
 This project was initially inspired by https://github.com/isa-group/oas-wizard.  
@@ -50,6 +50,8 @@ Implemented features:
 Possible future extensions:  
 Parameter to use custom Handlebar template files.  
 Include tags for generation.
+Take JSON as input.
+Nested objects.
 
 ## Build
 
@@ -165,7 +167,8 @@ Sample file for Yaml:
 `src/test/resources/sample.yaml`
 
 Or you can put the Yaml formatted string directly.  
-You can check the JUnit test `testCreateFromString()` for that.
+You can check the JUnit test `testCreateFromString()` for that.  
+Nested objects are not yet supported.
 
 #### Excel
 

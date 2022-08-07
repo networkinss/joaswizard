@@ -187,17 +187,32 @@ public class Joaswizard implements Constants {
         return fullMultipleObjects(inputParameterList);
     }
 
-    public boolean createFromExcelToFile(InputParameter inputParameter) {
+    /**
+     * Get input data from Excel and return OAS3 as String.
+     *
+     * @param inputParameter
+     * @return OAS3.
+     */
+    public String createFromExcelfileToString(InputParameter inputParameter) {
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(DEFAULT_OUTPUT_FILE);
         }
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(inputParameter.getInputFile());
-        if (integerListHashMap == null) return false;
+        if (integerListHashMap == null) return "Internal error.";
         List<InputParameter> inputParameterList = this.createExcelInputParameterList(integerListHashMap, inputParameter);
+        return fullMultipleObjects(inputParameterList);
+    }
 
-        String result = fullMultipleObjects(inputParameterList);
+    /**
+     * Get input data from Excel and store OAS3 in a file.
+     *
+     * @param inputParameter
+     * @return true if file was successfully written to filesystem.
+     */
+    public boolean createFromExcelToFile(InputParameter inputParameter) {
+        String result = this.createFromExcelfileToString(inputParameter);
         boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");

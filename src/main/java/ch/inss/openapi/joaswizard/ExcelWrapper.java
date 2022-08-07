@@ -25,15 +25,14 @@ public class ExcelWrapper {
     }
 
     public HashMap<String, List<Map<String, String>>> readExcelfile(String file) {
+        if (file == null) return null;
         FileInputStream fileStream = null;
         File initialFile = null;
         try {
-//            initialFile = new File(file);
             fileStream = new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
             logger.severe(e.getLocalizedMessage());
-            logger.severe("Parsing Excel failed. Filename: " + initialFile.getAbsolutePath());
+            logger.severe("Parsing Excel failed for file: " + initialFile.getAbsolutePath());
         }
         return this.readExcelStream(fileStream);
     }
