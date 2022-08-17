@@ -44,6 +44,7 @@ class JoaswizardTest implements Constants {
 
     private static Joaswizard jo = new Joaswizard();
     private static boolean cleanUp = true;
+
     @BeforeAll
     static void initialize() {
         File outputFolder = new File(output);
@@ -51,6 +52,7 @@ class JoaswizardTest implements Constants {
             outputFolder.mkdir();
         }
     }
+
     @Test
     @Order(1)
     void testContact() throws Exception {
@@ -540,8 +542,9 @@ class JoaswizardTest implements Constants {
         InputParameter inputParameter = new InputParameter();
         inputParameter.addMethods("get");
         FileInputStream input = new FileInputStream("src/test/resources/objectimport.xlsx");
+        inputParameter.setInputStream(input);
 
-        String fromExcelInputstreamToString = jo.createFromExcelInputstreamToString(inputParameter, input);
+        String fromExcelInputstreamToString = jo.createFromExcelInputstreamToString(inputParameter);
 
         String[] outArr = fromExcelInputstreamToString.split("\n");
         final List<String> allLines = Arrays.asList(outArr).stream().map(String::trim).collect(Collectors.toList());
