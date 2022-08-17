@@ -24,7 +24,7 @@ public class OasInfo {
         this.licenseName = "Apache 2.0 license";
         this.contactEmail = "john.doe@example.com";
         this.contactUrl = "http://example.com";
-        this.serverUrl = "http://localhost:8080";
+        this.serverUrl = "http://localhost:8080/api/v1";
         this.serverDescription = "Local environment.";
     }
 
