@@ -23,4 +23,7 @@ public interface Constants {
 
     String OK = "OK";
     String ERROR = "Error";
+    String WARNIUNG = "Warning";
+
+    String version = "0.9.9-SNAPSHOT";
 }

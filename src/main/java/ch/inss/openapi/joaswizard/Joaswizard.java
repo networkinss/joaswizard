@@ -5,9 +5,10 @@ import com.github.jknack.handlebars.Template;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
-import java.util.logging.*;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Author: Oliver Glas.
@@ -169,34 +170,57 @@ public class Joaswizard implements Constants {
 
     /**
      * @param inputParameter parameter.
-     * @param inputStream    input Excel file as InputStream.
      * @return null if an error occured.
      */
-    public String createFromExcelInputstreamToString(InputParameter inputParameter, InputStream inputStream) {
-        if (inputStream == null) {
-            this.logErrorMessage("File was empty.");
-            return null;
-        }
+    public String createFromExcelInputstreamToString(InputParameter inputParameter) {
+//        if (inputStream == null) {
+//            this.logErrorMessage("Input file was empty.");
+//            return null;
+//        }
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
+        inputParameter.setInputFile("");
+        if (this.validateInput(inputParameter) == false) {
+            return this.errorMessage;
+        }
+
         ExcelWrapper excelWrapper = new ExcelWrapper();
-        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelStream(inputStream);
+        HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelStream(inputParameter.getInputStream());
         if (integerListHashMap == null) return null;
         List<InputParameter> inputParameterList = this.createExcelInputParameterList(integerListHashMap, inputParameter);
 
         return fullMultipleObjects(inputParameterList);
     }
 
-    public boolean createFromExcelToFile(InputParameter inputParameter) {
-        if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
-            inputParameter.setOutputFile(DEFAULT_OUTPUT_FILE);
-        }
+    /**
+     * Get input data from Excel and return OAS3 as String.
+     *
+     * @param inputParameter
+     * @return OAS3.
+     */
+    public String createFromExcelfileToString(InputParameter inputParameter) {
+
+//        if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
+//            inputParameter.setOutputFile(DEFAULT_OUTPUT_FILE);
+//        }
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
+        if (this.validateInput(inputParameter) == false) return null;
+
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(inputParameter.getInputFile());
-        if (integerListHashMap == null) return false;
+        if (integerListHashMap == null) return "Internal error.";
         List<InputParameter> inputParameterList = this.createExcelInputParameterList(integerListHashMap, inputParameter);
+        return fullMultipleObjects(inputParameterList);
+    }
 
-        String result = fullMultipleObjects(inputParameterList);
+    /**
+     * Get input data from Excel and store OAS3 in a file.
+     *
+     * @param inputParameter
+     * @return true if file was successfully written to filesystem.
+     */
+    public boolean createFromExcelToFile(InputParameter inputParameter) {
+        String result = this.createFromExcelfileToString(inputParameter);
+        if (result == null) return false;
         boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
             logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
@@ -296,34 +320,65 @@ public class Joaswizard implements Constants {
      * @return Full OAS3 document as string.
      */
     public String createFromYamlToString(InputParameter inputParameter) {
-        if (validateInput(inputParameter)) return null;
+        if (this.validateInput(inputParameter) == false) return null;
         List<InputParameter> inputParameterList = this.createMustacheDataFromYaml(inputParameter);
         return this.fullMultipleObjects(inputParameterList);
     }
 
+    /**
+     * Validates InputParameter class and sets default values
+     * if needed for outputfile (openapi.yaml) and method (CRUD).
+     *
+     * @param inputParameter
+     * @return true if valid.
+     */
     private boolean validateInput(InputParameter inputParameter) {
-        if (inputParameter == null) return true;
-//        List<InputParameter> inputParameterList = new ArrayList<>();
-        //TODO check move to InputParameter class.
+        if (inputParameter == null) return false;
+        /* DEFAULT values */
+        if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
+            inputParameter.setOutputFile(DEFAULT_OUTPUT_FILE);
+            logger.info("No output file defined, setting to default " + DEFAULT_OUTPUT_FILE + ".");
+        }
+        if (inputParameter.getMethodList().isEmpty()) {
+            inputParameter.addMethod(InputParameter.Method.CRUD);
+            this.logWarningMessage("No REST API methods defined, setting to default CRUD.");
+        }
+        boolean valid = false;
+        if (inputParameter.getSourceType() == InputParameter.Sourcetype.EXCEL) {
+            valid = (inputParameter.getInputFile() != null || inputParameter.getInputStream() != null) && inputParameter.getMethodList().isEmpty() == false;
+            if (valid == false) {
+                this.logErrorMessage("Input parameter are not sufficient. Please define input file or input stream.");
+                return false;
+            }
+        } else if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
+            valid = inputParameter.getInputFile() != null && inputParameter.getResource() != null && inputParameter.getResourceId() != null;
+            if (valid == false) {
+                this.logErrorMessage("Input parameter for a Yaml file are not sufficient. Please define input file, resourceId and resource.");
+                return false;
+            }
+        } else if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
+            valid = inputParameter.getSampleYamlData() != null && inputParameter.getResource() != null && inputParameter.getResourceId() != null;
+            if (valid == false) {
+                this.logErrorMessage("Input parameter for a Yaml String are not sufficient. Please define sample data, resourceId and resource.");
+                return false;
+            }
+        }
+        if (inputParameter.getResource() == null && inputParameter.getSourceType() != InputParameter.Sourcetype.EXCEL) {
+            this.logErrorMessage("Resource must be set. Define resouce (object name).");
+            return false;
+        }
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
             if (Util.fileExists(inputParameter.getInputFile()) == false) {
                 this.logErrorMessage("Yaml file not found: " + inputParameter.getInputFile());
-                return true;
+                return false;
             }
             inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
+            if (inputParameter.getSampleYamlData() == null) {
+                this.logErrorMessage("No Yaml data provided.");
+                return false;
+            }
         }
-        if (inputParameter.getSampleYamlData() == null) {
-            this.logErrorMessage("No Yaml data provided.");
-            return true;
-        }
-        if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
-            inputParameter.setOutputFile(DEFAULT_OUTPUT_FILE);
-        }
-        if (inputParameter.checkValid() == false) {
-            this.logErrorMessage("Input parameter are not consistent.");
-            return false;
-        }
-        return false;
+        return true;
     }
 
     /**
@@ -331,7 +386,6 @@ public class Joaswizard implements Constants {
      * @return
      */
     private String fromPathsTemplate(InputParameter inputParameter) {
-
         logger.fine(inputParameter.toString());
         Handlebars mf = new Handlebars();
         String result = null;
@@ -346,7 +400,6 @@ public class Joaswizard implements Constants {
 
     /**
      * Gives back an Inputparameter instance with pre-filled default values.
-     *
      * @param input      input parameter values.
      * @param sourcetype Sourc type.
      * @param resource   resource name.

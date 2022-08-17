@@ -3,6 +3,7 @@ package ch.inss.openapi.joaswizard;
 import org.apache.commons.lang3.StringUtils;
 
 //import java.lang.reflect.InvocationTargetException;
+import java.io.FileInputStream;
 import java.util.*;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -15,6 +16,7 @@ public class InputParameter {
     private String resourceId = "ID";
     private String sampleYamlData;
     private String inputFile;
+    private FileInputStream inputStream;
     private String outputFile;
     private String internalid;
     private String mappingFile;
@@ -64,6 +66,7 @@ public class InputParameter {
         this.resourceId = in.getResourceId();
         this.sampleYamlData = in.getSampleYamlData();
         this.inputFile = in.getInputFile();
+        this.inputStream = in.getInputStream();
         this.outputFile = in.getOutputFile();
         this.internalid = in.getInternalid();
         this.mappingFile = in.getMappingFile();
@@ -101,6 +104,7 @@ public class InputParameter {
         this.oasInfo = new OasInfo();
     }
 
+
     /**
      * Check if all mandatory parameter have been defined.
      *
@@ -109,13 +113,13 @@ public class InputParameter {
     public boolean checkValid() {
         boolean valid = false;
         if (this.sourceType == Sourcetype.EXCEL) {
-            valid = this.inputFile != null && this.methods != null;
+            valid = (this.inputFile != null || this.inputStream != null) && this.methods != null;
         } else if (this.sourceType == Sourcetype.YAMLFILE) {
             valid = this.inputFile != null && this.resource != null && this.resourceId != null;
         } else if (this.sourceType == Sourcetype.YAMLSTRING) {
             valid = this.sampleYamlData != null && this.resource != null && this.resourceId != null;
         }
-        if (this.resource == null) {
+        if (this.resource == null && this.sourceType != Sourcetype.EXCEL) {
             logger.severe("Resource must be set. Define resouce (object name).");
             valid = false;
         }
@@ -349,6 +353,9 @@ public class InputParameter {
      */
     public void setInputFile(String inputFile) {
         int pos = inputFile.lastIndexOf(".");
+        if (pos < 1) {
+            return;
+        }
         String suffix = inputFile.substring(pos);
         if (suffix.equalsIgnoreCase(".yml") || suffix.equalsIgnoreCase(".yaml")) {
             this.setSourceType(Sourcetype.YAMLFILE);
@@ -358,6 +365,14 @@ public class InputParameter {
             this.setSourceType(Sourcetype.YAMLSTRING);
         }
         this.inputFile = inputFile;
+    }
+
+    public FileInputStream getInputStream() {
+        return inputStream;
+    }
+
+    public void setInputStream(FileInputStream inputStream) {
+        this.inputStream = inputStream;
     }
 
     public String getOutputFile() {

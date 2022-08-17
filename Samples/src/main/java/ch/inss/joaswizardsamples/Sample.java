@@ -1,7 +1,10 @@
 package ch.inss.joaswizardsamples;
 
-import ch.inss.joaswizard.InputParameter;
-import ch.inss.joaswizard.Joaswizard;
+import ch.inss.openapi.joaswizard.InputParameter;
+import ch.inss.openapi.joaswizard.Joaswizard;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class Sample {
 
@@ -72,6 +75,16 @@ public class Sample {
         System.out.println("OpenAPI document created: " + inputParameter.getOutputFile());
     }
 
+    public String createOpenApiFromExcelInputStream(InputStream reader) {
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setResourceId("id");
+        inputParameter.addMethods("get");
+        /* Process file and generate OpenAPI specification which will be in the output folder. */
+        Joaswizard joaswizard = new Joaswizard();
+        String result = joaswizard.createFromExcelInputstreamToString(inputParameter, reader);
+        return result;
+    }
+
     public void createOpenApiFromArguments(String[] args) {
         System.out.println("Start to create OpenAPi from arguments.");
         if (args.length < 3) {
@@ -80,7 +93,7 @@ public class Sample {
             System.out.println("Check README.md for more details.");
             System.exit(1);
         }
-        ch.inss.joaswizard.Main.main(args);
+        ch.inss.openapi.joaswizard.Main.main(args);
 
     }
 }
