@@ -2,11 +2,12 @@ package ch.inss.openapi.joaswizard;
 
 public interface Constants {
     String sep = System.getProperty("file.separator");
-    String nextLine = System.getProperty("line.separator");
+    String nextLine = "\n";
+    //    String nextLine = System.getProperty("line.separator");
     String CURRENT_FOLDER = "." + sep;
     String DEFAULT_OUTPUT_FILE = "openapi.yaml";
     String UNDEFINED = "undefined";
-//    String FROMFILE = "file";
+    //    String FROMFILE = "file";
 //    String fullCrudTemplate = "fullCrud.yaml";
     String pathComponentCrudTemplate = "pathsCrud.yaml";
     //    String getTemplate = "getIdgetAll.yaml";
