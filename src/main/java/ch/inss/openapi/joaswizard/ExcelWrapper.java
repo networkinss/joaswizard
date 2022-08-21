@@ -37,7 +37,7 @@ public class ExcelWrapper {
         return this.readExcelStream(fileStream);
     }
 
-    public HashMap<String, List<Map<String, String>>> readExcelStream(FileInputStream fileStream) {
+    public HashMap<String, List<Map<String, String>>> readExcelStream(InputStream fileStream) {
         if (fileStream == null) return null;
         HashMap<String, List<Map<String, String>>> map = new HashMap<>();
         try {
