@@ -377,7 +377,7 @@ public class InputParameter {
         return inputStream;
     }
 
-    public void setInputStream(FileInputStream inputStream) {
+    public void setInputStream(InputStream inputStream) {
         this.inputStream = inputStream;
     }
 

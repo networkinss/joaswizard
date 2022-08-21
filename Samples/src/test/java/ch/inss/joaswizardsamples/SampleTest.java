@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -140,7 +141,7 @@ public class SampleTest {
     @Test
     void testExcelFromInputStream() throws Exception {
         Sample sample = new Sample();
-        FileInputStream input = new FileInputStream("objectimport.xlsx");
+        InputStream input = new FileInputStream(new File("objectimport.xlsx"));
 
         String fromExcelInputstreamToString = sample.createOpenApiFromExcelInputStream(input);
 
