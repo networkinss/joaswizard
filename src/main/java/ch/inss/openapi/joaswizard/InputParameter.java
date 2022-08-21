@@ -2,13 +2,19 @@ package ch.inss.openapi.joaswizard;
 
 import org.apache.commons.lang3.StringUtils;
 
-//import java.lang.reflect.InvocationTargetException;
 import java.io.FileInputStream;
-import java.util.*;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-//import org.apache.commons.beanutils.BeanUtils;
 
 public class InputParameter {
 
@@ -16,7 +22,7 @@ public class InputParameter {
     private String resourceId = "ID";
     private String sampleYamlData;
     private String inputFile;
-    private FileInputStream inputStream;
+    private InputStream inputStream;
     private String outputFile;
     private String internalid;
     private String mappingFile;
@@ -367,7 +373,7 @@ public class InputParameter {
         this.inputFile = inputFile;
     }
 
-    public FileInputStream getInputStream() {
+    public InputStream getInputStream() {
         return inputStream;
     }
 

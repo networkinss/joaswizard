@@ -79,6 +79,7 @@ public class Sample {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setResourceId("id");
         inputParameter.addMethods("get");
+        inputParameter.setInputStream(reader);
         /* Process file and generate OpenAPI specification which will be in the output folder. */
         Joaswizard joaswizard = new Joaswizard();
         String result = joaswizard.createFromExcelInputstreamToString(inputParameter, reader);
