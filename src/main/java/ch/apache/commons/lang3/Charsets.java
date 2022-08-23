@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.commons.lang3;
+package ch.apache.commons.lang3;
 
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;

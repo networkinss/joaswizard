@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.lang3;
+package ch.apache.commons.lang3;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
