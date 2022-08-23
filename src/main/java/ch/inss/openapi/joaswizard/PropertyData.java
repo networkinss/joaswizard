@@ -2,8 +2,6 @@ package ch.inss.openapi.joaswizard;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-
 /**
  * Properties of a components/schemas object.
  */
