@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 public class InputParameter {
 
     private String resource;
-    private String resourceId = "ID";
+    private String resourceId = "id";
     private String sampleYamlData;
     private String inputFile;
     private InputStream inputStream;

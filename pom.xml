@@ -283,6 +283,7 @@
       <artifactId>commons-collections4</artifactId>
       <version>4.4</version>
     </dependency>
+    <!-- Is used by POI anyway. -->
     <!--    <dependency>-->
     <!--      <groupId>commons-io</groupId>-->
     <!--      <artifactId>commons-io</artifactId>-->
