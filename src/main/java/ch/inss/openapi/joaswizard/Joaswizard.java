@@ -276,6 +276,13 @@ public class Joaswizard implements Constants {
         return this.createFromYamlToFile(inputParameter);
     }
 
+    public boolean createCrudFromJSONToFile(InputParameter inputParameter) {
+        logger.info("Jo starts to create crud file from JSON input.");
+        inputParameter.addMethod(InputParameter.Method.CRUD);
+        return this.createFromJSONToFile(inputParameter);
+    }
+
+
     /**
      * Creates defined methods from a Yaml string with objects.
      * Returns if an error ocrrued or not.
@@ -285,6 +292,18 @@ public class Joaswizard implements Constants {
      */
     public boolean createFromYamlToFile(InputParameter inputParameter) {
         String result = this.createFromYamlToString(inputParameter);
+        if (result == null) return false;
+        boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
+        if (ok) {
+            logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
+        } else {
+            this.logErrorMessage("Could not write file " + CURRENT_FOLDER + inputParameter.getOutputFile());
+        }
+        return ok;
+    }
+
+    public boolean createFromJSONToFile(InputParameter inputParameter) {
+        String result = this.createFromJSONToString(inputParameter);
         if (result == null) return false;
         boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
@@ -322,6 +341,12 @@ public class Joaswizard implements Constants {
     public String createFromYamlToString(InputParameter inputParameter) {
         if (this.validateInput(inputParameter) == false) return null;
         List<InputParameter> inputParameterList = this.createMustacheDataFromYaml(inputParameter);
+        return this.fullMultipleObjects(inputParameterList);
+    }
+
+    public String createFromJSONToString(InputParameter inputParameter) {
+        if (this.validateInput(inputParameter) == false) return null;
+        List<InputParameter> inputParameterList = this.createMustacheDataFromJSON(inputParameter);
         return this.fullMultipleObjects(inputParameterList);
     }
 
@@ -421,6 +446,10 @@ public class Joaswizard implements Constants {
         return in;
     }
 
+    public List<InputParameter> createMustacheDataFromJSON(InputParameter mainInputParameter) {
+        //TODO
+        return null;
+    }
 
     public List<InputParameter> createMustacheDataFromYaml(InputParameter mainInputParameter) {
         /** if STRING the data are already there. */

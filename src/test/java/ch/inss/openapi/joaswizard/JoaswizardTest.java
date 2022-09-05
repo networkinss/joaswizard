@@ -25,6 +25,7 @@ class JoaswizardTest implements Constants {
     private final static String outputPet = output + "test03_OutputPet.yml";
     private final static String outputContact1 = output + "test01_OutputContact.yml";
     private final static String outputContact2 = output + "test02_OutputContact.yml";
+    private final static String outputContactJSON = output + "test24_OutputContactJSON.yml";
     private final static String outputSchema1 = "test04_OutputSchema1.yml";
     private final static String outputSchema2 = "test04_OutputSchema2.yml";
     private final static String outputMinimalString = output + "test05_OutputMinimalString.yml";
@@ -36,6 +37,7 @@ class JoaswizardTest implements Constants {
     private final static String outputMySQLDBFieldsExcel = output + "test11_OutputMySQLDBFieldsExcelsheet.yml";
     private final static String outputMainExcel = output + "test15_MainExceloutput.yaml";
     private final static String outputMainYaml = output + "test14_MainYamloutput.yaml";
+    private final static String outputMainJSON = output + "test25_MainJSONoutput.yaml";
     private final static String outputSingleYamlObject = output + "test11_OutputSingleYamlObject.yml";
     private final static String outputCrudSingleYamlObject = output + "test12_OutputCrudSingleYamlObject.yml";
     private final static String outputCrudMultipleYamlObject = output + "test14_OutputCrudMultipleYamlObject.yml";
@@ -559,5 +561,39 @@ class JoaswizardTest implements Constants {
         }
         if (ok == false) Util.writeStringToData(output, fromExcelInputstreamToString, outputExcelInputStream);
         assertTrue(ok);
+    }
+
+    @Test
+    @Order(24)
+    void testContactJson() throws Exception {
+        Main.createOpenApiFromYamlfile(new String[]{"src/test/resources/ContactJSON.json", outputContactJSON, "contact"});
+        final List<String> list = new ArrayList<>();
+        list.add("title: Contact API");
+        list.add("$ref: '#/components/schemas/Contact'");
+        list.add("name: John Doe");
+        try (Stream<String> lines = Files.lines(Paths.get(outputContactJSON))) {
+            Stream<String> f = lines.filter(l -> list.contains(l.trim()));
+            long x = f.count();
+            assertEquals(6.0, x);
+        }
+
+        File file1 = new File(outputContactJSON);
+        if (cleanUp) {
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
+    }
+
+    @Test
+    @Order(25)
+    void testJson() {
+        Main.main(new String[]{"src/test/resources/sampleJSON.json", outputMainJSON, "shoe", "name", "jsonfile", "delete,post,patch"});
+        File file1 = new File(outputMainJSON);
+        assertTrue(file1.isFile());
+
+        if (cleanUp) {
+            file1.delete();
+            assertTrue(file1.isFile() == false);
+        }
     }
 }
