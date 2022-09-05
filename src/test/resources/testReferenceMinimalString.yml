@@ -80,15 +80,15 @@ paths:
               $ref: '#/components/schemas/Object'
         description: Object to be created
         required: true
-  /object/{ID}:
+  /object/{id}:
     get:
-      description: Returns object by ID.
-      summary: Returns object by ID
-      operationId: findObjectByID
+      description: Returns object by id.
+      summary: Returns object by id
+      operationId: findObjectByid
       parameters:
-        - name: ID
+        - name: id
           in: path
-          description: ID of object to fetch
+          description: id of object to fetch
           required: true
           schema:
             type: string
@@ -124,11 +124,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
     delete:
-      description: Deletes object by ID.
-      summary: Deletes object by ID
+      description: Deletes object by id.
+      summary: Deletes object by id
       operationId: deleteObject
       parameters:
-        - name: ID
+        - name: id
           in: path
           description: ID of object to delete
           required: true
@@ -162,11 +162,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
     put:
-      description: Updates object by ID.
-      summary: Updates object by ID
+      description: Updates object by id.
+      summary: Updates object by id
       operationId: updateObject
       parameters:
-        - name: ID
+        - name: id
           in: path
           description: ID of object to put
           required: true

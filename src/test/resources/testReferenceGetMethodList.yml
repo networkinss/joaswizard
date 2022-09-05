@@ -46,15 +46,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /invoice/{ID}:
+  /invoice/{id}:
     get:
-      description: Returns invoice by ID.
-      summary: Returns invoice by ID
-      operationId: findInvoiceByID
+      description: Returns invoice by id.
+      summary: Returns invoice by id
+      operationId: findInvoiceByid
       parameters:
-        - name: ID
+        - name: id
           in: path
-          description: ID of Invoice to fetch
+          description: id of Invoice to fetch
           required: true
           schema:
             type: string
@@ -121,15 +121,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /customer/{ID}:
+  /customer/{id}:
     get:
-      description: Returns customer by ID.
-      summary: Returns customer by ID
-      operationId: findCustomerByID
+      description: Returns customer by id.
+      summary: Returns customer by id
+      operationId: findCustomerByid
       parameters:
-        - name: ID
+        - name: id
           in: path
-          description: ID of Customer to fetch
+          description: id of Customer to fetch
           required: true
           schema:
             type: string
@@ -196,15 +196,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /pet/{ID}:
+  /pet/{id}:
     get:
-      description: Returns pet by ID.
-      summary: Returns pet by ID
-      operationId: findPetByID
+      description: Returns pet by id.
+      summary: Returns pet by id
+      operationId: findPetByid
       parameters:
-        - name: ID
+        - name: id
           in: path
-          description: ID of Pet to fetch
+          description: id of Pet to fetch
           required: true
           schema:
             type: string
