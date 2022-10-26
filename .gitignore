@@ -37,3 +37,4 @@ output
 /Samples/openapi_fromexcel.yaml
 /Samples/openapi_fromparameters.yaml
 /pom.xml.versionsBackup
+/src/test/resources/.~lock.mySQLObjectimport.xlsx#

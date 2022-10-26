@@ -37,6 +37,12 @@ public class Main implements Constants {
         String idfield = null;
         String sourcetype = null;
         String methods = null;
+        if (args.length == 1 && args[0].equalsIgnoreCase("help")) {
+            logger.info("Jo needs six parameters.");
+            logger.info("Usage: <inputfile> <outpufile> <resource> <Idfield> <sourcetype> <methods>");
+            logger.info("You can enter them interactively if you omit some of them.");
+            System.exit(0);
+        }
         if (args.length < 1) {
             logger.info("Jo needs six parameters.");
             logger.info("Usage: <inputfile> <outpufile> <resource> <Idfield> <sourcetype> <methods>");
@@ -172,6 +178,32 @@ public class Main implements Constants {
         }
         Joaswizard joaswizard = new Joaswizard();
         joaswizard.createCrudFromYamlToFile(inputParameter);
+    }
+
+    public static void createOpenApiFromJSONfile(String[] args) {
+        logger.info("Start to create OpenAPi from arguments.");
+        if (args.length < 3) {
+            logger.info("Need four parameter.");
+            logger.info("Parameters are <input.json> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>");
+            System.exit(1);
+        }
+        InputParameter inputParameter = new InputParameter();
+        inputParameter.setInputFile(args[0]);
+        inputParameter.setOutputFile(args[1]);
+        inputParameter.setResource(args[2]);
+        if (args.length >= 4) {
+            inputParameter.setResourceId(args[3]);
+        } else {
+            inputParameter.setResourceId("id");
+        }
+
+        if (args.length >= 5) {
+            inputParameter.setSourceType(args[4]);
+        } else {
+            inputParameter.setSourceType(InputParameter.Sourcetype.JSONFILE);
+        }
+        Joaswizard joaswizard = new Joaswizard();
+        joaswizard.createCrudFromJSONToFile(inputParameter);
     }
 
     public static void version() {
