@@ -37,6 +37,12 @@ public class Main implements Constants {
         String idfield = null;
         String sourcetype = null;
         String methods = null;
+        if (args.length == 1 && args[0].equalsIgnoreCase("help")) {
+            logger.info("Jo needs six parameters.");
+            logger.info("Usage: <inputfile> <outpufile> <resource> <Idfield> <sourcetype> <methods>");
+            logger.info("You can enter them interactively if you omit some of them.");
+            System.exit(0);
+        }
         if (args.length < 1) {
             logger.info("Jo needs six parameters.");
             logger.info("Usage: <inputfile> <outpufile> <resource> <Idfield> <sourcetype> <methods>");

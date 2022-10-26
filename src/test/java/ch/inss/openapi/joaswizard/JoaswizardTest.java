@@ -34,8 +34,8 @@ class JoaswizardTest implements Constants {
     private final static String outputExcel = output + "test09_OutputExcelsheet.yml";
     private final static String outputExcelInputStream = "test23_OutputExcelsheetInputStream.yml";
     private final static String outputDBFieldsExcel = output + "test10_OutputDBFieldsExcelsheet.yml";
-    private final static String outputMySQLDBFieldsExcel = output + "test11_OutputMySQLDBFieldsExcelsheet.yml";
-    private final static String outputMainExcel = output + "test15_MainExceloutput.yaml";
+    private final static String outputMySQLDBFieldsExcel = output + "test11_OutputMySQLDBFieldsExcelsheet_postpatchdelete.yml";
+    private final static String outputMainExcel = output + "test18_MainExceloutput.yaml";
     private final static String outputMainYaml = output + "test14_MainYamloutput.yaml";
     private final static String outputMainJSON = output + "test25_MainJSONoutput.yaml";
     private final static String outputSingleYamlObject = output + "test11_OutputSingleYamlObject.yml";
@@ -315,11 +315,12 @@ class JoaswizardTest implements Constants {
         /** To get a mapping for VARCHAR(30) fields having only VARCHAR without brackets in the mapping.json. */
         inputParameter.setPrefixMatch(true);
         inputParameter.setOutputFile(outputMySQLDBFieldsExcel);
-        inputParameter.addMethods("get");
+        //TODO
+        inputParameter.addMethods("post,patch,delete");
 
         jo.createFromExcelToFile(inputParameter);
         File file1 = new File(outputMySQLDBFieldsExcel);
-        File file2 = new File("src/test/resources/testReferenceGetMethodList.yml");
+        File file2 = new File("src/test/resources/testReferenceMySQLDBFieldsExcelsheet.yml");
         assertTrue(file1.isFile());
 
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
@@ -440,9 +441,12 @@ class JoaswizardTest implements Constants {
     void testMainExcel() throws Exception {
         Main.main(new String[]{"src/test/resources/objectimport.xlsx", outputMainExcel, "pet", "name", "excel", "delete,post,patch"});
         File file1 = new File(outputMainExcel);
+        //TODO
+        File file2 = new File("src/test/resources/testReferenceMySQLDBFieldsExcelsheet.yml");
         assertTrue(file1.isFile());
+        Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
 
-        if (cleanUp) {
+        if (false) {
             file1.delete();
             assertTrue(file1.isFile() == false);
         }
@@ -584,16 +588,16 @@ class JoaswizardTest implements Constants {
         }
     }
 
-    @Test
-    @Order(25)
-    void testJson() {
-        Main.main(new String[]{"src/test/resources/sampleJSON.json", outputMainJSON, "shoe", "name", "jsonfile", "delete,post,patch"});
-        File file1 = new File(outputMainJSON);
-        assertTrue(file1.isFile());
-
-        if (cleanUp) {
-            file1.delete();
-            assertTrue(file1.isFile() == false);
-        }
-    }
+//    @Test
+//    @Order(25)
+//    void testJson() {
+//        Main.main(new String[]{"src/test/resources/sampleJSON.json", outputMainJSON, "shoe", "name", "jsonfile", "delete,post,patch"});
+//        File file1 = new File(outputMainJSON);
+//        assertTrue(file1.isFile());
+//
+//        if (cleanUp) {
+//            file1.delete();
+//            assertTrue(file1.isFile() == false);
+//        }
+//    }
 }
