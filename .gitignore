@@ -18,6 +18,7 @@ build
 tmp
 dist
 output
+gen
 
 # misc
 .DS_Store
