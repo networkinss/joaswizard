@@ -14,7 +14,7 @@ servers:
   - url: http://localhost:8080/api/v1
     description: Local environment.
 paths:
-  /invoices:
+  /invoice:
     post:
       description: Creates new invoice.
       summary: Creates new invoice
@@ -133,7 +133,8 @@ paths:
               $ref: '#/components/schemas/Invoice'
         description: Invoice to be updated
         required: true
-  /customers:
+
+  /customer:
     post:
       description: Creates new customer.
       summary: Creates new customer
@@ -252,7 +253,8 @@ paths:
               $ref: '#/components/schemas/Customer'
         description: Customer to be updated
         required: true
-  /pets:
+
+  /pet:
     post:
       description: Creates new pet.
       summary: Creates new pet

@@ -35,8 +35,7 @@ public class Util implements Constants {
         if (userFolder == null) userFolder = ".";
         if (file == null) file = DEFAULT_OUTPUT_FILE;
         Path path = Paths.get(userFolder + sep + file);
-        Path parent = path.getParent();
-        File folder = parent.toFile();
+        File folder = path.getParent().toFile();
         if (folder.mkdirs() == false && folder.isDirectory() == false) {
             return false;
         }

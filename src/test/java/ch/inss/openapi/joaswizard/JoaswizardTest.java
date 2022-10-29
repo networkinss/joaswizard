@@ -439,7 +439,7 @@ class JoaswizardTest implements Constants {
     @Test
     @Order(18)
     void testMainExcel() throws Exception {
-        Main.main(new String[]{"src/test/resources/objectimport.xlsx", outputMainExcel, "pet", "name", "excel", "delete,post,patch"});
+        Main.main(new String[]{"src/test/resources/objectimport.xlsx", outputMainExcel, "pet", "id", "excel", "delete,post,patch"});
         File file1 = new File(outputMainExcel);
         //TODO
         File file2 = new File("src/test/resources/testReferenceMySQLDBFieldsExcelsheet.yml");

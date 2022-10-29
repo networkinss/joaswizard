@@ -68,16 +68,19 @@ public class Joaswizard implements Constants {
             logger.info("Skipping methods, list is empty.");
             return "{}";
         }
-        String result = new String();
+        StringBuilder result = new StringBuilder();
         for (InputParameter inputParameter : list) {
             if (inputParameter.isDoPaths() == false) {
                 logger.info("Skipping creating methods (DoPaths = false) for " + inputParameter.getResourceId());
                 continue;
             }
-            result = result + fromPathsTemplate(inputParameter);
+            result.append(fromPathsTemplate(inputParameter));
+        }
+        if (result.toString().startsWith("\n\n")) {
+            result.deleteCharAt(0);
         }
         logger.info("End creating methods.");
-        return result;
+        return result.toString();
     }
 
     /**
