@@ -310,7 +310,7 @@ class JoaswizardTest implements Constants {
         InputParameter inputParameter = new InputParameter();
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
         inputParameter.setInputFile("src/test/resources/mySQLObjectimport.xlsx");
-        /** Check the custom mappin in this test. */
+        /** Check the custom mapping in this test. */
         inputParameter.setMappingFile("src/test/resources/mysqlMapping.json");
         /** To get a mapping for VARCHAR(30) fields having only VARCHAR without brackets in the mapping.json. */
         inputParameter.setPrefixMatch(true);

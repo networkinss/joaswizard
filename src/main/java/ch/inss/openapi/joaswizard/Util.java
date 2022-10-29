@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -33,15 +34,17 @@ public class Util implements Constants {
     static boolean writeStringToData(String userFolder, String data, String file) {
         if (userFolder == null) userFolder = ".";
         if (file == null) file = DEFAULT_OUTPUT_FILE;
-        File folder = new File(userFolder);
+        Path path = Paths.get(userFolder + sep + file);
+        Path parent = path.getParent();
+        File folder = parent.toFile();
         if (folder.mkdirs() == false && folder.isDirectory() == false) {
             return false;
         }
+        File outputFile = path.toFile();
         FileOutputStream fos = null;
         BufferedOutputStream bos = null;
-
         try {
-            fos = new FileOutputStream(folder + sep + file);
+            fos = new FileOutputStream(outputFile);
             bos = new BufferedOutputStream(fos);
             byte[] bytes = data.getBytes();
             bos.write(bytes);
