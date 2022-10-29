@@ -441,12 +441,11 @@ class JoaswizardTest implements Constants {
     void testMainExcel() throws Exception {
         Main.main(new String[]{"src/test/resources/objectimport.xlsx", outputMainExcel, "pet", "id", "excel", "delete,post,patch"});
         File file1 = new File(outputMainExcel);
-        //TODO
         File file2 = new File("src/test/resources/testReferenceMySQLDBFieldsExcelsheet.yml");
         assertTrue(file1.isFile());
         Assertions.assertEquals(FileUtils.readFileToString(file1, "utf-8"), FileUtils.readFileToString(file2, "utf-8"), "There is a breaking change, outputfile is not equal to " + file2.getCanonicalPath());
 
-        if (false) {
+        if (cleanUp) {
             file1.delete();
             assertTrue(file1.isFile() == false);
         }
