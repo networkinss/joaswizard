@@ -4,7 +4,7 @@
   <groupId>ch.inss.joaswizard</groupId>
   <artifactId>joaswizard</artifactId>
   <packaging>jar</packaging>
-  <version>0.9.10</version>
+  <version>0.9.11-SNAPSHOT</version>
   <name>Jo as wizard</name>
   <description>Jo as wizard helps to create an OAS3 specification including all CRUD operations from Yaml formatted
     text.
