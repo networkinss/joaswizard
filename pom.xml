@@ -49,8 +49,8 @@
 
   <licenses>
     <license>
-      <name>Apache License 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+      <name>Sustainable Use License</name>
+      <url>https://raw.githubusercontent.com/n8n-io/n8n/master/LICENSE.md</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
