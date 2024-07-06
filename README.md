@@ -36,6 +36,12 @@ This library will help you in case of:
 * You want a head start without knowing OpenAPI.
 * You want to use your database structure to generate the OAS3 objects.
 
+## License
+
+The code is licensed under the faircode license:
+https://faircode.io/
+
+See LICENSE.md.
 
 ## Features
 
