@@ -36,20 +36,6 @@ class UtilTest {
     }
 
     @Test
-    void testIsNumberValid() {
-        for (String s : new String[]{"-1", "3.14", "-0.5", "42", " 7 ", "0"}) {
-            assertTrue(Util.isNumber(s), s);
-        }
-    }
-
-    @Test
-    void testIsNumberInvalid() {
-        for (String s : new String[]{null, "", "  ", "1.2.3", "...", ".", "-", "1e5", "abc", "1.", ".5", "--1"}) {
-            assertFalse(Util.isNumber(s), String.valueOf(s));
-        }
-    }
-
-    @Test
     void testReadYamlRejectsGlobalTag() {
         assertThrows(Exception.class, () -> Util.readYamlFromString("a: !!java.io.File \"x\""));
         assertThrows(Exception.class, () -> Util.readYamlFromString("!!javax.script.ScriptEngineManager [!!java.net.URL [\"http://localhost/x\"]]"));

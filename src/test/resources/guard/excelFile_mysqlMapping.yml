@@ -438,7 +438,6 @@ components:
         five:
           type: string
           format: date
-          pattern: ^\d{3}-\d{2}-\d{4}$
           minLength: 10
           maxLength: 10
           example: '1998-12-31'

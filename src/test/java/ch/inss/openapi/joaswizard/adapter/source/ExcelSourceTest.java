@@ -122,4 +122,53 @@ class ExcelSourceTest {
         assertNull(jo.createFromYamlToString(null));
         assertEquals("Input parameter is missing.", jo.getErrorMessage());
     }
+
+    private static GenerationResult generateSheet(Path dir, String[] header, String[]... rows) throws Exception {
+        Path file = dir.resolve("sheet.xlsx");
+        try (XSSFWorkbook wb = new XSSFWorkbook(); FileOutputStream out = new FileOutputStream(file.toFile())) {
+            XSSFSheet s = wb.createSheet("pet");
+            row(s, 0, header);
+            for (int i = 0; i < rows.length; i++) row(s, i + 1, rows[i]);
+            wb.write(out);
+        }
+        return new Joaswizard().generate(input(file));
+    }
+
+    @Test
+    void stringEnumIsQuotedAndNumberEnumIsPlain(@TempDir Path dir) throws Exception {
+        GenerationResult r = generateSheet(dir, new String[]{"Name", "OasType", "OasEnum"},
+                new String[]{"code", "string", "1,2"}, new String[]{"level", "integer", "1,2"});
+        assertNotNull(r.getSpec(), r.toString());
+        String spec = r.getSpec();
+        assertTrue(spec.matches("(?s).*code:.*enum:\\s*- '?\"?1'?\"?\\s*- '?\"?2'?\"?.*"), spec);
+        assertTrue(spec.matches("(?s).*level:.*enum:\\s*- 1\\s*- 2\\s.*"), spec);
+    }
+
+    @Test
+    void unknownHeaderGivesWarning(@TempDir Path dir) throws Exception {
+        GenerationResult r = generateSheet(dir, new String[]{"Name", "OasType", "Bogus"}, new String[]{"id", "integer", "x"});
+        assertNotNull(r.getSpec(), r.toString());
+        assertTrue(has(r, Diagnostic.Severity.WARNING, "Unknown Excel header: 'Bogus' in sheet pet."), r.toString());
+    }
+
+    @Test
+    void formatNotFittingTypeGivesWarning(@TempDir Path dir) throws Exception {
+        GenerationResult r = generateSheet(dir, new String[]{"Name", "OasType", "OasFormat"}, new String[]{"price", "number", "int32"});
+        assertNotNull(r.getSpec(), r.toString());
+        assertTrue(r.getDiagnostics().stream().anyMatch(d -> d.getSeverity() == Diagnostic.Severity.WARNING
+                && d.getMessage().contains("Check if type and format fit together")), r.toString());
+    }
+
+    @Test
+    void excelInputStreamGivesInfoAndOperations() throws Exception {
+        InputParameter in = new InputParameter();
+        in.addMethods("get");
+        try (java.io.FileInputStream stream = new java.io.FileInputStream("src/test/resources/objectimport.xlsx")) {
+            in.setInputStream(stream);
+            java.util.List<String> lines = new Joaswizard().generate(in).getSpec().lines().map(String::trim)
+                    .collect(java.util.stream.Collectors.toList());
+            assertTrue(lines.containsAll(java.util.List.of("email: john.doe@example.com",
+                    "operationId: findInvoiceByid", "operationId: getInvoiceList")));
+        }
+    }
 }

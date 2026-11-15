@@ -98,4 +98,13 @@ class InputParameterTest {
         text.setResource("pet");
         assertTrue(text.checkValid());
     }
+
+    @Test
+    void testIsValidType() {
+        InputParameter inputParameter = new InputParameter();
+        assertTrue(inputParameter.isValidSourcetype("excel"));
+        assertFalse(inputParameter.isValidSourcetype("nix"));
+        assertTrue(InputParameter.isValidMethod("CRUD"));
+        assertFalse(InputParameter.isValidMethod("nix"));
+    }
 }

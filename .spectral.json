@@ -1,4 +1,5 @@
 {
+  "extends": ["spectral:oas"],
   "description": "",
   "formats": [
     "oas3",

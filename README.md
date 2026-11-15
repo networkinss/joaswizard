@@ -306,7 +306,7 @@ With the correct mapping you don't have to define each OASType manually.
 Also the JUnit tests of Samples
 Samples/src/test/java/ch/inss/joaswizardsamples/SampleTest.java
 and from
-src/test/java/ch/inss/joaswizard/JoaswizardTest.java
+src/test/java/ch/inss/openapi/joaswizard/GoldenFileTest.java
 can be used to see how it works.
 
 ## Breaking changes in 0.10.0
