@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out joaswizard
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Java 11
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: '11'
+          cache: maven
+
+      # The Handlebars fork is not on Maven Central, build it from the pinned commit.
+      - name: Check out Handlebars fork
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: networkinss/handlebars.java
+          ref: cee2cc3ceeb8222da39c6932c765cebc3de5e241
+          path: handlebars-fork
+
+      - name: Install Handlebars fork
+        run: mvn -B -q -f handlebars-fork/pom.xml install -pl handlebars -am -DskipTests
+
+      - name: Build and test
+        run: mvn -B verify

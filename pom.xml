@@ -72,49 +72,78 @@
         </excludes>
       </resource>
     </resources>
-  </build>
-  <profiles>
-    <profile>
-      <id>dev</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <build>
-      <plugins>
+    <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.2.4</version>
+        <configuration>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>module-info.class</exclude>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/LICENSE*</exclude>
+                <exclude>META-INF/MANIFEST.MF</exclude>
+                <exclude>META-INF/NOTIC*</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
+                <exclude>LICENSE.txt</exclude>
+                <exclude>META-INF/maven/org.apache.commons/commons-lang3/pom.properties</exclude>
+                <exclude>META-INF/maven/org.apache.commons/commons-lang3/pom.xml</exclude>
+              </excludes>
+            </filter>
+          </filters>
+        </configuration>
         <executions>
-          <!-- Run shade goal on package phase -->
+          <!-- 1) Library jar: bundle the Handlebars fork (not on Maven Central) under a relocated package -->
           <execution>
+            <id>library</id>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
             <configuration>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>module-info.class</exclude>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/LICENSE*</exclude>
-                    <exclude>META-INF/MANIFEST.MF</exclude>
-                    <exclude>META-INF/NOTIC*</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                    <exclude>LICENSE.txt</exclude>
-                    <exclude>META-INF/maven/org.apache.commons/commons-lang3/pom.properties</exclude>
-                    <exclude>META-INF/maven/org.apache.commons/commons-lang3/pom.xml</exclude>
-                  </excludes>
-                </filter>
-              </filters>
+              <artifactSet>
+                <includes>
+                  <include>com.github.jknack:handlebars</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>com.github.jknack.handlebars</pattern>
+                  <shadedPattern>ch.inss.openapi.joaswizard.internal.handlebars</shadedPattern>
+                </relocation>
+              </relocations>
+              <createDependencyReducedPom>true</createDependencyReducedPom>
               <transformers>
-                <!-- add Main-Class to manifest file -->
+                <!-- the *:* filter drops all manifests, so write a fresh one -->
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"/>
+              </transformers>
+            </configuration>
+          </execution>
+          <!-- 2) CLI fat jar (classifier cli): starts from the library jar, so Handlebars is already inside -->
+          <execution>
+            <id>cli</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>cli</shadedClassifierName>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <artifactSet>
+                <excludes>
+                  <exclude>com.github.jknack:handlebars</exclude>
+                </excludes>
+              </artifactSet>
+              <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>ch.inss.openapi.joaswizard.Main</mainClass>
                 </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
               </transformers>
             </configuration>
           </execution>
@@ -131,69 +160,18 @@
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
       </plugin>
-      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.5.3</version>
       </plugin>
-      </plugins>
-      </build>
-    </profile>
+    </plugins>
+  </build>
+  <profiles>
     <profile>
       <id>release</id>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>3.2.4</version>
-            <executions>
-              <!-- Run shade goal on package phase -->
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>shade</goal>
-                </goals>
-                <configuration>
-                  <filters>
-                    <filter>
-                      <artifact>*:*</artifact>
-                      <excludes>
-                        <exclude>module-info.class</exclude>
-                        <exclude>META-INF/*.SF</exclude>
-                        <exclude>META-INF/LICENSE*</exclude>
-                        <exclude>META-INF/MANIFEST.MF</exclude>
-                        <exclude>META-INF/NOTIC*</exclude>
-                        <exclude>META-INF/*.DSA</exclude>
-                        <exclude>META-INF/*.RSA</exclude>
-                        <exclude>LICENSE.txt</exclude>
-                        <exclude>META-INF/maven/org.apache.commons/commons-lang3/pom.properties</exclude>
-                        <exclude>META-INF/maven/org.apache.commons/commons-lang3/pom.xml</exclude>
-                      </excludes>
-                    </filter>
-                  </filters>
-                  <transformers>
-                    <!-- add Main-Class to manifest file -->
-                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                      <mainClass>ch.inss.openapi.joaswizard.Main</mainClass>
-                    </transformer>
-                  </transformers>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.7</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
@@ -220,12 +198,6 @@
               </execution>
             </executions>
           </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.5.3</version>
-          </plugin>
-
           <plugin>
             <groupId>net.nicoulaj.maven.plugins</groupId>
             <artifactId>checksum-maven-plugin</artifactId>
@@ -286,7 +258,6 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.11.0</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
