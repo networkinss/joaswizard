@@ -19,13 +19,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Reads resources from Yaml or JSON (valid Yaml) sample data. Types are guessed from the sample values.
- * A top level key with an object value is a resource. If the first value is not an object, the whole document
- * is one resource; its name is not known here, so its definition has name null (the caller's resource).
+ * If every top level value is an object, each key is a resource. Otherwise the whole document is one resource; its
+ * name is not known here, so its definition has name null (the caller's resource). Objects inside a resource become
+ * nested schemas (see {@link NestedSchemas}), returned as nested definitions right after their top level resource.
  */
 public final class YamlSource implements ResourceSource {
 
@@ -54,36 +56,37 @@ public final class YamlSource implements ResourceSource {
         }
 
         List<ResourceDefinition> result = new ArrayList<>();
-        /* Loop for objects. */
+        NestedSchemas nested = new NestedSchemas(inferrer);
+        boolean multi = allObjectsMap.values().stream().allMatch(v -> v instanceof Map);
+        if (!multi) {
+            /* One object: its name is the caller's resource, maps and lists of maps in it are nested objects. */
+            if (options.maxObjects() < 1) {
+                c.warning("Maximum number of objects (" + options.maxObjects() + ") reached, further objects are skipped.");
+                return result;
+            }
+            String parent = options.resource() == null ? "" : new ResourceName(options.resource()).cap();
+            nested.reserve(parent);
+            List<ResourceDefinition> children = new ArrayList<>();
+            List<Property> list = nested.properties(allObjectsMap, parent, children);
+            result.add(new ResourceDefinition(null, options.resourceId(), options.methods(), list));
+            result.addAll(children);
+            return result;
+        }
+        /* Every top level value is an object: one resource per key. */
+        for (String key : allObjectsMap.keySet()) nested.reserve(new ResourceName(key).cap());
         int max = 0;
-        for (String key : allObjectsMap.keySet()) {
+        for (Map.Entry<String, Object> entry : allObjectsMap.entrySet()) {
             max++;
             if (max > options.maxObjects()) {
                 c.warning("Maximum number of objects (" + options.maxObjects() + ") reached, further objects are skipped.");
                 break;
             }
-            boolean breakLoop = false;
-            LinkedHashMap<String, Object> propMap;
-            ResourceName name = null;
-            Object ob = allObjectsMap.get(key);
-            String cl = ob == null ? "" : ob.getClass().toString();
-            if (cl.equals("class java.util.LinkedHashMap")) {
-                @SuppressWarnings("unchecked")
-                LinkedHashMap<String, Object> objectMap = (LinkedHashMap<String, Object>) ob;
-                propMap = objectMap;
-                name = new ResourceName(key);
-            } else {
-                propMap = allObjectsMap;
-                breakLoop = true;
-            }
-
-            /* Loop for the properties of one object. */
-            List<Property> list = new ArrayList<>();
-            for (String propKey : propMap.keySet()) {
-                list.add(inferrer.infer(propKey, propMap.get(propKey)));
-            }
+            ResourceName name = new ResourceName(entry.getKey());
+            List<ResourceDefinition> children = new ArrayList<>();
+            List<Property> list = nested.properties((Map<?, ?>) entry.getValue(), name.cap(), children);
+            nested.complete(name.cap(), list);
             result.add(new ResourceDefinition(name, options.resourceId(), options.methods(), list));
-            if (breakLoop) break;
+            result.addAll(children);
         }
         return result;
     }

@@ -37,6 +37,14 @@ public final class PropertyView {
         return p.typeArray();
     }
 
+    public String getRef() {
+        return p.ref();
+    }
+
+    public String getItemsRef() {
+        return p.itemsRef();
+    }
+
     public String getFormat() {
         return p.format();
     }
@@ -71,6 +79,14 @@ public final class PropertyView {
         List<EnumItemView> result = new ArrayList<>(values.size());
         for (EnumValue v : values) result.add(new EnumItemView(v));
         return result;
+    }
+
+    /**
+     * True if the example must stay a string when rendered (string typed, or array of strings).
+     */
+    public boolean getExampleIsString() {
+        if (Boolean.TRUE.equals(p.array())) return "string".equals(p.typeArray());
+        return "string".equals(p.type());
     }
 
     /**

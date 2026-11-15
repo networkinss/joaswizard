@@ -69,7 +69,7 @@ public final class HandlebarsRenderer implements SpecRenderer {
         List<PropertyView> views = new ArrayList<>();
         for (Property p : resource.properties()) views.add(new PropertyView(p));
         Map<String, Object> context = new HashMap<>();
-        context.put("objectName", resource.name().cap());
+        context.put("objectName", resource.nested() ? resource.name().value() : resource.name().cap());
         context.put("data", views);
         return renderSchemaContext(context);
     }

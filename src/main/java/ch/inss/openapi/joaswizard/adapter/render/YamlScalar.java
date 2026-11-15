@@ -25,27 +25,33 @@ public final class YamlScalar {
         Handlebars handlebars = new Handlebars();
         handlebars.registerHelper("yaml", (Object context, com.github.jknack.handlebars.Options options) -> {
             if (context == null) return "";
+            boolean string = Boolean.TRUE.equals(options.hash("string"));
             if (context instanceof java.util.Collection) {
                 StringBuilder b = new StringBuilder("[");
                 for (Object item : (java.util.Collection<?>) context) {
                     if (b.length() > 1) b.append(", ");
-                    b.append(quoteFlowItem(String.valueOf(item)));
+                    String text = String.valueOf(item);
+                    b.append(string && looksTyped(text) ? singleQuote(text) : quoteFlowItem(text));
                 }
                 return new Handlebars.SafeString(b.append(']').toString());
             }
             String text = String.valueOf(context);
-            boolean string = Boolean.TRUE.equals(options.hash("string"));
             return new Handlebars.SafeString(string ? quoteAsString(text) : quoteIfNeeded(text));
         });
         return handlebars;
     }
 
     /**
-     * Like {@link #quoteIfNeeded(String)}, but number-like values are single quoted (for string typed values).
+     * Like {@link #quoteIfNeeded(String)}, but number-like and boolean-like values are single quoted (for string typed values).
      */
     public static String quoteAsString(String s) {
-        if (s != null && Numbers.isNumber(s)) return singleQuote(s.trim());
+        if (s != null && looksTyped(s)) return singleQuote(s.trim());
         return quoteIfNeeded(s);
+    }
+
+    /** Plain text that Yaml would read as number or boolean. */
+    private static boolean looksTyped(String s) {
+        return Numbers.isNumber(s) || s.equals("true") || s.equals("false");
     }
 
     /**

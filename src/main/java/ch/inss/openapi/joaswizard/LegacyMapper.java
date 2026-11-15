@@ -173,7 +173,7 @@ final class LegacyMapper {
 
     /**
      * Domain to legacy: one copy of the base input per resource, with the properties as schema data.
-     * A definition without name keeps the resource of the base input, one without properties gets null schema data.
+     * Nested-object schemas are skipped (only top-level resources; their object properties carry the $ref). A definition without name keeps the resource of the base input, one without properties gets null schema data.
      *
      * @param definitions resources as read by a source.
      * @param base        the input the copies are made from.
@@ -182,6 +182,7 @@ final class LegacyMapper {
     static List<InputParameter> toInputParameters(List<ResourceDefinition> definitions, InputParameter base) {
         List<InputParameter> result = new ArrayList<>();
         for (ResourceDefinition def : definitions) {
+            if (def.nested()) continue;
             InputParameter ip = new InputParameter(base);
             if (def.name() != null) ip.setResource(def.name().value());
             if (def.properties() == null) {
@@ -209,6 +210,8 @@ final class LegacyMapper {
         d.setPattern(p.pattern());
         d.setRequired(p.required());
         d.setDescription(p.description());
+        d.setRef(p.ref());
+        d.setItemsRef(p.itemsRef());
         if (p.enumValues() != null) {
             List<PropertyData.EnumItem> items = new ArrayList<>();
             for (EnumValue e : p.enumValues()) items.add(new PropertyData.EnumItem(e.value(), e.asString()));
@@ -231,6 +234,6 @@ final class LegacyMapper {
         }
         return new Property(d.getKey(), d.getType(), d.getTypeArray(), d.getArray(), d.getExamplevalue(),
                 d.getMinlength(), d.getMaxLength(), d.getFormat(), d.getPattern(), enums, d.getRequired(),
-                d.getDescription());
+                d.getDescription(), d.getRef(), d.getItemsRef());
     }
 }

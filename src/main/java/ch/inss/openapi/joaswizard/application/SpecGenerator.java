@@ -75,7 +75,7 @@ public final class SpecGenerator {
             if (d.isUnreadable()) {
                 result.add(new ResourceDefinition(name, o.resourceId(), o.methods(), null));
             } else {
-                result.add(new ResourceDefinition(name, d.idField(), d.methods(), d.properties()));
+                result.add(new ResourceDefinition(name, d.idField(), d.methods(), d.properties(), d.nested()));
             }
         }
         return result;
@@ -91,6 +91,12 @@ public final class SpecGenerator {
         StringBuilder objects = new StringBuilder();
         int max = 0;
         for (ResourceDefinition definition : definitions) {
+            if (definition.nested()) {
+                String nested = this.schema(definition, o.doSchemas(), c);
+                if (ERROR.equals(nested)) return new Generated(null, null);
+                objects.append(nested).append(NEXT_LINE);
+                continue;
+            }
             if (max >= o.maxObjects()) {
                 c.warning("Maximum number of objects (" + o.maxObjects() + ") reached, further objects are skipped.");
                 break;
@@ -120,6 +126,7 @@ public final class SpecGenerator {
         logger.fine("Start creating methods.");
         StringBuilder result = new StringBuilder();
         for (ResourceDefinition definition : definitions) {
+            if (definition.nested()) continue;
             if (!doPaths) {
                 logger.fine("Skipping creating methods (DoPaths = false) for " + definition.idField());
                 continue;

@@ -28,6 +28,25 @@ public class PropertyData {
         this.type = type;
     }
 
+    private String ref;
+    private String itemsRef;
+
+    public String getRef() {
+        return ref;
+    }
+
+    public void setRef(String ref) {
+        this.ref = ref;
+    }
+
+    public String getItemsRef() {
+        return itemsRef;
+    }
+
+    public void setItemsRef(String itemsRef) {
+        this.itemsRef = itemsRef;
+    }
+
     public Integer getMaxLength() {
         return maxLength;
     }

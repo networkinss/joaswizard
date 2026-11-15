@@ -57,7 +57,6 @@ Possible future extensions:
 Parameter to use custom Handlebar template files.  
 Include tags for generation.
 Take JSON as input.
-Nested objects.
 
 ## Build
 
@@ -242,7 +241,25 @@ Sample file for Yaml:
 
 Or you can put the Yaml formatted string directly.  
 You can check the JUnit test `testCreateFromString()` for that.  
-Nested objects are not yet supported.
+
+##### Nested objects
+
+- If every top-level value is an object, each key is a resource (as above). Otherwise the whole document is one object (named by the resource parameter).
+- An object value becomes a schema of its own, named after its key (`address` gives `Address`), and the property is a `$ref` to it. This works to any depth.
+- A list of objects becomes an array whose `items` is a `$ref` to a schema named after the list key, with the union of all element keys.
+- A name already used by a different shape gets the parent schema name as prefix (`CustomerAddress`); an identical shape is reused.
+- An object with the single key `$ref` is passed through unchanged. A `$ref` property has no siblings (no type, example, ...) but is still `required`.
+- Only top-level resources get CRUD paths and count for `maxobjects` and the title. Nested schemas follow their resource in `components/schemas`.
+
+```yaml
+Customer:
+  firstname: John
+  address:
+    street: Main Street
+    nr: 48
+```
+
+generates `Customer` with `address: $ref: '#/components/schemas/Address'` and a schema `Address` (no paths). Samples: `src/test/resources/nested/`.
 
 #### Excel
 

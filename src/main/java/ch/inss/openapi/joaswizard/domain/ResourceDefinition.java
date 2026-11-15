@@ -10,8 +10,24 @@ import java.util.Set;
  * @param idField    name of the id field.
  * @param methods    methods to generate paths for.
  * @param properties properties, null if the source could not be read (see {@link #unreadable(ResourceName)}).
+ * @param nested     true for a schema of a nested object: only rendered in components/schemas (no paths, not counted),
+ *                   its name is the schema name as is.
  */
-public record ResourceDefinition(ResourceName name, String idField, Set<HttpMethod> methods, List<Property> properties) {
+public record ResourceDefinition(ResourceName name, String idField, Set<HttpMethod> methods, List<Property> properties,
+                                 boolean nested) {
+
+    public ResourceDefinition(ResourceName name, String idField, Set<HttpMethod> methods, List<Property> properties) {
+        this(name, idField, methods, properties, false);
+    }
+
+    /**
+     * @param schemaName exact schema name.
+     * @param properties properties.
+     * @return a nested-only definition.
+     */
+    public static ResourceDefinition nestedSchema(String schemaName, List<Property> properties) {
+        return new ResourceDefinition(new ResourceName(schemaName), null, Set.of(), properties, true);
+    }
 
     /**
      * @param name resource name.

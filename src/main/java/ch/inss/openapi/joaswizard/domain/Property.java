@@ -17,8 +17,18 @@ import java.util.List;
  * @param enumValues enum values or null.
  * @param required   required flag.
  * @param description description.
+ * @param ref        schema reference ({@code #/components/schemas/X} or an explicit one) if the property is an object, else null.
+ * @param itemsRef   schema reference of the array items if an array of objects, else null.
  */
 public record Property(String key, String type, String typeArray, Boolean array, String example,
                        Integer minLength, Integer maxLength, String format, String pattern,
-                       List<EnumValue> enumValues, Boolean required, String description) {
+                       List<EnumValue> enumValues, Boolean required, String description, String ref, String itemsRef) {
+
+    /** Property without schema references (all but nested objects). */
+    public Property(String key, String type, String typeArray, Boolean array, String example,
+                    Integer minLength, Integer maxLength, String format, String pattern,
+                    List<EnumValue> enumValues, Boolean required, String description) {
+        this(key, type, typeArray, array, example, minLength, maxLength, format, pattern, enumValues, required,
+                description, null, null);
+    }
 }
