@@ -1,6 +1,10 @@
 package ch.inss.openapi.joaswizard;
 
+import ch.inss.openapi.joaswizard.cli.CliArguments;
+import ch.inss.openapi.joaswizard.cli.Prompter;
+
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Scanner;
 import java.util.logging.ConsoleHandler;
@@ -8,7 +12,7 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Main implements Constants {
+public class Main {
 
     private static Logger logger = null;
     /** Strong reference, so the configured package logger is not garbage collected. */
@@ -32,180 +36,89 @@ public class Main implements Constants {
      * @param args inputfile outpufile resource Idfield sourcetype methods
      */
     public static void main(String[] args) {
-        logger.info("Starting main.");
-        Scanner scanner = new Scanner(new InputStreamReader(System.in));
-        String input = null;
-        String output = null;
-        String resource = null;
-        String idfield = null;
-        String sourcetype = null;
-        String methods = null;
+        int exitCode = run(args, System.in);
+        boolean help = args.length == 1 && args[0].equalsIgnoreCase("help");
+        if (help || exitCode != 0) {
+            System.exit(exitCode);
+        }
+    }
+
+    /** Testable core of main. Returns the exit code main would use; a generation failure is not an error code. */
+    static int run(String[] args, InputStream in) {
+        logp("main", "Starting main.");
         if (args.length == 1 && args[0].equalsIgnoreCase("help")) {
-            logger.info("Jo needs six parameters.");
-            logger.info("Usage: <inputfile> <outpufile> <resource> <Idfield> <sourcetype> <methods>");
-            logger.info("You can enter them interactively if you omit some of them.");
-            System.exit(0);
+            logp("main", "Jo needs six parameters.");
+            logp("main", "Usage: <inputfile> <outpufile> <resource> <Idfield> <sourcetype> <methods>");
+            logp("main", "You can enter them interactively if you omit some of them.");
+            return 0;
         }
-        if (args.length < 1) {
-            logger.info("Jo needs six parameters.");
-            logger.info("Usage: <inputfile> <outpufile> <resource> <Idfield> <sourcetype> <methods>");
-            logger.info("You can enter them now.");
-            logger.info("Please enter file name you want to use, or, If you want to use a string, enter that one.");
-            input = scanner.nextLine();
-        } else {
-            input = args[0];
-        }
-
-        if (args.length < 2) {
-            logger.info("Please enter the name of the outputfile or leave empty for the default 'openapi.yaml'.");
-//            logger.info("File will be created in the folder 'output'.");
-            output = scanner.nextLine();
-        } else {
-            output = args[1];
-        }
-        if (output.equals("")) output = "openapi.yaml";
-        output = "." + sep + output;
-
-        if (args.length < 3) {
-            logger.info("Please enter the name of the resource (objectname). Like e.g. 'pet'.");
-            resource = scanner.nextLine();
-        } else {
-            resource = args[2];
-        }
-
-        if (args.length < 4) {
-            logger.info("Please enter the name of the field which is the key (ID) field.");
-            idfield = scanner.nextLine();
-        } else {
-            idfield = args[3];
-        }
-
-        if (args.length < 5) {
-            logger.info("Please enter the sourcetype " + InputParameter.getSourcetypeList() + ".");
-            logger.info("Default is yamlfile, if no value is provided.");
-            boolean again = true;
-            while (again) {
-                sourcetype = scanner.nextLine();
-                if (sourcetype.equals("")) sourcetype = "yamlfile";
-                if (!InputParameter.isValidSourcetype(sourcetype)) {
-                    logger.warning("Please choose one of " + InputParameter.getSourcetypeList());
-                } else again = false;
-            }
-        } else {
-            sourcetype = args[4];
-            boolean ok = InputParameter.isValidSourcetype(sourcetype);
-            if (ok == false) logger.info("Argument " + sourcetype + " is not a valid sourcetype.");
-            while (ok == false) {
-                logger.warning("Please choose one of " + InputParameter.getSourcetypeList());
-                sourcetype = scanner.nextLine();
-                if (sourcetype.equals("")) sourcetype = "yamlfile";
-                ok = InputParameter.isValidSourcetype(sourcetype);
-            }
-        }
-
-        if (args.length < 6) {
-            logger.info("Please enter a list of methods " + InputParameter.getAvalableMethodList() + ".");
-            boolean again = true;
-            while (again) {
-                methods = scanner.nextLine();
-                if (methods.equals("")) methods = "crud";
-                if (!InputParameter.isValidMethod(methods)) {
-                    logger.warning("Please choose one of " + InputParameter.getAvalableMethodList() + ".");
-                } else again = false;
-            }
-        } else {
-            methods = args[5];
-            if (methods.equals("")) methods = "crud";
-            boolean ok = InputParameter.isValidMethod(methods);
-            if (ok == false) logger.info("Argument " + methods + " is not a valid method.");
-            while (ok == false) {
-                logger.warning("Please choose one of " + InputParameter.getAvalableMethodList());
-                methods = scanner.nextLine();
-                if (methods.equals("")) methods = "crud";
-                ok = InputParameter.isValidMethod(methods);
-            }
-        }
+        CliArguments cli = CliArguments.resolve(args, new Prompter(new Scanner(new InputStreamReader(in))));
 
         InputParameter inputParameter = new InputParameter();
-        if (sourcetype.equalsIgnoreCase(InputParameter.Sourcetype.YAMLFILE.toString()) || sourcetype.equalsIgnoreCase(InputParameter.Sourcetype.EXCEL.toString())) {
-            File file = new File(input);
-            if (file.isFile() == false) {
-                logger.severe("Could not find file " + input + ".");
-                System.exit(1);
+        if (cli.sourcetype().equalsIgnoreCase(InputParameter.Sourcetype.YAMLFILE.toString())
+                || cli.sourcetype().equalsIgnoreCase(InputParameter.Sourcetype.EXCEL.toString())) {
+            if (!new File(cli.input()).isFile()) {
+                logp(Level.SEVERE, "main", "Could not find file " + cli.input() + ".");
+                return 1;
             }
         }
-        inputParameter.setInputFile(input);
-        inputParameter.setOutputFile(output);
-        inputParameter.setResource(resource);
-        inputParameter.setResourceId(idfield);
-        inputParameter.setSourceType(sourcetype);
-        inputParameter.addMethods(methods);
+        inputParameter.setInputFile(cli.input());
+        inputParameter.setOutputFile(cli.output());
+        inputParameter.setResource(cli.resource());
+        inputParameter.setResourceId(cli.idField());
+        inputParameter.setSourceType(cli.sourcetype());
+        inputParameter.addMethods(cli.methods());
 
         Joaswizard joaswizard = new Joaswizard();
-        if (methods.equalsIgnoreCase("crud") && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL) == false) {
+        if (cli.methods().equalsIgnoreCase("crud") && !inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL)) {
             inputParameter.addMethod(InputParameter.Method.CRUD);
         }
         GenerationResult result = joaswizard.generateToFile(inputParameter);
-        /* Errors and warnings are logged (SEVERE/WARNING) while generating. No System.exit here: tests call main. */
+        /* Errors and warnings are logged (SEVERE/WARNING) while generating. No exit code here: tests call main. */
         if (result.getOutputFile() != null) {
-            logger.info("Created openapi file in " + inputParameter.getOutputFile());
+            logp("main", "Created openapi file in " + inputParameter.getOutputFile());
         } else {
-            logger.info("An error occurred, could not create file ." + inputParameter.getOutputFile());
+            logp("main", "An error occurred, could not create file ." + inputParameter.getOutputFile());
         }
+        return 0;
     }
 
     public static void createOpenApiFromYamlfile(String[] args) {
-        logger.info("Start to create OpenAPi from arguments.");
-        if (args.length < 3) {
-            logger.info("Need four parameter.");
-            logger.info(          "Parameters are <input.yaml> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>");
-            System.exit(1);
-        }
-        InputParameter inputParameter = new InputParameter();
-        inputParameter.setInputFile(args[0]);
-        inputParameter.setOutputFile(args[1]);
-        inputParameter.setResource(args[2]);
-        if (args.length >= 4) {
-            inputParameter.setResourceId(args[3]);
-        } else {
-            inputParameter.setResourceId("id");
-        }
-
-        if (args.length >= 5) {
-            inputParameter.setSourceType(args[4]);
-        } else {
-            inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
-        }
-        Joaswizard joaswizard = new Joaswizard();
-        inputParameter.addMethod(InputParameter.Method.CRUD);
-        joaswizard.generateToFile(inputParameter);
+        fromFileArgs(args, InputParameter.Sourcetype.YAMLFILE, "input.yaml", "createOpenApiFromYamlfile");
     }
 
     public static void createOpenApiFromJSONfile(String[] args) {
-        logger.info("Start to create OpenAPi from arguments.");
+        fromFileArgs(args, InputParameter.Sourcetype.JSONFILE, "input.json", "createOpenApiFromJSONfile");
+    }
+
+    private static void fromFileArgs(String[] args, InputParameter.Sourcetype dflt, String inputLabel, String method) {
+        logp(method, "Start to create OpenAPi from arguments.");
         if (args.length < 3) {
-            logger.info("Need four parameter.");
-            logger.info("Parameters are <input.json> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>");
-            System.exit(1);
+            logp(method, "Need four parameter.");
+            logp(method, "Parameters are <" + inputLabel + "> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>");
+            return;
         }
         InputParameter inputParameter = new InputParameter();
         inputParameter.setInputFile(args[0]);
         inputParameter.setOutputFile(args[1]);
         inputParameter.setResource(args[2]);
-        if (args.length >= 4) {
-            inputParameter.setResourceId(args[3]);
-        } else {
-            inputParameter.setResourceId("id");
-        }
-
+        inputParameter.setResourceId(args.length >= 4 ? args[3] : "id");
         if (args.length >= 5) {
             inputParameter.setSourceType(args[4]);
         } else {
-            inputParameter.setSourceType(InputParameter.Sourcetype.JSONFILE);
+            inputParameter.setSourceType(dflt);
         }
-        Joaswizard joaswizard = new Joaswizard();
         inputParameter.addMethod(InputParameter.Method.CRUD);
-        joaswizard.generateToFile(inputParameter);
+        new Joaswizard().generateToFile(inputParameter);
+    }
+
+    /** Logs with an explicit source method, so the console shows the original method names. */
+    private static void logp(String method, String msg) {
+        logp(Level.INFO, method, msg);
+    }
+
+    private static void logp(Level level, String method, String msg) {
+        logger.logp(level, Main.class.getName(), method, msg);
     }
 
     public static void version() {

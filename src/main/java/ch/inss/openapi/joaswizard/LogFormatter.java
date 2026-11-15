@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
-public class LogFormatter extends Formatter
+class LogFormatter extends Formatter
 {
     // ANSI escape code
     public static final String ANSI_RESET = "\u001B[0m";

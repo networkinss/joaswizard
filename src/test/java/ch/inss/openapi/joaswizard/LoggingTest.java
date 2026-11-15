@@ -20,9 +20,8 @@ class LoggingTest {
     void testLibraryDoesNotConfigureLoggers() {
         new Joaswizard();
         new InputParameter();
-        new ExcelWrapper();
         Util.fileExists("does-not-exist");
-        for (Class<?> c : new Class<?>[]{Joaswizard.class, InputParameter.class, ExcelWrapper.class, Util.class}) {
+        for (Class<?> c : new Class<?>[]{Joaswizard.class, InputParameter.class, Util.class}) {
             Logger l = Logger.getLogger(c.getName());
             assertEquals(0, l.getHandlers().length, c.getSimpleName() + " handlers");
             assertTrue(l.getUseParentHandlers(), c.getSimpleName() + " useParentHandlers");

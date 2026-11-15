@@ -15,7 +15,7 @@
     "dbtype": "DATE",
     "oastype": "string",
     "oasformat": "date",
-    "oaspattern": "yyyy-mm-dd"
+    "oaspattern": ""
   },
   {
     "dbtype": "SMALLINT",

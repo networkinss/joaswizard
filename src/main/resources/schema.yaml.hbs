@@ -1,17 +1,19 @@
     {{objectName}}:
       type: object
       properties:{{#data}}
-        {{lowKey}}:
+        {{lowKey}}:{{#ref}}
+          $ref: {{yaml ref}}{{/ref}}{{^ref}}
           type: {{type}}{{#array}}
-          items:
-            type: {{typeArray}}{{/array}}{{#format}}
+          items:{{#itemsRef}}
+            $ref: {{yaml itemsRef}}{{/itemsRef}}{{^itemsRef}}
+            type: {{typeArray}}{{/itemsRef}}{{/array}}{{#format}}
           format: {{format}}{{/format}}{{#pattern}}
           pattern: {{yaml pattern}}{{/pattern}}{{#enumitems}}{{#if @first}}
           enum:{{/if}}
           - {{yaml value string=asString}}{{/enumitems}}{{#minlength}}
           minLength: {{minlength}}{{/minlength}}{{#maxLength}}
           maxLength: {{maxLength}}{{/maxLength}}{{#examplevalue}}
-          example: {{yaml example}}{{/examplevalue}}{{#description}}
-          description: {{yaml description}}{{/description}}{{/data}}
+          example: {{yaml example string=exampleIsString}}{{/examplevalue}}{{#description}}
+          description: {{yaml description}}{{/description}}{{/ref}}{{/data}}
       required:{{#data}}{{#required}}
       - {{lowKey}}{{/required}}{{/data}}

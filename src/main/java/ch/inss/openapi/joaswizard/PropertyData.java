@@ -1,6 +1,6 @@
 package ch.inss.openapi.joaswizard;
 
-import ch.apache.commons.lang3.StringUtils;
+import ch.inss.openapi.joaswizard.domain.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,25 @@ public class PropertyData {
     public PropertyData(String key, String type) {
         this.key = key;
         this.type = type;
+    }
+
+    private String ref;
+    private String itemsRef;
+
+    public String getRef() {
+        return ref;
+    }
+
+    public void setRef(String ref) {
+        this.ref = ref;
+    }
+
+    public String getItemsRef() {
+        return itemsRef;
+    }
+
+    public void setItemsRef(String itemsRef) {
+        this.itemsRef = itemsRef;
     }
 
     public Integer getMaxLength() {
@@ -124,24 +143,16 @@ public class PropertyData {
     public void setTypeArray(String typeArray) {
         this.typeArray = typeArray;
     }
-//    public void setType(String type) {
-//        this.type = type;
-//    }
-
     public String getKey() {
         return key;
     }
 
     public String getCapKey() {
-        return StringUtils.capitalize(key.toLowerCase());
+        return Strings.capitalize(key.toLowerCase());
     }
     public String getLowKey(){
         return key.toLowerCase();
     }
-
-//    public void setKey(String key) {
-//        this.key = key;
-//    }
 
     public String getExamplevalue() {
         return examplevalue;

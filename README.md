@@ -57,11 +57,10 @@ Possible future extensions:
 Parameter to use custom Handlebar template files.  
 Include tags for generation.
 Take JSON as input.
-Nested objects.
 
 ## Build
 
-It is a normal Java Maven project. You will need Java SDK 11 and Maven to build it.
+It is a normal Java Maven project. You will need Java SDK 17 and Maven to build it.
 
 Joaswizard depends on a forked Handlebars (`com.github.jknack:handlebars`, version `4.3.2-FORK`), which is not on Maven Central.
 The original Handlebars ships with logging (slf4j) that can interfere with applications using it, so the fork removes the logging from the `handlebars` module.
@@ -242,7 +241,25 @@ Sample file for Yaml:
 
 Or you can put the Yaml formatted string directly.  
 You can check the JUnit test `testCreateFromString()` for that.  
-Nested objects are not yet supported.
+
+##### Nested objects
+
+- If every top-level value is an object, each key is a resource (as above). Otherwise the whole document is one object (named by the resource parameter).
+- An object value becomes a schema of its own, named after its key (`address` gives `Address`), and the property is a `$ref` to it. This works to any depth.
+- A list of objects becomes an array whose `items` is a `$ref` to a schema named after the list key, with the union of all element keys.
+- A name already used by a different shape gets the parent schema name as prefix (`CustomerAddress`); an identical shape is reused.
+- An object with the single key `$ref` is passed through unchanged. A `$ref` property has no siblings (no type, example, ...) but is still `required`.
+- Only top-level resources get CRUD paths and count for `maxobjects` and the title. Nested schemas follow their resource in `components/schemas`.
+
+```yaml
+Customer:
+  firstname: John
+  address:
+    street: Main Street
+    nr: 48
+```
+
+generates `Customer` with `address: $ref: '#/components/schemas/Address'` and a schema `Address` (no paths). Samples: `src/test/resources/nested/`.
 
 #### Excel
 
@@ -289,8 +306,23 @@ With the correct mapping you don't have to define each OASType manually.
 Also the JUnit tests of Samples
 Samples/src/test/java/ch/inss/joaswizardsamples/SampleTest.java
 and from
-src/test/java/ch/inss/joaswizard/JoaswizardTest.java
+src/test/java/ch/inss/openapi/joaswizard/GoldenFileTest.java
 can be used to see how it works.
+
+## Breaking changes in 0.10.0
+
+Removed from the public API (all unused or internal):
+
+- `InputParameter`: `internalid`, `tags`, `arrayItems` (getters and setters), `getOpenCurlyBrace()`, `getCloseCurlyBrace()`. `getSourcetypeList()` and `getAvalableMethodList()` now return typed lists. `toString()` no longer shows the removed fields.
+- `Constants` is a `final class` and no longer an interface (do not implement it). Removed constants: `CURRENT_FOLDER`, `pathComponentCrudTemplate`, `schemaTemplate`, `componentsErrorTemplate`, `infoTemplate`, `WRITETOFILE`, `WRITETOSTRING`, `OK`, `WARNIUNG`.
+- Classes removed or no longer public: `ExcelWrapper` (use `Joaswizard`), `Header`, `LogFormatter`, root `YamlScalar`; the vendored `ch.apache.commons.lang3` classes.
+
+Behaviour changes:
+
+- Pluralisation follows basic English rules: consonant + y gives `ies` (`/categories`), words ending in s, x, z, ch, sh get `es` (`/addresses`), everything else `s`. Paths, summaries and schema names of such resources change.
+- An empty Excel sheet (no rows or header only) is skipped with the warning `Sheet <name> is empty, skipped.` instead of failing; if all sheets are empty the result has an error and no spec.
+- The Excel mapping file is loaded once per workbook, and the `oaspattern` of a mapping entry is now written as `pattern` when the `OasPattern` cell is empty (the default `mapping.json` has one, so such properties get a `pattern` now).
+- Deprecated `getErrorMessage()` returns the first error of the call (the cause), not the last. Deprecated Yaml/JSON methods with a null input now set the error `Input parameter is missing.`.
 
 ## Template adjustment
 

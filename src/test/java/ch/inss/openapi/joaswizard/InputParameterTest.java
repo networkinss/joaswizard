@@ -83,4 +83,28 @@ class InputParameterTest {
         assertEquals("Pet", in.getCapResource());
         assertEquals("Pets", in.getCapResources());
     }
+
+    @Test
+    void testCheckValidAcceptsJsonLikeYaml() {
+        InputParameter file = new InputParameter();
+        file.setSourceType(InputParameter.Sourcetype.JSONFILE);
+        file.setInputFile("pet.json");
+        file.setResource("pet");
+        assertTrue(file.checkValid());
+        InputParameter text = new InputParameter();
+        text.setSourceType(InputParameter.Sourcetype.JSONSTRING);
+        text.setSampleYamlData("{\"pet\": {\"name\": \"Rex\"}}");
+        assertFalse(text.checkValid(), "resource missing");
+        text.setResource("pet");
+        assertTrue(text.checkValid());
+    }
+
+    @Test
+    void testIsValidType() {
+        InputParameter inputParameter = new InputParameter();
+        assertTrue(inputParameter.isValidSourcetype("excel"));
+        assertFalse(inputParameter.isValidSourcetype("nix"));
+        assertTrue(InputParameter.isValidMethod("CRUD"));
+        assertFalse(InputParameter.isValidMethod("nix"));
+    }
 }

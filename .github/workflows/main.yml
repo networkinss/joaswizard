@@ -19,5 +19,5 @@ jobs:
       # The glob is a fast-glob pattern, so the brace list is supported.
       - uses: stoplightio/spectral-action@6416fd018ae38e60136775066eb3e98172143141 # v0.8.13
         with:
-          file_glob: 'src/test/resources/testReference{Contact,CrudMaxOneObject,CrudMultipleYamlObject,CrudSingleYamlObject,GetMethodList,MinimalString,MySQLDBFieldsExcelsheet,SingleYamlObject,String}.yml'
+          file_glob: 'src/test/resources/testReference{Contact,CrudMaxOneObject,CrudMultipleYamlObject,CrudSingleYamlObject,GetMethodList,MinimalString,MySQLDBFieldsExcelsheet,NestedAddress,NestedEnvelope,NestedRef,SingleYamlObject,String}.yml'
           spectral_ruleset: .spectral.json

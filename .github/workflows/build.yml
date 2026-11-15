@@ -17,11 +17,11 @@ jobs:
       - name: Check out joaswizard
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Java 11
+      - name: Set up Java 17
         uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
-          java-version: '11'
+          java-version: '17'
           cache: maven
 
       # The Handlebars fork is not on Maven Central, build it from the pinned commit.
