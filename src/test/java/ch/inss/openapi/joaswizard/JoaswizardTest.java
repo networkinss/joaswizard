@@ -1,9 +1,6 @@
 package ch.inss.openapi.joaswizard;
 
 import org.apache.commons.io.FileUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.junit.jupiter.api.*;
 
 import java.io.File;
@@ -453,9 +450,9 @@ class JoaswizardTest implements Constants {
     @Order(19)
     void testReadMapping() throws Exception {
         String file = Util.readFromFile("src/main/resources/mapping.json");
-        JSONParser parser = new JSONParser();
-        JSONArray obj = (JSONArray) parser.parse(file);
-        JSONObject jsonObject = (JSONObject) obj.toArray()[0];
+        // JSON is valid Yaml
+        java.util.List<?> obj = new org.yaml.snakeyaml.Yaml(new org.yaml.snakeyaml.constructor.SafeConstructor(new org.yaml.snakeyaml.LoaderOptions())).load(file);
+        java.util.Map<?, ?> jsonObject = (java.util.Map<?, ?>) obj.get(0);
         String dbtype = (String) jsonObject.get("dbtype");
         String oastype = (String) jsonObject.get("oastype");
         String oasformat = (String) jsonObject.get("oasformat");

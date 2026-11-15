@@ -80,12 +80,20 @@ mvn install -pl handlebars -am -DskipTests
 ```
 
 Only the `handlebars` module and its parents are built. If the full reactor of the fork fails (for example in the `handlebars-maven-plugin` modules), this command is all you need.
+The CI build (`.github/workflows/build.yml`) uses the same command on the fork commit `cee2cc3ceeb8222da39c6932c765cebc3de5e241`.
 
 Then build Joaswizard:
 
 ```
 mvn clean install
 ```
+
+The build produces two jars:
+
+* `target/joaswizard-<version>.jar` is the library. It bundles the Handlebars fork relocated to `ch.inss.openapi.joaswizard.internal.handlebars`, so users of the library need nothing extra (the fork is not a dependency in the published pom).
+* `target/joaswizard-<version>-cli.jar` is the command line fat jar with all dependencies.
+
+The fork is only needed when building Joaswizard from source.
 
 To check the API style of an output:
 
@@ -122,7 +130,7 @@ Jo as wizard needs several arguments.
 They have to be provided in the right sequence. If you skip one, Jo will ask for it.   
 Since the sequence is important, you can skip arguments only from right to left.
 ```
-java -jar joaswizard-*.jar <input.yaml> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>
+java -jar joaswizard-*-cli.jar <input.yaml> <output.yaml> <objectname> <idfieldname> <sourcetype> <methods>
 ```
 * `<input.yaml>` is a file which contains properties in yaml style. A simple sample is in Samples/pet.yml.    
 * `<output.yaml>` is the name of the output file.  
@@ -133,18 +141,50 @@ java -jar joaswizard-*.jar <input.yaml> <output.yaml> <objectname> <idfieldname>
   patch.
 
 You can execute it without parameter. Jo will ask for the parameter.  
-`java -jar joaswizard-*.jar`
+`java -jar joaswizard-*-cli.jar`
 
 ### Sample for commandline
 
 With all parameters. Jo would ask for skipped parameters, if any.  
-`java -jar joaswizard-*.jar Samples/pet.yml openapipet.yaml pet name yamlfile delete,post,patch`
+`java -jar joaswizard-*-cli.jar Samples/pet.yml openapipet.yaml pet name yamlfile delete,post,patch`
 
 
 ### as a library
 
-Simply define an object of the class InputParameter.  
-Use any of the public methods of the class Joaswizard.
+Define an object of the class InputParameter and call `generate` (returns the OpenAPI document as string) or
+`generateToFile` (also writes it to `InputParameter.getOutputFile()`) of the class Joaswizard.  
+Both return a `GenerationResult`. They do not throw for invalid input and keep no state, so one `Joaswizard` instance can
+be shared between threads.
+
+```java
+InputParameter in = new InputParameter();
+in.setInputFile("Samples/pet.yml");
+in.setOutputFile("openapipet.yaml");
+in.setResource("pet");
+in.setResourceId("name");
+in.setCrud();
+
+GenerationResult result = new Joaswizard().generateToFile(in);
+for (Diagnostic warning : result.getWarnings()) {
+    System.out.println(warning);
+}
+if (result.isOk()) {
+    System.out.println("Written to " + result.getOutputFile());
+} else {
+    result.getErrors().forEach(System.err::println);
+}
+```
+
+* `getSpec()` is the OpenAPI document, `null` if the generation failed.
+* `getDiagnostics()` lists all errors and warnings in the order of occurrence (`getErrors()` and `getWarnings()` filter
+  them). Each `Diagnostic` has a `getSeverity()` (`ERROR` or `WARNING`) and a `getMessage()`.
+* `isOk()` is true if a spec was generated and there is no error.
+* `getOutputFile()` is set by `generateToFile` if the file was written. If writing fails, the result contains an error.
+
+The older methods (`createFromYamlToString`, `createFromExcelToFile`, `createCrudFrom...`, the `getErrorMessage()`
+getters and so on) are deprecated and still work as before. They are wrappers of the new methods, and the messages
+(`getErrorMessage()`, `getWarningMessage()`) now only hold the last error/warning of the latest call instead of
+leaking from earlier calls.
 
 ### Samples for library
 

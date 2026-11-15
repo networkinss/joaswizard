@@ -142,17 +142,14 @@ public class Main implements Constants {
         inputParameter.addMethods(methods);
 
         Joaswizard joaswizard = new Joaswizard();
-        boolean ok = false;
         if (methods.equalsIgnoreCase("crud") && inputParameter.getSourceType().equals(InputParameter.Sourcetype.EXCEL) == false) {
-            ok = joaswizard.createCrudFromYamlToFile(inputParameter);
-        } else if (inputParameter.getSourceType().toString().equalsIgnoreCase(InputParameter.Sourcetype.EXCEL.toString())) {
-            ok = joaswizard.createFromExcelToFile(inputParameter);
-        } else {
-            ok = joaswizard.createFromYamlToFile(inputParameter);
+            inputParameter.addMethod(InputParameter.Method.CRUD);
         }
-        if(ok)  {
+        GenerationResult result = joaswizard.generateToFile(inputParameter);
+        /* Errors and warnings are logged (SEVERE/WARNING) while generating. No System.exit here: tests call main. */
+        if (result.getOutputFile() != null) {
             logger.info("Created openapi file in " + inputParameter.getOutputFile());
-        }else{
+        } else {
             logger.info("An error occurred, could not create file ." + inputParameter.getOutputFile());
         }
     }
@@ -180,7 +177,8 @@ public class Main implements Constants {
             inputParameter.setSourceType(InputParameter.Sourcetype.YAMLFILE);
         }
         Joaswizard joaswizard = new Joaswizard();
-        joaswizard.createCrudFromYamlToFile(inputParameter);
+        inputParameter.addMethod(InputParameter.Method.CRUD);
+        joaswizard.generateToFile(inputParameter);
     }
 
     public static void createOpenApiFromJSONfile(String[] args) {
@@ -206,7 +204,8 @@ public class Main implements Constants {
             inputParameter.setSourceType(InputParameter.Sourcetype.JSONFILE);
         }
         Joaswizard joaswizard = new Joaswizard();
-        joaswizard.createCrudFromJSONToFile(inputParameter);
+        inputParameter.addMethod(InputParameter.Method.CRUD);
+        joaswizard.generateToFile(inputParameter);
     }
 
     public static void version() {
