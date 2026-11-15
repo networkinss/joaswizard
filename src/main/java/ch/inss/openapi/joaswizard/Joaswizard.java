@@ -16,30 +16,175 @@ public class Joaswizard implements Constants {
 
     private static final Logger logger = Logger.getLogger(Joaswizard.class.getName());
 
-    private String errorMessage;
-    private String warningMessage;
-    private String okMessage;
+    /** Legacy state, only filled by the deprecated methods. {@link #generate(InputParameter)} does not touch it. */
+    private volatile String errorMessage;
+    private volatile String warningMessage;
+    private volatile String okMessage;
 
+    /**
+     * Collects the diagnostics of one call. Never shared between calls, so a Joaswizard instance has no per-call state.
+     */
+    private static final class Collector {
+        private final List<Diagnostic> list = new ArrayList<>();
+
+        void error(String message) {
+            logger.severe(message);
+            list.add(new Diagnostic(Diagnostic.Severity.ERROR, message));
+        }
+
+        void warning(String message) {
+            logger.warning(message);
+            list.add(new Diagnostic(Diagnostic.Severity.WARNING, message));
+        }
+
+        boolean hasErrors() {
+            return list.stream().anyMatch(d -> d.getSeverity() == Diagnostic.Severity.ERROR);
+        }
+
+        String last(Diagnostic.Severity severity) {
+            String result = null;
+            for (Diagnostic d : list) {
+                if (d.getSeverity() == severity) result = d.getMessage();
+            }
+            return result;
+        }
+    }
+
+    /**
+     * Generates a full OpenAPI 3 document as String.
+     * The source is chosen by {@link InputParameter#getSourceType()}: Excel (file or input stream, a file wins if both are set)
+     * or Yaml/JSON (file or string, including Base64 encoded Yaml set by
+     * {@link InputParameter#setSampleYamlBase64(String)}).
+     * The method never throws for invalid input, problems are reported as diagnostics of the result.
+     * It keeps no state, so one instance can be shared between threads.
+     * Like the former methods it may complete the input parameter with default values (output file, methods).
+     *
+     * @param inputParameter input parameter values.
+     * @return result with the specification (null on failure) and all errors and warnings.
+     */
+    public GenerationResult generate(InputParameter inputParameter) {
+        Collector c = new Collector();
+        String spec = this.run(inputParameter, c);
+        if (spec == null && !c.hasErrors()) {
+            c.error("No OpenAPI specification could be generated, no usable input data found.");
+        }
+        return GenerationResult.of(spec, c.list);
+    }
+
+    /**
+     * Generates the OpenAPI 3 document like {@link #generate(InputParameter)} and writes it to
+     * {@link InputParameter#getOutputFile()} (default openapi.yaml). Missing parent folders are created.
+     * A relative output file is resolved against the current folder.
+     * If writing fails, the result contains an ERROR diagnostic; the spec is still available in the result.
+     *
+     * @param inputParameter input parameter values.
+     * @return result, {@link GenerationResult#getOutputFile()} is set if the file was written.
+     */
+    public GenerationResult generateToFile(InputParameter inputParameter) {
+        GenerationResult generated = this.generate(inputParameter);
+        if (generated.getSpec() == null) return generated;
+        Collector c = new Collector();
+        String written = this.write(generated.getSpec(), inputParameter, c, false);
+        List<Diagnostic> all = new ArrayList<>(generated.getDiagnostics());
+        all.addAll(c.list);
+        return GenerationResult.of(generated.getSpec(), all, written);
+    }
+
+    /** Dispatches on the source type. */
+    private String run(InputParameter in, Collector c) {
+        if (in == null) {
+            c.error("Input parameter is missing.");
+            return null;
+        }
+        boolean excel = in.getSourceType() == InputParameter.Sourcetype.EXCEL
+                || (in.getSourceType() == null && in.getInputFile() == null && in.getInputStream() != null);
+        if (!excel) return this.yamlToString(in, c);
+        in.setSourceType(InputParameter.Sourcetype.EXCEL);
+        if (in.getInputFile() == null && in.getInputStream() != null) return this.excelStreamToString(in, c);
+        return this.excelFileToString(in, c);
+    }
+
+    /**
+     * Writes the spec. A legacy call resolves every output file below the current folder (also absolute ones), as before.
+     *
+     * @return the written file or null if writing failed (error added).
+     */
+    private String write(String spec, InputParameter in, Collector c, boolean legacy) {
+        String file = in.getOutputFile();
+        if (file == null || file.isEmpty()) {
+            file = DEFAULT_OUTPUT_FILE;
+            in.setOutputFile(file);
+        }
+        boolean ok;
+        if (!legacy && new java.io.File(file).isAbsolute()) {
+            ok = Util.writeToPath(java.nio.file.Paths.get(file), spec);
+        } else {
+            ok = Util.writeStringToData(CURRENT_FOLDER, spec, file);
+        }
+        if (ok) {
+            logger.fine("OpenAPI content written to " + in.getOutputFile() + ".");
+            return in.getOutputFile();
+        }
+        c.error("Could not write file " + CURRENT_FOLDER + in.getOutputFile());
+        return null;
+    }
+
+    /** Resets the legacy fields before a deprecated call and fills them from its diagnostics afterwards. */
+    private <T> T legacy(java.util.function.Function<Collector, T> call) {
+        this.errorMessage = null;
+        this.warningMessage = null;
+        Collector c = new Collector();
+        try {
+            return call.apply(c);
+        } finally {
+            this.errorMessage = c.last(Diagnostic.Severity.ERROR);
+            this.warningMessage = c.last(Diagnostic.Severity.WARNING);
+        }
+    }
+
+    /**
+     * @return the last error message of the latest call of a deprecated method, null if that call had no error.
+     * The value is reset at the start of each deprecated call, so it no longer leaks from a previous call.
+     * @deprecated not thread-safe and keeps only the last message, use {@link #generate(InputParameter)}.
+     */
+    @Deprecated
     public String getErrorMessage() {
         return this.errorMessage;
     }
 
+    /** @deprecated use {@link #generate(InputParameter)}. */
+    @Deprecated
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 
+    /**
+     * @return the last warning message of the latest call of a deprecated method, null if that call had no warning.
+     * The value is reset at the start of each deprecated call, so it no longer leaks from a previous call.
+     * @deprecated not thread-safe and keeps only the last message, use {@link #generate(InputParameter)}.
+     */
+    @Deprecated
     public String getWarningMessage() {
         return warningMessage;
     }
 
+    /** @deprecated use {@link #generate(InputParameter)}. */
+    @Deprecated
     public void setWarningMessage(String warningMessage) {
         this.warningMessage = warningMessage;
     }
 
+    /**
+     * @return the ok message, which is never set by Joaswizard itself.
+     * @deprecated use {@link GenerationResult#isOk()}.
+     */
+    @Deprecated
     public String getOkMessage() {
         return okMessage;
     }
 
+    /** @deprecated use {@link GenerationResult#isOk()}. */
+    @Deprecated
     public void setOkMessage(String okMessage) {
         this.okMessage = okMessage;
     }
@@ -50,8 +195,14 @@ public class Joaswizard implements Constants {
      *
      * @param list list of input parameter values.
      * @return String of OAS3 path section.
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
      */
+    @Deprecated
     public String createMethodsFromList(List<InputParameter> list) {
+        return this.legacy(c -> this.methodsFromList(list, c));
+    }
+
+    private String methodsFromList(List<InputParameter> list, Collector c) {
         logger.fine("Start creating methods.");
         if (list == null || list.isEmpty()) {
             logger.fine("Skipping methods, list is empty.");
@@ -63,7 +214,7 @@ public class Joaswizard implements Constants {
                 logger.fine("Skipping creating methods (DoPaths = false) for " + inputParameter.getResourceId());
                 continue;
             }
-            result.append(fromPathsTemplate(inputParameter));
+            result.append(fromPathsTemplate(inputParameter, c));
         }
         if (result.toString().startsWith("\n\n")) {
             result.deleteCharAt(0);
@@ -78,7 +229,9 @@ public class Joaswizard implements Constants {
      *
      * @param doSchemas false skip this method.
      * @return String of beginning of components schemas including a standard error model.
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
      */
+    @Deprecated
     public String createComponentsSchemas(boolean doSchemas) {
         if (doSchemas) {
             logger.fine("Adding beginning of components schemas section and default error model.");
@@ -94,33 +247,39 @@ public class Joaswizard implements Constants {
      *
      * @param inputParameter input parameter values.
      * @return String of components schemas object.
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
      */
+    @Deprecated
     public String createSchemaObjects(InputParameter inputParameter) {
+        return this.legacy(c -> this.schemaObjects(inputParameter, c));
+    }
+
+    private String schemaObjects(InputParameter inputParameter, Collector c) {
         if (inputParameter.isDoSchemas() == false) {
             logger.fine("Skipping create schema (doSchemas = false).");
             return "";
         }
         logger.fine("Start creating schema objects.");
         logger.fine("Input parameter: \n" + inputParameter);
-        Handlebars mf = new Handlebars();
+        Handlebars mf = YamlScalar.newHandlebars();
         String result = null;
         try {
             Template template = mf.compile(schemaTemplate);
             if (inputParameter.getSchemaData() == null || inputParameter.getSchemaData().isEmpty()) {
-                this.logErrorMessage("No data. Please define input file or set sample yaml.");
+                c.error("No data. Please define input file or set sample yaml.");
                 return ERROR;
             }
             HashMap sampleMap = inputParameter.getSchemaData();
 //            HashMap sampleMap = this.data.getDataMap(inputParameter.getResource());
             if (sampleMap == null || sampleMap.size() == 0) {
-                this.logErrorMessage("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");  //TODO check
+                c.error("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");  //TODO check
                 return ERROR;
             }
             sampleMap.put(OBJECTNAME, inputParameter.getCapResource());
             result = template.apply(sampleMap);
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Creating OpenAPI section failed.", e);
-            this.logErrorMessage(e.getLocalizedMessage());
+            c.error(e.getLocalizedMessage());
         }
         logger.fine("End creating schema objects.");
         return result;
@@ -132,20 +291,26 @@ public class Joaswizard implements Constants {
      *
      * @param inputParameter input parameter values.
      * @return String of OAS3 info section.
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
      */
+    @Deprecated
     public String createInfo(InputParameter inputParameter) {
+        return this.legacy(c -> this.info(inputParameter, c));
+    }
+
+    private String info(InputParameter inputParameter, Collector c) {
         if (inputParameter.isDoInfo() == false) {
             logger.fine("Skipping info section (doInfo = false).");
             return "";
         }
         logger.fine("Start creating info.");
         logger.fine("Input parameter: \n" + inputParameter);
-        Handlebars mf = new Handlebars();
+        Handlebars mf = YamlScalar.newHandlebars();
         String result = null;
         try {
             Template template = mf.compile(infoTemplate);
             if (inputParameter.getResource() == null || inputParameter.getResource().length() == 0) {
-                this.logErrorMessage("No resource defined.");
+                c.error("No resource defined.");
                 return "Error";
             }
             OasInfo oasInfo = inputParameter.getOasInfo();
@@ -155,7 +320,7 @@ public class Joaswizard implements Constants {
             result = template.apply(oasInfo);
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Creating OpenAPI section failed.", e);
-            this.logErrorMessage(e.getLocalizedMessage());
+            c.error(e.getLocalizedMessage());
         }
         logger.fine("End creating info.");
         return result;
@@ -164,23 +329,26 @@ public class Joaswizard implements Constants {
     /**
      * @param inputParameter parameter.
      * @return null if an error occured.
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
      */
+    @Deprecated
     public String createFromExcelInputstreamToString(InputParameter inputParameter) {
-//        if (inputStream == null) {
-//            this.logErrorMessage("Input file was empty.");
-//            return null;
-//        }
+        return this.legacy(c -> this.excelStreamToString(inputParameter, c));
+    }
+
+    private String excelStreamToString(InputParameter inputParameter, Collector c) {
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
-        if (this.validateInput(inputParameter) == false) {
+        if (this.validateInput(inputParameter, c) == false) {
             return null;
         }
-
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelStream(inputParameter.getInputStream());
-        if (integerListHashMap == null) return null;
-        List<InputParameter> inputParameterList = this.createExcelInputParameterList(integerListHashMap, inputParameter);
-
-        return fullMultipleObjects(inputParameterList);
+        if (integerListHashMap == null) {
+            c.error("Could not read Excel input stream.");
+            return null;
+        }
+        List<InputParameter> inputParameterList = this.createExcelInputParameterList(integerListHashMap, inputParameter, c);
+        return fullMultipleObjects(inputParameterList, c);
     }
 
     /**
@@ -188,20 +356,25 @@ public class Joaswizard implements Constants {
      *
      * @param inputParameter
      * @return OAS3.
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
      */
+    @Deprecated
     public String createFromExcelfileToString(InputParameter inputParameter) {
+        return this.legacy(c -> this.excelFileToString(inputParameter, c));
+    }
 
-//        if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
-//            inputParameter.setOutputFile(DEFAULT_OUTPUT_FILE);
-//        }
+    private String excelFileToString(InputParameter inputParameter, Collector c) {
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
-        if (this.validateInput(inputParameter) == false) return null;
+        if (this.validateInput(inputParameter, c) == false) return null;
 
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(inputParameter.getInputFile());
-        if (integerListHashMap == null) return null;
-        List<InputParameter> inputParameterList = this.createExcelInputParameterList(integerListHashMap, inputParameter);
-        return fullMultipleObjects(inputParameterList);
+        if (integerListHashMap == null) {
+            c.error("Could not read Excel file " + inputParameter.getInputFile() + ".");
+            return null;
+        }
+        List<InputParameter> inputParameterList = this.createExcelInputParameterList(integerListHashMap, inputParameter, c);
+        return fullMultipleObjects(inputParameterList, c);
     }
 
     /**
@@ -209,17 +382,15 @@ public class Joaswizard implements Constants {
      *
      * @param inputParameter
      * @return true if file was successfully written to filesystem.
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
      */
+    @Deprecated
     public boolean createFromExcelToFile(InputParameter inputParameter) {
-        String result = this.createFromExcelfileToString(inputParameter);
-        if (result == null) return false;
-        boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
-        if (ok) {
-            logger.fine("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
-        } else {
-            this.logErrorMessage("Could not write file " + CURRENT_FOLDER + inputParameter.getOutputFile());
-        }
-        return ok;
+        return this.legacy(c -> {
+            String result = this.excelFileToString(inputParameter, c);
+            if (result == null) return false;
+            return this.write(result, inputParameter, c, true) != null;
+        });
     }
 
     /**
@@ -229,22 +400,22 @@ public class Joaswizard implements Constants {
      * @param inputParameterList
      * @return Full OAS3 document or null if an error occurred.
      */
-    private String fullMultipleObjects(List<InputParameter> inputParameterList) {
+    private String fullMultipleObjects(List<InputParameter> inputParameterList, Collector c) {
         if (inputParameterList == null || inputParameterList.isEmpty()) return null;
-        String paths = this.createMethodsFromList(inputParameterList);
+        String paths = this.methodsFromList(inputParameterList, c);
         if (paths.startsWith(ERROR)) {
-            this.logErrorMessage("Could not process data for OAS paths. " + paths);
+            c.error("Could not process data for OAS paths. " + paths);
         }
         StringBuilder resources = new StringBuilder();
         StringBuilder objects = new StringBuilder();
         int max = 0;
         for (InputParameter input : inputParameterList) {
             if (max >= input.getMaxobjects()) {
-                this.logWarningMessage(maxObjectsMessage(input.getMaxobjects()));
+                c.warning(maxObjectsMessage(input.getMaxobjects()));
                 break;
             }
             resources.append(input.getResource()).append(", ");
-            String result = this.createSchemaObjects(input);
+            String result = this.schemaObjects(input, c);
             if (ERROR.equals(result)) return null;
             objects.append(result).append(nextLine);
             max++;
@@ -252,7 +423,7 @@ public class Joaswizard implements Constants {
         if (resources.length() >= 2) resources.delete(resources.length() - 2, resources.length());
         InputParameter infoParameter = new InputParameter(inputParameterList.get(0));
         infoParameter.setResource(resources.toString());
-        String info = this.createInfo(infoParameter);
+        String info = this.info(infoParameter, c);
         String components = this.createComponentsSchemas(inputParameterList.get(0).isDoSchemas());
         return info + paths + nextLine + components + objects;
     }
@@ -262,13 +433,19 @@ public class Joaswizard implements Constants {
      *
      * @param inputParameter input parameter values.
      * @return true if file was created.
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
      */
+    @Deprecated
     public boolean createCrudFromYamlToFile(InputParameter inputParameter) {
         logger.fine("Jo starts to create crud file from Yaml input.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
         return this.createFromYamlToFile(inputParameter);
     }
 
+    /**
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
+     */
+    @Deprecated
     public boolean createCrudFromJSONToFile(InputParameter inputParameter) {
         logger.fine("Jo starts to create crud file from JSON input.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
@@ -282,29 +459,23 @@ public class Joaswizard implements Constants {
      *
      * @param inputParameter input parameter values.
      * @return true if the file was created.
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
      */
+    @Deprecated
     public boolean createFromYamlToFile(InputParameter inputParameter) {
-        String result = this.createFromYamlToString(inputParameter);
-        if (result == null) return false;
-        boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
-        if (ok) {
-            logger.fine("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
-        } else {
-            this.logErrorMessage("Could not write file " + CURRENT_FOLDER + inputParameter.getOutputFile());
-        }
-        return ok;
+        return this.legacy(c -> {
+            String result = this.yamlToString(inputParameter, c);
+            if (result == null) return false;
+            return this.write(result, inputParameter, c, true) != null;
+        });
     }
 
+    /**
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
+     */
+    @Deprecated
     public boolean createFromJSONToFile(InputParameter inputParameter) {
-        String result = this.createFromJSONToString(inputParameter);
-        if (result == null) return false;
-        boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
-        if (ok) {
-            logger.fine("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
-        } else {
-            this.logErrorMessage("Could not write file " + CURRENT_FOLDER + inputParameter.getOutputFile());
-        }
-        return ok;
+        return this.createFromYamlToFile(inputParameter);
     }
 
     /**
@@ -313,16 +484,20 @@ public class Joaswizard implements Constants {
      *
      * @param inputParameter parameter.
      * @return String with full OAS3 document with CRUD operations. Can be null in case an error occured. Like e.g. input was not in Yaml format.
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
      */
+    @Deprecated
     public String createCrudFromYamlToString(InputParameter inputParameter) {
         logger.fine("Jo starts to create crud file from Yaml input.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
-        String result = this.createFromYamlToString(inputParameter);
-        if (result == null) {
-            if (this.errorMessage == null) this.errorMessage = ERROR;
-            return this.errorMessage;
-        }
-        return result;
+        return this.legacy(c -> {
+            String result = this.yamlToString(inputParameter, c);
+            if (result == null) {
+                String error = c.last(Diagnostic.Severity.ERROR);
+                return error == null ? ERROR : error;
+            }
+            return result;
+        });
     }
 
     /**
@@ -330,17 +505,26 @@ public class Joaswizard implements Constants {
      *
      * @param inputParameter parameter.
      * @return Full OAS3 document as string.
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
      */
+    @Deprecated
     public String createFromYamlToString(InputParameter inputParameter) {
-        if (this.validateInput(inputParameter) == false) return null;
-        List<InputParameter> inputParameterList = this.createMustacheDataFromYaml(inputParameter);
-        return this.fullMultipleObjects(inputParameterList);
+        return this.legacy(c -> this.yamlToString(inputParameter, c));
     }
 
+    /**
+     * @deprecated use {@link #generate(InputParameter)} or {@link #generateToFile(InputParameter)}.
+     */
+    @Deprecated
     public String createFromJSONToString(InputParameter inputParameter) {
-        if (this.validateInput(inputParameter) == false) return null;
-        List<InputParameter> inputParameterList = this.createMustacheDataFromJSON(inputParameter);
-        return this.fullMultipleObjects(inputParameterList);
+        return this.legacy(c -> this.yamlToString(inputParameter, c));
+    }
+
+    /** Yaml and JSON (valid Yaml) take the same way. */
+    private String yamlToString(InputParameter inputParameter, Collector c) {
+        if (this.validateInput(inputParameter, c) == false) return null;
+        List<InputParameter> inputParameterList = this.mustacheDataFromYaml(inputParameter, c);
+        return this.fullMultipleObjects(inputParameterList, c);
     }
 
     /**
@@ -350,7 +534,7 @@ public class Joaswizard implements Constants {
      * @param inputParameter
      * @return true if valid.
      */
-    private boolean validateInput(InputParameter inputParameter) {
+    private boolean validateInput(InputParameter inputParameter, Collector c) {
         if (inputParameter == null) return false;
         /* DEFAULT values */
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
@@ -359,40 +543,40 @@ public class Joaswizard implements Constants {
         }
         if (inputParameter.getMethodList().isEmpty()) {
             inputParameter.addMethod(InputParameter.Method.CRUD);
-            this.logWarningMessage("No REST API methods defined, setting to default CRUD.");
+            c.warning("No REST API methods defined, setting to default CRUD.");
         }
         boolean valid = false;
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.EXCEL) {
             valid = (inputParameter.getInputFile() != null || inputParameter.getInputStream() != null) && inputParameter.getMethodList().isEmpty() == false;
             if (valid == false) {
-                this.logErrorMessage("Input parameter are not sufficient. Please define input file or input stream.");
+                c.error("Input parameter are not sufficient. Please define input file or input stream.");
                 return false;
             }
         } else if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.JSONFILE) {
             valid = inputParameter.getInputFile() != null && inputParameter.getResource() != null && inputParameter.getResourceId() != null;
             if (valid == false) {
-                this.logErrorMessage("Input parameter for a " + formatName(inputParameter) + " file are not sufficient. Please define input file, resourceId and resource.");
+                c.error("Input parameter for a " + formatName(inputParameter) + " file are not sufficient. Please define input file, resourceId and resource.");
                 return false;
             }
         } else if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING || inputParameter.getSourceType() == InputParameter.Sourcetype.JSONSTRING) {
             valid = inputParameter.getSampleYamlData() != null && inputParameter.getResource() != null && inputParameter.getResourceId() != null;
             if (valid == false) {
-                this.logErrorMessage("Input parameter for a " + formatName(inputParameter) + " String are not sufficient. Please define sample data, resourceId and resource.");
+                c.error("Input parameter for a " + formatName(inputParameter) + " String are not sufficient. Please define sample data, resourceId and resource.");
                 return false;
             }
         }
         if (inputParameter.getResource() == null && inputParameter.getSourceType() != InputParameter.Sourcetype.EXCEL) {
-            this.logErrorMessage("Resource must be set. Define resouce (object name).");
+            c.error("Resource must be set. Define resouce (object name).");
             return false;
         }
         if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.JSONFILE) {
             if (Util.fileExists(inputParameter.getInputFile()) == false) {
-                this.logErrorMessage(formatName(inputParameter) + " file not found: " + inputParameter.getInputFile());
+                c.error(formatName(inputParameter) + " file not found: " + inputParameter.getInputFile());
                 return false;
             }
             inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
             if (inputParameter.getSampleYamlData() == null) {
-                this.logErrorMessage("No " + formatName(inputParameter) + " data provided.");
+                c.error("No " + formatName(inputParameter) + " data provided.");
                 return false;
             }
         }
@@ -403,15 +587,16 @@ public class Joaswizard implements Constants {
      * @param inputParameter
      * @return
      */
-    private String fromPathsTemplate(InputParameter inputParameter) {
+    private String fromPathsTemplate(InputParameter inputParameter, Collector c) {
         logger.fine(inputParameter.toString());
-        Handlebars mf = new Handlebars();
+        Handlebars mf = YamlScalar.newHandlebars();
         String result = null;
         try {
             Template template = mf.compile(pathComponentCrudTemplate);
             result = template.apply(inputParameter);
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Creating CRUD path component failed.", e);
+            c.error("Creating CRUD path component failed: " + e.getLocalizedMessage());
         }
         return nextLine + result;
     }
@@ -439,12 +624,24 @@ public class Joaswizard implements Constants {
         return in;
     }
 
+    /**
+     * @deprecated internal step of the generation, use {@link #generate(InputParameter)}.
+     */
+    @Deprecated
     public List<InputParameter> createMustacheDataFromJSON(InputParameter mainInputParameter) {
         // JSON is valid Yaml.
         return this.createMustacheDataFromYaml(mainInputParameter);
     }
 
+    /**
+     * @deprecated internal step of the generation, use {@link #generate(InputParameter)}.
+     */
+    @Deprecated
     public List<InputParameter> createMustacheDataFromYaml(InputParameter mainInputParameter) {
+        return this.legacy(c -> this.mustacheDataFromYaml(mainInputParameter, c));
+    }
+
+    private List<InputParameter> mustacheDataFromYaml(InputParameter mainInputParameter, Collector c) {
         /** if STRING the data are already there. */
         LinkedHashMap<String, Object> allObjectsMap = null;
 
@@ -456,7 +653,7 @@ public class Joaswizard implements Constants {
             }
         } catch (Exception e) {
             String source = mainInputParameter.getInputFile() != null ? "file " + mainInputParameter.getInputFile() : "string";
-            this.logErrorMessage("Could not parse input (" + source + "): not valid Yaml/JSON.");
+            c.error("Could not parse input (" + source + "): not valid Yaml/JSON.");
             return null;
         }
 
@@ -466,7 +663,7 @@ public class Joaswizard implements Constants {
             InputParameter inputParameter = new InputParameter(mainInputParameter);
             max++;
             if (max > inputParameter.getMaxobjects()) {
-                this.logWarningMessage(maxObjectsMessage(inputParameter.getMaxobjects()));
+                c.warning(maxObjectsMessage(inputParameter.getMaxobjects()));
                 break;
             }
             HashMap<String, Object> resultMap = new HashMap<>();
@@ -556,7 +753,7 @@ public class Joaswizard implements Constants {
      *
      * @return
      */
-    private HashMap<String, Object> createMustacheDataFromExcel(InputParameter inputParameter, List<Map<String, String>> mapList) {
+    private HashMap<String, Object> createMustacheDataFromExcel(InputParameter inputParameter, List<Map<String, String>> mapList, Collector c) {
         HashMap<String, Object> resultMap = new HashMap<>();
         List<PropertyData> list = new ArrayList<>();
 
@@ -568,7 +765,7 @@ public class Joaswizard implements Constants {
         String logPrefix = "Sheet " + inputParameter.getResource() + ": ";
         int idx = 0;
         int countEmpty = 0;
-        checkHeaderValidity(mapList.get(0), inputParameter.getResource());
+        checkHeaderValidity(mapList.get(0), inputParameter.getResource(), c);
         /** Define each property of one object. */
         for (Map<String, String> sheetMap : mapList) {
             CaseInsensitiveMap<String, String> sheetCIMap = new CaseInsensitiveMap(sheetMap);
@@ -589,7 +786,7 @@ public class Joaswizard implements Constants {
             }
             if (key == null || key.equals("")) {
                 key = UNDEFINED;
-                this.logWarningMessage(logPrefix + "Excel header '" + Header.NAME + "' is missing'. Name of object will be 'undefined'.");
+                c.warning(logPrefix + "Excel header '" + Header.NAME + "' is missing'. Name of object will be 'undefined'.");
             } else key = key.trim();
             logger.fine(logPrefix + "Line " + idx + ", key: " + key);
 
@@ -617,8 +814,8 @@ public class Joaswizard implements Constants {
             }
             if ((type == null || type.equals(""))) {
                 if (inputParameter.isStopOnError()) {
-                    this.logErrorMessage("Type mapping error in line " + idx + ", key: " + key);
-                    this.logErrorMessage("Type cannot be mapped or is not valid. Breaking because stopOnError is set to true.");
+                    c.error("Type mapping error in line " + idx + ", key: " + key);
+                    c.error("Type cannot be mapped or is not valid. Breaking because stopOnError is set to true.");
                     return null;
                 }
                 if (sampleValue != null) {
@@ -629,7 +826,7 @@ public class Joaswizard implements Constants {
             } else if (type != null) {
                 type = type.trim().toLowerCase();
                 if (Arrays.asList(DATATYPELIST).contains(type) == false) {
-                    this.logWarningMessage(logPrefix + "row " + (idx + 1) + ", property '" + key + "': type '" + type + "' is not valid, using string.");
+                    c.warning(logPrefix + "row " + (idx + 1) + ", property '" + key + "': type '" + type + "' is not valid, using string.");
                     type = "string";
                 }
             }
@@ -664,7 +861,7 @@ public class Joaswizard implements Constants {
                 if (((type.equalsIgnoreCase("number") || type.equalsIgnoreCase("integer")) && format.equalsIgnoreCase("string"))
                         || (type.equalsIgnoreCase("number") && (format.equalsIgnoreCase("int32") || format.equalsIgnoreCase("int64")))
                         || (type.equalsIgnoreCase("integer") && (format.equalsIgnoreCase("float") || format.equalsIgnoreCase("double")))) {
-                    this.logWarningMessage(logPrefix + "Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);
+                    c.warning(logPrefix + "Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);
                     propertyData.setFormat(null);
                 } else propertyData.setFormat(format.trim());
             }
@@ -679,12 +876,15 @@ public class Joaswizard implements Constants {
 //            }
             String oasDescription = sheetCIMap.get(Header.OASDESCRIPTION);
             if (oasDescription != null && oasDescription.isEmpty() == false && oasDescription.isBlank() == false) {
-                //Do some cleanup otherwise it would invalidate the OAS3.
-                oasDescription = oasDescription.replace('\'', ' ').replace('"', ' ');
-                propertyData.setDescriptionApostrophe(oasDescription);
+                propertyData.setDescription(oasDescription);
             }
 
-            propertyData.setPattern(sheetCIMap.get(Header.OASPATTERN.toString()));
+            String pattern = sheetCIMap.get(Header.OASPATTERN.toString());
+            /* Older mappings contained the pattern already wrapped in apostrophes (raw insertion). */
+            if (pattern != null && pattern.length() > 2 && pattern.startsWith("'") && pattern.endsWith("'")) {
+                pattern = pattern.substring(1, pattern.length() - 1);
+            }
+            propertyData.setPattern(pattern);
 
             if (sheetCIMap.containsKey(Header.OASREQUIRED)) {
                 propertyData.setRequired(Boolean.parseBoolean(sheetCIMap.get(Header.OASREQUIRED)));
@@ -694,13 +894,13 @@ public class Joaswizard implements Constants {
                 propertyData.setRequired(true);
             }
 
-            propertyData.setEnumvalues(this.getOasEnum(sheetCIMap.get(Header.OASENUM), propertyData.getType()));
+            propertyData.setEnumitems(this.getOasEnum(sheetCIMap.get(Header.OASENUM), propertyData.getType()));
 
             String max = sheetCIMap.get(Header.OASMAX);
             if (Util.isNumber(max)) {
                 propertyData.setMaxLength(Integer.parseInt(max));
             } else if (max != null && max.equals("") == false) {
-                this.logWarningMessage(logPrefix + "Value for maxLength is not a number: " + max);
+                c.warning(logPrefix + "Value for maxLength is not a number: " + max);
             }
             list.add(propertyData);
         }
@@ -709,60 +909,40 @@ public class Joaswizard implements Constants {
         return resultMap;
     }
 
-    private void checkHeaderValidity(Map<String, String> map, String sheetName) {
+    private void checkHeaderValidity(Map<String, String> map, String sheetName, Collector c) {
         if (map == null) return;
         for (String key : map.keySet()) {
             if (key == null || key.isEmpty()) continue;
             try {
                 Header header = Header.valueOf(key.toUpperCase());
             } catch (IllegalArgumentException iae) {
-                this.logWarningMessage("Unknown Excel header: '" + key + "' in sheet " + sheetName + ".");
+                c.warning("Unknown Excel header: '" + key + "' in sheet " + sheetName + ".");
             }
         }
     }
 
-    private String getOasEnum(String e, String type) {
-        StringBuilder b = null;
-        if (e != null && e.equals("") == false) {
-            b = new StringBuilder();
-            String[] s = e.split(",");
-
-            boolean notfirst = false;
-            for (String item : s) {
-                if (notfirst) b.append("          ");
-                notfirst = true;
-                /* Numbers need an enclosing apostrophe. */
-                if (type.equalsIgnoreCase("string")) {
-                    if (Util.isNumber(item)) {
-                        item = "'" + item + "'";
-                    }
-                }
-                b.append("- ").append(item).append(nextLine);
-            }
-            b.deleteCharAt(b.length() - 1);
-//            sampleData.setEnumvalues(b.toString());
+    private List<PropertyData.EnumItem> getOasEnum(String e, String type) {
+        if (e == null || e.equals("")) return null;
+        boolean string = type != null && type.equalsIgnoreCase("string");
+        List<PropertyData.EnumItem> items = new ArrayList<>();
+        for (String item : e.split(",")) {
+            items.add(new PropertyData.EnumItem(item.trim(), string));
         }
-        if (b == null) return null;
-        return b.toString();
+        return items;
     }
 
     //TODO set resource ?
-    private List<InputParameter> createExcelInputParameterList(HashMap<String, List<Map<String, String>>> map, InputParameter in) {
+    private List<InputParameter> createExcelInputParameterList(HashMap<String, List<Map<String, String>>> map, InputParameter in, Collector c) {
         List<InputParameter> result = new ArrayList<>();
         for (String index : map.keySet()) {
             List<Map<String, String>> mapList = map.get(index);
             StringBuilder yaml = new StringBuilder(index + ": " + "´\n");
             InputParameter inputParameter = new InputParameter(in);
             inputParameter.setResource(index);
-            inputParameter.setSchemaData(this.createMustacheDataFromExcel(inputParameter, mapList));
+            inputParameter.setSchemaData(this.createMustacheDataFromExcel(inputParameter, mapList, c));
             result.add(inputParameter);
         }
         return result;
-    }
-
-    private void logErrorMessage(String message) {
-        logger.severe(message);
-        this.errorMessage = message;
     }
 
     private static String maxObjectsMessage(int max) {
@@ -773,12 +953,4 @@ public class Joaswizard implements Constants {
         InputParameter.Sourcetype type = inputParameter.getSourceType();
         return (type == InputParameter.Sourcetype.JSONFILE || type == InputParameter.Sourcetype.JSONSTRING) ? "JSON" : "Yaml";
     }
-
-    private void logWarningMessage(String message) {
-        logger.warning(message);
-        this.warningMessage = message;
-    }
 }
-    
-    
-

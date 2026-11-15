@@ -61,4 +61,24 @@ class UtilTest {
         assertEquals(java.util.Arrays.asList("z", "a", "m"), new java.util.ArrayList<>(m.keySet()));
         assertEquals(1, m.get("z"));
     }
+
+    @Test
+    void testGetJsonAsMapDefaultMapping() {
+        org.apache.commons.collections4.map.CaseInsensitiveMap<String, java.util.HashMap<String, String>> map = Util.getJsonAsMap("mapping.json");
+        assertNotNull(map);
+        assertFalse(map.isEmpty());
+        assertEquals("string", map.get("VARCHAR").get(Header.OASTYPE.toString()));
+        assertEquals("string", map.get("varchar").get(Header.OASTYPE.toString()));
+    }
+
+    @Test
+    void testGetJsonAsMapMalformed(@TempDir Path dir) throws Exception {
+        Path bad = dir.resolve("bad.json");
+        Files.write(bad, "[ {\"dbtype\": \"x\", ".getBytes(StandardCharsets.UTF_8));
+        assertNull(Util.getJsonAsMap(bad.toString()));
+        Path notArray = dir.resolve("obj.json");
+        Files.write(notArray, "{\"dbtype\": \"x\"}".getBytes(StandardCharsets.UTF_8));
+        assertNull(Util.getJsonAsMap(notArray.toString()));
+        assertNull(Util.getJsonAsMap(dir.resolve("missing.json").toString()));
+    }
 }

@@ -1,13 +1,10 @@
 package ch.inss.openapi.joaswizard;
 
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -17,10 +14,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.function.Consumer;
 
 public class Util implements Constants {
 
@@ -29,9 +27,13 @@ public class Util implements Constants {
     static boolean writeStringToData(String userFolder, String data, String file) {
         if (userFolder == null) userFolder = ".";
         if (file == null) file = DEFAULT_OUTPUT_FILE;
+        return writeToPath(Paths.get(userFolder + sep + file), data);
+    }
+
+    /** Writes UTF-8 data to the path and creates missing parent folders. */
+    static boolean writeToPath(Path path, String data) {
         if (data == null) data = "";
         try {
-            Path path = Paths.get(userFolder + sep + file);
             Path parent = path.toAbsolutePath().getParent();
             if (parent != null) {
                 Files.createDirectories(parent);
@@ -39,7 +41,7 @@ public class Util implements Constants {
             Files.write(path, data.getBytes(StandardCharsets.UTF_8));
             return true;
         } catch (IOException | RuntimeException e) {
-            logger.severe("Writing file failed: " + userFolder + sep + file + ": " + e);
+            logger.severe("Writing file failed: " + path + ": " + e);
             return false;
         }
     }
@@ -85,6 +87,7 @@ public class Util implements Constants {
     String readFromClasspath(String file) {
 //        File filePath = new File(file);
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(file);
+        if (inputStream == null) return null;
 //        StringWriter writer = new StringWriter();
         StringBuilder textBuilder = new StringBuilder();
 //        try {
@@ -149,24 +152,23 @@ public class Util implements Constants {
             }
             if (file == null) return null;
 
-            JSONParser parser = new JSONParser();
-            JSONArray obj = (JSONArray) parser.parse(file);
-            Consumer<Object> lambdaExpression = x -> {
-                JSONObject jsonObject = (JSONObject) x;
+            // JSON is valid Yaml, so the (safe) Yaml parser reads the mapping file.
+            Object parsed = new Yaml(new SafeConstructor(new LoaderOptions())).load(file);
+            if (!(parsed instanceof List)) {
+                logger.log(Level.SEVERE, "Parsing mapping JSON failed: not a JSON array.");
+                return null;
+            }
+            for (Object entry : (List<?>) parsed) {
+                Map<?, ?> jsonObject = (Map<?, ?>) entry;
                 HashMap<String, String> map = new HashMap<>();
                 String dbtype = (String) jsonObject.get(Header.DBTYPE.toString().toLowerCase());
-                String oastype = (String) jsonObject.get(Header.OASTYPE.toString().toLowerCase());
-                String oasformat = (String) jsonObject.get(Header.OASFORMAT.toString().toLowerCase());
-                String oaspattern = (String) jsonObject.get(Header.OASPATTERN.toString().toLowerCase());
-                map.put(Header.OASTYPE.toString(), oastype);
-                map.put(Header.OASFORMAT.toString(), oasformat);
-                map.put(Header.OASPATTERN.toString(), oaspattern);
+                map.put(Header.OASTYPE.toString(), (String) jsonObject.get(Header.OASTYPE.toString().toLowerCase()));
+                map.put(Header.OASFORMAT.toString(), (String) jsonObject.get(Header.OASFORMAT.toString().toLowerCase()));
+                map.put(Header.OASPATTERN.toString(), (String) jsonObject.get(Header.OASPATTERN.toString().toLowerCase()));
                 resultMap.put(dbtype, map);
-            };
-            obj.stream().forEach(lambdaExpression);
-
-        } catch (ParseException pe) {
-            logger.log(Level.SEVERE, "Parsing mapping JSON failed.", pe);
+            }
+        } catch (YAMLException | ClassCastException e) {
+            logger.log(Level.SEVERE, "Parsing mapping JSON failed.", e);
             return null;
         }
         return resultMap;

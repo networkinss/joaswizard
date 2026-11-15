@@ -2,6 +2,9 @@ package ch.inss.openapi.joaswizard;
 
 import ch.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Properties of a components/schemas object.
  */
@@ -14,7 +17,7 @@ public class PropertyData {
     private Integer maxLength;
     private String format;
     private String pattern;
-    private String enumvalues;
+    private List<EnumItem> enumitems;
     private Boolean required;
     private String description;
     private Boolean isArray;
@@ -61,12 +64,33 @@ public class PropertyData {
         return required;
     }
 
-    public String getEnumvalues() {
-        return enumvalues;
+    public List<EnumItem> getEnumitems() {
+        return enumitems;
     }
 
-    public void setEnumvalues(String enumvalues) {
-        this.enumvalues = enumvalues;
+    public void setEnumitems(List<EnumItem> enumitems) {
+        this.enumitems = enumitems;
+    }
+
+    /**
+     * One enum value; asString means number-like values are quoted (string typed property).
+     */
+    public static class EnumItem {
+        private final String value;
+        private final boolean asString;
+
+        public EnumItem(String value, boolean asString) {
+            this.value = value;
+            this.asString = asString;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public boolean getAsString() {
+            return asString;
+        }
     }
 
     public void setRequired(Boolean required) {
@@ -79,10 +103,6 @@ public class PropertyData {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public void setDescriptionApostrophe(String description) {
-        this.description = "'" + description + "'";
     }
 
     public String getType() {
@@ -127,6 +147,22 @@ public class PropertyData {
         return examplevalue;
     }
 
+    /**
+     * Example for the template: a list (rendered as flow sequence) for array properties, otherwise the text.
+     */
+    public Object getExample() {
+        if (Boolean.TRUE.equals(isArray) && examplevalue != null
+                && examplevalue.startsWith("[") && examplevalue.endsWith("]")) {
+            String inner = examplevalue.substring(1, examplevalue.length() - 1);
+            List<String> items = new ArrayList<>();
+            for (String item : inner.split(",")) {
+                if (!item.trim().isEmpty()) items.add(item.trim());
+            }
+            return items;
+        }
+        return examplevalue;
+    }
+
     public void setExamplevalue(String examplevalue) {
         this.examplevalue = examplevalue;
     }
@@ -141,7 +177,7 @@ public class PropertyData {
                 ", maxLength=" + maxLength +
                 ", format='" + format + '\'' +
                 ", pattern='" + pattern + '\'' +
-                ", enumValues='" + enumvalues + '\'' +
+                ", enumItems='" + enumitems + '\'' +
                 ", required=" + required +
                 ", description='" + description + '\'' +
                 '}';

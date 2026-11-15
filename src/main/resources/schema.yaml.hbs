@@ -6,12 +6,12 @@
           items:
             type: {{typeArray}}{{/array}}{{#format}}
           format: {{format}}{{/format}}{{#pattern}}
-          pattern: {{{pattern}}}{{/pattern}}{{#enumvalues}}
-          enum:
-          {{{enumvalues}}}{{/enumvalues}}{{#minlength}}
+          pattern: {{yaml pattern}}{{/pattern}}{{#enumitems}}{{#if @first}}
+          enum:{{/if}}
+          - {{yaml value string=asString}}{{/enumitems}}{{#minlength}}
           minLength: {{minlength}}{{/minlength}}{{#maxLength}}
           maxLength: {{maxLength}}{{/maxLength}}{{#examplevalue}}
-          example: {{{examplevalue}}}{{/examplevalue}}{{#description}}
-          description: {{{description}}}{{/description}}{{/data}}
+          example: {{yaml example}}{{/examplevalue}}{{#description}}
+          description: {{yaml description}}{{/description}}{{/data}}
       required:{{#data}}{{#required}}
       - {{lowKey}}{{/required}}{{/data}}

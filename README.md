@@ -151,8 +151,40 @@ With all parameters. Jo would ask for skipped parameters, if any.
 
 ### as a library
 
-Simply define an object of the class InputParameter.  
-Use any of the public methods of the class Joaswizard.
+Define an object of the class InputParameter and call `generate` (returns the OpenAPI document as string) or
+`generateToFile` (also writes it to `InputParameter.getOutputFile()`) of the class Joaswizard.  
+Both return a `GenerationResult`. They do not throw for invalid input and keep no state, so one `Joaswizard` instance can
+be shared between threads.
+
+```java
+InputParameter in = new InputParameter();
+in.setInputFile("Samples/pet.yml");
+in.setOutputFile("openapipet.yaml");
+in.setResource("pet");
+in.setResourceId("name");
+in.setCrud();
+
+GenerationResult result = new Joaswizard().generateToFile(in);
+for (Diagnostic warning : result.getWarnings()) {
+    System.out.println(warning);
+}
+if (result.isOk()) {
+    System.out.println("Written to " + result.getOutputFile());
+} else {
+    result.getErrors().forEach(System.err::println);
+}
+```
+
+* `getSpec()` is the OpenAPI document, `null` if the generation failed.
+* `getDiagnostics()` lists all errors and warnings in the order of occurrence (`getErrors()` and `getWarnings()` filter
+  them). Each `Diagnostic` has a `getSeverity()` (`ERROR` or `WARNING`) and a `getMessage()`.
+* `isOk()` is true if a spec was generated and there is no error.
+* `getOutputFile()` is set by `generateToFile` if the file was written. If writing fails, the result contains an error.
+
+The older methods (`createFromYamlToString`, `createFromExcelToFile`, `createCrudFrom...`, the `getErrorMessage()`
+getters and so on) are deprecated and still work as before. They are wrappers of the new methods, and the messages
+(`getErrorMessage()`, `getWarningMessage()`) now only hold the last error/warning of the latest call instead of
+leaking from earlier calls.
 
 ### Samples for library
 

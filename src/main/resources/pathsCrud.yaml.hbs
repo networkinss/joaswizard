@@ -57,7 +57,7 @@
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       requestBody:
-        x-name: {{resource}}
+        x-name: {{yaml resource}}
         content:
           application/json:
             schema:
@@ -70,7 +70,7 @@
       summary: Returns {{lowerResource}} by {{resourceId}}
       operationId: find{{capResource}}By{{resourceId}}
       parameters:
-        - name: {{resourceId}}
+        - name: {{yaml resourceId}}
           in: path
           description: {{resourceId}} of {{resource}} to fetch
           required: true
@@ -112,7 +112,7 @@
       summary: Deletes {{lowerResource}} by {{resourceId}}
       operationId: delete{{capResource}}
       parameters:
-        - name: {{resourceId}}
+        - name: {{yaml resourceId}}
           in: path
           description: ID of {{resource}} to delete
           required: true
@@ -150,7 +150,7 @@
       summary: Updates {{lowerResource}} by {{resourceId}}
       operationId: update{{capResource}}
       parameters:
-        - name: {{resourceId}}
+        - name: {{yaml resourceId}}
           in: path
           description: ID of {{resource}} to put
           required: true
@@ -184,7 +184,7 @@
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       requestBody:
-        x-name: {{resource}}
+        x-name: {{yaml resource}}
         content:
           application/json:
             schema:
@@ -196,7 +196,7 @@
       summary: Patches {{lowerResource}} by {{resourceId}}
       operationId: patch{{capResource}}
       parameters:
-        - name: {{resourceId}}
+        - name: {{yaml resourceId}}
           in: path
           description: ID of {{resource}} to put
           required: true
@@ -230,7 +230,7 @@
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       requestBody:
-        x-name: {{resource}}
+        x-name: {{yaml resource}}
         content:
           application/json:
             schema:
