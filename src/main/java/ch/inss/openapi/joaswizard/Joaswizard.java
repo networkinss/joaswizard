@@ -6,7 +6,6 @@ import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,7 +14,7 @@ import java.util.logging.Logger;
  */
 public class Joaswizard implements Constants {
 
-    private final Logger logger;
+    private static final Logger logger = Logger.getLogger(Joaswizard.class.getName());
 
     private String errorMessage;
     private String warningMessage;
@@ -45,16 +44,6 @@ public class Joaswizard implements Constants {
         this.okMessage = okMessage;
     }
 
-    public Joaswizard() {
-        logger = Logger.getLogger(Joaswizard.class.getName());
-        for (Handler handler : logger.getHandlers()) {
-            logger.removeHandler(handler);
-        }
-        logger.addHandler(Main.consoleHandler);
-        logger.setLevel(Level.INFO);
-        logger.setUseParentHandlers(false);
-    }
-
     /**
      * OAS3 part: paths
      * Create all methods for the paths as defined in input parameter object list.
@@ -63,15 +52,15 @@ public class Joaswizard implements Constants {
      * @return String of OAS3 path section.
      */
     public String createMethodsFromList(List<InputParameter> list) {
-        logger.info("Start creating methods.");
+        logger.fine("Start creating methods.");
         if (list == null || list.isEmpty()) {
-            logger.info("Skipping methods, list is empty.");
+            logger.fine("Skipping methods, list is empty.");
             return "{}";
         }
         StringBuilder result = new StringBuilder();
         for (InputParameter inputParameter : list) {
             if (inputParameter.isDoPaths() == false) {
-                logger.info("Skipping creating methods (DoPaths = false) for " + inputParameter.getResourceId());
+                logger.fine("Skipping creating methods (DoPaths = false) for " + inputParameter.getResourceId());
                 continue;
             }
             result.append(fromPathsTemplate(inputParameter));
@@ -79,7 +68,7 @@ public class Joaswizard implements Constants {
         if (result.toString().startsWith("\n\n")) {
             result.deleteCharAt(0);
         }
-        logger.info("End creating methods.");
+        logger.fine("End creating methods.");
         return result.toString();
     }
 
@@ -92,10 +81,10 @@ public class Joaswizard implements Constants {
      */
     public String createComponentsSchemas(boolean doSchemas) {
         if (doSchemas) {
-            logger.info("Adding beginning of components schemas section and default error model.");
+            logger.fine("Adding beginning of components schemas section and default error model.");
             return new Util().readFromClasspath(componentsErrorTemplate + ".hbs") + nextLine;
         }
-        logger.info("Skipping beginning of components schemas section (doSchemaas = false).");
+        logger.fine("Skipping beginning of components schemas section (doSchemaas = false).");
         return "";
     }
 
@@ -108,9 +97,10 @@ public class Joaswizard implements Constants {
      */
     public String createSchemaObjects(InputParameter inputParameter) {
         if (inputParameter.isDoSchemas() == false) {
-            logger.info("Skipping create schema (doSchemas = false).");
+            logger.fine("Skipping create schema (doSchemas = false).");
+            return "";
         }
-        logger.info("Start creating schema objects.");
+        logger.fine("Start creating schema objects.");
         logger.fine("Input parameter: \n" + inputParameter);
         Handlebars mf = new Handlebars();
         String result = null;
@@ -129,10 +119,10 @@ public class Joaswizard implements Constants {
             sampleMap.put(OBJECTNAME, inputParameter.getCapResource());
             result = template.apply(sampleMap);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Creating OpenAPI section failed.", e);
             this.logErrorMessage(e.getLocalizedMessage());
         }
-        logger.info("End creating schema objects.");
+        logger.fine("End creating schema objects.");
         return result;
     }
 
@@ -145,10 +135,10 @@ public class Joaswizard implements Constants {
      */
     public String createInfo(InputParameter inputParameter) {
         if (inputParameter.isDoInfo() == false) {
-            logger.info("Skipping info section (doInfo = false).");
+            logger.fine("Skipping info section (doInfo = false).");
             return "";
         }
-        logger.info("Start creating info.");
+        logger.fine("Start creating info.");
         logger.fine("Input parameter: \n" + inputParameter);
         Handlebars mf = new Handlebars();
         String result = null;
@@ -164,10 +154,10 @@ public class Joaswizard implements Constants {
             }
             result = template.apply(oasInfo);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Creating OpenAPI section failed.", e);
             this.logErrorMessage(e.getLocalizedMessage());
         }
-        logger.info("End creating info.");
+        logger.fine("End creating info.");
         return result;
     }
 
@@ -181,9 +171,8 @@ public class Joaswizard implements Constants {
 //            return null;
 //        }
         inputParameter.setSourceType(InputParameter.Sourcetype.EXCEL);
-        inputParameter.setInputFile("");
         if (this.validateInput(inputParameter) == false) {
-            return this.errorMessage;
+            return null;
         }
 
         ExcelWrapper excelWrapper = new ExcelWrapper();
@@ -210,7 +199,7 @@ public class Joaswizard implements Constants {
 
         ExcelWrapper excelWrapper = new ExcelWrapper();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile(inputParameter.getInputFile());
-        if (integerListHashMap == null) return "Internal error.";
+        if (integerListHashMap == null) return null;
         List<InputParameter> inputParameterList = this.createExcelInputParameterList(integerListHashMap, inputParameter);
         return fullMultipleObjects(inputParameterList);
     }
@@ -226,7 +215,7 @@ public class Joaswizard implements Constants {
         if (result == null) return false;
         boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
-            logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
+            logger.fine("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
         } else {
             this.logErrorMessage("Could not write file " + CURRENT_FOLDER + inputParameter.getOutputFile());
         }
@@ -250,19 +239,20 @@ public class Joaswizard implements Constants {
         StringBuilder objects = new StringBuilder();
         int max = 0;
         for (InputParameter input : inputParameterList) {
+            if (max >= input.getMaxobjects()) {
+                this.logWarningMessage(maxObjectsMessage(input.getMaxobjects()));
+                break;
+            }
             resources.append(input.getResource()).append(", ");
             String result = this.createSchemaObjects(input);
             if (ERROR.equals(result)) return null;
             objects.append(result).append(nextLine);
-            if (max > input.getMaxobjects()) {
-                this.logWarningMessage("Maximum number of object (" + input.getMaxobjects() + ") is breached, next objects are skipped. There were some objects skipped because of the limitation of number objects to " + input.getMaxobjects());
-                break;
-            }
             max++;
         }
-        resources.delete(resources.length() - 2, resources.length());
-        inputParameterList.get(0).setResource(resources.toString());
-        String info = this.createInfo(inputParameterList.get(0));
+        if (resources.length() >= 2) resources.delete(resources.length() - 2, resources.length());
+        InputParameter infoParameter = new InputParameter(inputParameterList.get(0));
+        infoParameter.setResource(resources.toString());
+        String info = this.createInfo(infoParameter);
         String components = this.createComponentsSchemas(inputParameterList.get(0).isDoSchemas());
         return info + paths + nextLine + components + objects;
     }
@@ -274,13 +264,13 @@ public class Joaswizard implements Constants {
      * @return true if file was created.
      */
     public boolean createCrudFromYamlToFile(InputParameter inputParameter) {
-        logger.info("Jo starts to create crud file from Yaml input.");
+        logger.fine("Jo starts to create crud file from Yaml input.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
         return this.createFromYamlToFile(inputParameter);
     }
 
     public boolean createCrudFromJSONToFile(InputParameter inputParameter) {
-        logger.info("Jo starts to create crud file from JSON input.");
+        logger.fine("Jo starts to create crud file from JSON input.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
         return this.createFromJSONToFile(inputParameter);
     }
@@ -298,7 +288,7 @@ public class Joaswizard implements Constants {
         if (result == null) return false;
         boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
-            logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
+            logger.fine("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
         } else {
             this.logErrorMessage("Could not write file " + CURRENT_FOLDER + inputParameter.getOutputFile());
         }
@@ -310,7 +300,7 @@ public class Joaswizard implements Constants {
         if (result == null) return false;
         boolean ok = Util.writeStringToData(CURRENT_FOLDER, result, inputParameter.getOutputFile());
         if (ok) {
-            logger.info("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
+            logger.fine("OpenAPI content written to " + inputParameter.getOutputFile() + ".");
         } else {
             this.logErrorMessage("Could not write file " + CURRENT_FOLDER + inputParameter.getOutputFile());
         }
@@ -325,7 +315,7 @@ public class Joaswizard implements Constants {
      * @return String with full OAS3 document with CRUD operations. Can be null in case an error occured. Like e.g. input was not in Yaml format.
      */
     public String createCrudFromYamlToString(InputParameter inputParameter) {
-        logger.info("Jo starts to create crud file from Yaml input.");
+        logger.fine("Jo starts to create crud file from Yaml input.");
         inputParameter.addMethod(InputParameter.Method.CRUD);
         String result = this.createFromYamlToString(inputParameter);
         if (result == null) {
@@ -365,7 +355,7 @@ public class Joaswizard implements Constants {
         /* DEFAULT values */
         if (inputParameter.getOutputFile() == null || inputParameter.getOutputFile().equals("")) {
             inputParameter.setOutputFile(DEFAULT_OUTPUT_FILE);
-            logger.info("No output file defined, setting to default " + DEFAULT_OUTPUT_FILE + ".");
+            logger.fine("No output file defined, setting to default " + DEFAULT_OUTPUT_FILE + ".");
         }
         if (inputParameter.getMethodList().isEmpty()) {
             inputParameter.addMethod(InputParameter.Method.CRUD);
@@ -378,16 +368,16 @@ public class Joaswizard implements Constants {
                 this.logErrorMessage("Input parameter are not sufficient. Please define input file or input stream.");
                 return false;
             }
-        } else if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
+        } else if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.JSONFILE) {
             valid = inputParameter.getInputFile() != null && inputParameter.getResource() != null && inputParameter.getResourceId() != null;
             if (valid == false) {
-                this.logErrorMessage("Input parameter for a Yaml file are not sufficient. Please define input file, resourceId and resource.");
+                this.logErrorMessage("Input parameter for a " + formatName(inputParameter) + " file are not sufficient. Please define input file, resourceId and resource.");
                 return false;
             }
-        } else if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING) {
+        } else if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLSTRING || inputParameter.getSourceType() == InputParameter.Sourcetype.JSONSTRING) {
             valid = inputParameter.getSampleYamlData() != null && inputParameter.getResource() != null && inputParameter.getResourceId() != null;
             if (valid == false) {
-                this.logErrorMessage("Input parameter for a Yaml String are not sufficient. Please define sample data, resourceId and resource.");
+                this.logErrorMessage("Input parameter for a " + formatName(inputParameter) + " String are not sufficient. Please define sample data, resourceId and resource.");
                 return false;
             }
         }
@@ -395,14 +385,14 @@ public class Joaswizard implements Constants {
             this.logErrorMessage("Resource must be set. Define resouce (object name).");
             return false;
         }
-        if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE) {
+        if (inputParameter.getSourceType() == InputParameter.Sourcetype.YAMLFILE || inputParameter.getSourceType() == InputParameter.Sourcetype.JSONFILE) {
             if (Util.fileExists(inputParameter.getInputFile()) == false) {
-                this.logErrorMessage("Yaml file not found: " + inputParameter.getInputFile());
+                this.logErrorMessage(formatName(inputParameter) + " file not found: " + inputParameter.getInputFile());
                 return false;
             }
             inputParameter.setSampleYamlData(Util.readFromFile(inputParameter.getInputFile()));
             if (inputParameter.getSampleYamlData() == null) {
-                this.logErrorMessage("No Yaml data provided.");
+                this.logErrorMessage("No " + formatName(inputParameter) + " data provided.");
                 return false;
             }
         }
@@ -421,7 +411,7 @@ public class Joaswizard implements Constants {
             Template template = mf.compile(pathComponentCrudTemplate);
             result = template.apply(inputParameter);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Creating CRUD path component failed.", e);
         }
         return nextLine + result;
     }
@@ -439,19 +429,19 @@ public class Joaswizard implements Constants {
         in.setOutputFile(DEFAULT_OUTPUT_FILE);
         in.setResource(resource);
         in.setResourceId("ID");
-        if (sourcetype.equals(InputParameter.Sourcetype.YAMLFILE.toString()) || sourcetype.equals(InputParameter.Sourcetype.EXCEL.toString())) {
+        if (sourcetype.equalsIgnoreCase(InputParameter.Sourcetype.YAMLFILE.toString()) || sourcetype.equalsIgnoreCase(InputParameter.Sourcetype.EXCEL.toString())) {
             in.setInputFile(input);
-        } else if (sourcetype.equals(InputParameter.Sourcetype.YAMLSTRING.toString())) {
+        } else if (sourcetype.equalsIgnoreCase(InputParameter.Sourcetype.YAMLSTRING.toString())) {
             in.setSampleYamlData(input);
-        } else if (sourcetype.equals(InputParameter.Sourcetype.YAMLSTRINGBASE64)) {
+        } else if (sourcetype.equalsIgnoreCase(InputParameter.Sourcetype.YAMLSTRINGBASE64.toString())) {
             in.setSampleYamlBase64(input);
         }
         return in;
     }
 
     public List<InputParameter> createMustacheDataFromJSON(InputParameter mainInputParameter) {
-        //TODO
-        return null;
+        // JSON is valid Yaml.
+        return this.createMustacheDataFromYaml(mainInputParameter);
     }
 
     public List<InputParameter> createMustacheDataFromYaml(InputParameter mainInputParameter) {
@@ -465,8 +455,8 @@ public class Joaswizard implements Constants {
                 return null;
             }
         } catch (Exception e) {
-            this.logErrorMessage("Could not read Yaml file: " + mainInputParameter.getInputFile() + ". Check if it has Yaml format.");
-            this.setErrorMessage("Input is not Yaml format.");
+            String source = mainInputParameter.getInputFile() != null ? "file " + mainInputParameter.getInputFile() : "string";
+            this.logErrorMessage("Could not parse input (" + source + "): not valid Yaml/JSON.");
             return null;
         }
 
@@ -476,7 +466,7 @@ public class Joaswizard implements Constants {
             InputParameter inputParameter = new InputParameter(mainInputParameter);
             max++;
             if (max > inputParameter.getMaxobjects()) {
-                this.warningMessage = this.warningMessage + " There were some objects skipped because of the limitation of number objects to " + inputParameter.getMaxobjects();
+                this.logWarningMessage(maxObjectsMessage(inputParameter.getMaxobjects()));
                 break;
             }
             HashMap<String, Object> resultMap = new HashMap<>();
@@ -485,7 +475,7 @@ public class Joaswizard implements Constants {
 //        String firstKey = map.keySet().iterator().next();
             /** Read input data sample. */
             Object ob = allObjectsMap.get(key);
-            String cl = ob.getClass().toString();
+            String cl = ob == null ? "" : ob.getClass().toString();
             if (cl.equals("class java.util.LinkedHashMap")) {
                 propMap = (LinkedHashMap<String, Object>) ob;
                 inputParameter.setResource(key); //TODO
@@ -498,7 +488,8 @@ public class Joaswizard implements Constants {
             /** Loop for the properties of one object. */
             List<PropertyData> list = new ArrayList<>();
             for (String propKey : propMap.keySet()) {
-                String value = propMap.get(propKey).toString().trim();  //TODO check null ?
+                Object rawValue = propMap.get(propKey);
+                String value = rawValue == null ? "" : rawValue.toString().trim();
                 boolean isNumeric = true;
                 boolean isArray = false;
                 boolean isNumber = false;
@@ -591,7 +582,7 @@ public class Joaswizard implements Constants {
                 logger.fine(logPrefix + "Empty row or not enough data to build an OAS3 schema object (at line: " + idx + ").");
                 countEmpty++;
                 if (countEmpty > 2) {
-                    logger.info(logPrefix + "Found 3 or more empty lines beginning row " + (idx - 1) + ", assuming no more data and stop reading lines here..");
+                    logger.fine(logPrefix + "Found 3 or more empty lines beginning row " + (idx - 1) + ", assuming no more data and stop reading lines here..");
                     break;
                 }
                 continue;
@@ -638,7 +629,7 @@ public class Joaswizard implements Constants {
             } else if (type != null) {
                 type = type.trim().toLowerCase();
                 if (Arrays.asList(DATATYPELIST).contains(type) == false) {
-                    this.logWarningMessage(logPrefix + "Type not valid: " + type + ". Jo changes type to string.");
+                    this.logWarningMessage(logPrefix + "row " + (idx + 1) + ", property '" + key + "': type '" + type + "' is not valid, using string.");
                     type = "string";
                 }
             }
@@ -672,7 +663,7 @@ public class Joaswizard implements Constants {
             if (format != null) {
                 if (((type.equalsIgnoreCase("number") || type.equalsIgnoreCase("integer")) && format.equalsIgnoreCase("string"))
                         || (type.equalsIgnoreCase("number") && (format.equalsIgnoreCase("int32") || format.equalsIgnoreCase("int64")))
-                        || (type.equalsIgnoreCase("integer") && (format.equalsIgnoreCase("flaot") || format.equalsIgnoreCase("double")))) {
+                        || (type.equalsIgnoreCase("integer") && (format.equalsIgnoreCase("float") || format.equalsIgnoreCase("double")))) {
                     this.logWarningMessage(logPrefix + "Check if type and format fit together for dataline " + idx + ". Type: " + type + ", format: " + format);
                     propertyData.setFormat(null);
                 } else propertyData.setFormat(format.trim());
@@ -721,7 +712,7 @@ public class Joaswizard implements Constants {
     private void checkHeaderValidity(Map<String, String> map, String sheetName) {
         if (map == null) return;
         for (String key : map.keySet()) {
-            if (key == "") continue;
+            if (key == null || key.isEmpty()) continue;
             try {
                 Header header = Header.valueOf(key.toUpperCase());
             } catch (IllegalArgumentException iae) {
@@ -772,6 +763,15 @@ public class Joaswizard implements Constants {
     private void logErrorMessage(String message) {
         logger.severe(message);
         this.errorMessage = message;
+    }
+
+    private static String maxObjectsMessage(int max) {
+        return "Maximum number of objects (" + max + ") reached, further objects are skipped.";
+    }
+
+    private static String formatName(InputParameter inputParameter) {
+        InputParameter.Sourcetype type = inputParameter.getSourceType();
+        return (type == InputParameter.Sourcetype.JSONFILE || type == InputParameter.Sourcetype.JSONSTRING) ? "JSON" : "Yaml";
     }
 
     private void logWarningMessage(String message) {

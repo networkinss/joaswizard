@@ -31,3 +31,6 @@ gen
 /Samples/openapi_fromparameters.yaml
 /pom.xml.versionsBackup
 /src/test/resources/.~lock.mySQLObjectimport.xlsx#
+
+CLAUDE.md
+/todo/

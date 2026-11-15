@@ -11,16 +11,19 @@ import java.util.logging.Logger;
 public class Main implements Constants {
 
     private static Logger logger = null;
-    public static ConsoleHandler consoleHandler = new ConsoleHandler();
+    /** Strong reference, so the configured package logger is not garbage collected. */
+    private static Logger libraryLogger = null;
+    private static final ConsoleHandler consoleHandler = new ConsoleHandler();
 
     static {
         consoleHandler.setLevel(Level.ALL);
         Formatter formatter = new LogFormatter();
         consoleHandler.setFormatter(formatter);
+        libraryLogger = Logger.getLogger("ch.inss.openapi.joaswizard");
+        libraryLogger.addHandler(consoleHandler);
+        libraryLogger.setLevel(Level.INFO);
+        libraryLogger.setUseParentHandlers(false);
         logger = Logger.getLogger(Main.class.getName());
-        logger.addHandler(consoleHandler);
-        logger.setLevel(Level.INFO);
-        logger.setUseParentHandlers(false);
     }
 
     /**

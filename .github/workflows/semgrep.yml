@@ -1,0 +1,26 @@
+name: Semgrep
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - develop
+      - master
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    name: Semgrep scan
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    # Dependabot PRs have no access to repository secrets.
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v4
+      - run: semgrep ci
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}

@@ -503,7 +503,7 @@ class JoaswizardTest implements Constants {
         String output = jo.createCrudFromYamlToString(inputParameter);
 
         assertNotNull(output);
-        Assertions.assertTrue(jo.getErrorMessage().equals("Input is not Yaml format."));
+        Assertions.assertTrue(jo.getErrorMessage().equals("Could not parse input (string): not valid Yaml/JSON."));
     }
 
     @Test

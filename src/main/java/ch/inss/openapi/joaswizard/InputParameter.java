@@ -4,8 +4,6 @@ import ch.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.*;
-import java.util.logging.Handler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class InputParameter {
@@ -47,7 +45,7 @@ public class InputParameter {
     private final String openCurlyBrace = "{";
     private final String closeCurlyBrace = "}";
 
-    private Logger logger = null;
+    private static final Logger logger = Logger.getLogger(InputParameter.class.getName());
 
     public InputParameter(String inputFile, String outputFile, Sourcetype sourceType, Set<Method> methods, String mappingFile, boolean prefixMatch) {
         this.inputFile = inputFile;
@@ -71,8 +69,11 @@ public class InputParameter {
         this.tags = in.getTags();
         this.arrayItems = in.getArrayItems();
         this.sourceType = in.getSourceType();
-        this.methods = in.getMethodList();
-        this.schemaData = in.getSchemaData();
+        this.methods = in.getMethodList() == null ? null : new HashSet<>(in.getMethodList());
+        this.schemaData = in.getSchemaData() == null ? null : new HashMap<>(in.getSchemaData());
+        this.doInfo = in.isDoInfo();
+        this.doPaths = in.isDoPaths();
+        this.doSchemas = in.isDoSchemas();
         this.stopOnError = in.isStopOnError();
         this.doDefaultSamples = in.isDoDefaultSamples();
         this.prefixMatch = in.isPrefixMatch();
@@ -92,13 +93,6 @@ public class InputParameter {
     }
 
     private void initialize() {
-        logger = Logger.getLogger(InputParameter.class.getName());
-        for (Handler handler : logger.getHandlers()) {
-            logger.removeHandler(handler);
-        }
-        logger.addHandler(Main.consoleHandler);
-        logger.setLevel(Level.INFO);
-        logger.setUseParentHandlers(false);
         this.oasInfo = new OasInfo();
     }
 
@@ -225,11 +219,11 @@ public class InputParameter {
     }
 
     public String getCapResource() {
-        return StringUtils.capitalize(resource.toLowerCase());
+        return StringUtils.capitalize(resource.toLowerCase(Locale.ROOT));
     }
 
     public String getCapResources() {
-        return StringUtils.capitalize(resource) + "s";
+        return getCapResource() + "s";
     }
 
     public String getResource() {
@@ -350,6 +344,10 @@ public class InputParameter {
      * @param inputFile Path to the input file.
      */
     public void setInputFile(String inputFile) {
+        this.inputFile = inputFile;
+        if (inputFile == null) {
+            return;
+        }
         int pos = inputFile.lastIndexOf(".");
         if (pos < 1) {
             return;
@@ -359,10 +357,9 @@ public class InputParameter {
             this.setSourceType(Sourcetype.YAMLFILE);
         } else if (suffix.equalsIgnoreCase(".xls") || suffix.equalsIgnoreCase(".xlsx")) {
             this.setSourceType(Sourcetype.EXCEL);
-        } else {
-            this.setSourceType(Sourcetype.YAMLSTRING);
+        } else if (suffix.equalsIgnoreCase(".json")) {
+            this.setSourceType(Sourcetype.JSONFILE);
         }
-        this.inputFile = inputFile;
     }
 
     public InputStream getInputStream() {
