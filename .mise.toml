@@ -1,4 +1,4 @@
 [tools]
-node = "20"
+node = "24.22.3"
 gh = "latest"
 
