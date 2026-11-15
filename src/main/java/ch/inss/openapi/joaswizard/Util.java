@@ -5,7 +5,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -15,52 +17,46 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.function.Consumer;
 
 public class Util implements Constants {
 
-//    private static Logger logger = null;
-//    
-//    static {
-//        consoleHandler.setLevel(Level.ALL);
-//        Formatter formatter = new LogFormatter();
-//        consoleHandler.setFormatter(formatter);
-//        logger = Logger.getLogger(Util.class.getName());
-//        logger.addHandler(consoleHandler);
-//        logger.setLevel(Level.INFO);
-//        logger.setUseParentHandlers(false);
-//    }
+    private static final Logger logger = Logger.getLogger(Util.class.getName());
 
     static boolean writeStringToData(String userFolder, String data, String file) {
         if (userFolder == null) userFolder = ".";
         if (file == null) file = DEFAULT_OUTPUT_FILE;
-        Path path = Paths.get(userFolder + sep + file);
-        File folder = path.getParent().toFile();
-        if (folder.mkdirs() == false && folder.isDirectory() == false) {
+        if (data == null) data = "";
+        try {
+            Path path = Paths.get(userFolder + sep + file);
+            Path parent = path.toAbsolutePath().getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            Files.write(path, data.getBytes(StandardCharsets.UTF_8));
+            return true;
+        } catch (IOException | RuntimeException e) {
+            logger.severe("Writing file failed: " + userFolder + sep + file + ": " + e);
             return false;
         }
-        File outputFile = path.toFile();
-        FileOutputStream fos = null;
-        BufferedOutputStream bos = null;
-        try {
-            fos = new FileOutputStream(outputFile);
-            bos = new BufferedOutputStream(fos);
-            byte[] bytes = data.getBytes();
-            bos.write(bytes);
-            bos.close();
-            fos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-                bos.close();
-            } catch (IOException ioe) {
-            }
+    }
+
+    /**
+     * Reads the version filtered by Maven into version.properties. Returns "unknown" on failure.
+     */
+    static String readVersion() {
+        try (InputStream in = Util.class.getClassLoader().getResourceAsStream("version.properties")) {
+            if (in == null) return "unknown";
+            Properties props = new Properties();
+            props.load(in);
+            String v = props.getProperty("version");
+            return (v == null || v.isBlank()) ? "unknown" : v.trim();
+        } catch (IOException | RuntimeException e) {
+            return "unknown";
         }
-        return true;
     }
 
     static String readFromFile(String file) {
@@ -73,7 +69,7 @@ public class Util implements Constants {
             result = new String(Files.readAllBytes(Paths.get(file)));
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Reading file failed: " + file, e);
         }
         return result;
     }
@@ -102,7 +98,7 @@ public class Util implements Constants {
             }
 //            }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Reading classpath resource failed: " + file, e);
         }
         return textBuilder.toString();
     }
@@ -113,7 +109,8 @@ public class Util implements Constants {
      * @return
      */
     static LinkedHashMap<String, Object> readYamlFromString(String strYaml) {
-        Yaml yaml = new Yaml();
+        // SafeConstructor: input is untrusted, no arbitrary Java types (global tags are rejected).
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
         LinkedHashMap<String, Object> result = yaml.load(strYaml);
         return result;
     }
@@ -128,17 +125,16 @@ public class Util implements Constants {
 //        try {
 //            fis = new FileInputStream(inputFile);
 //        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
 //        }
 //        InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
 //        return yaml.load(isr);
 //    }
 
     /**
-     * regex =  "[0-9.]+", null = false,
+     * Optional leading minus, digits, optional single decimal part. null or blank = false.
      */
     static boolean isNumber(String str) {
-        return str != null && str.trim().matches("[0-9.]+");
+        return str != null && str.trim().matches("-?[0-9]+(\\.[0-9]+)?");
     }
 
     /**
@@ -170,7 +166,7 @@ public class Util implements Constants {
             obj.stream().forEach(lambdaExpression);
 
         } catch (ParseException pe) {
-            pe.printStackTrace();
+            logger.log(Level.SEVERE, "Parsing mapping JSON failed.", pe);
             return null;
         }
         return resultMap;

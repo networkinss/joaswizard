@@ -36,6 +36,12 @@ This library will help you in case of:
 * You want a head start without knowing OpenAPI.
 * You want to use your database structure to generate the OAS3 objects.
 
+## License
+
+The code is licensed under the faircode license:
+https://faircode.io/
+
+See LICENSE.md.
 
 ## Features
 
@@ -55,15 +61,43 @@ Nested objects.
 
 ## Build
 
-It is a normal Java Maven project. You will need Java SDK 11 and Maven to build it.  
-`mvn clean install`
-I forked Handlebars to remove logging from it. The logging binding from Handlebars can cause issues with your own
-application.
+It is a normal Java Maven project. You will need Java SDK 11 and Maven to build it.
+
+Joaswizard depends on a forked Handlebars (`com.github.jknack:handlebars`, version `4.3.2-FORK`), which is not on Maven Central.
+The original Handlebars ships with logging (slf4j) that can interfere with applications using it, so the fork removes the logging from the `handlebars` module.
+Install the fork into your local Maven repository first (https://github.com/networkinss/handlebars.java):
+
+```
+git clone https://github.com/networkinss/handlebars.java.git
+```
+
+```
+cd handlebars.java
+```
+
+```
+mvn install -pl handlebars -am -DskipTests
+```
+
+Only the `handlebars` module and its parents are built. If the full reactor of the fork fails (for example in the `handlebars-maven-plugin` modules), this command is all you need.
+
+Then build Joaswizard:
+
+```
+mvn clean install
+```
+
 To check the API style of an output:
+
 ```
 npx @stoplight/spectral-cli lint src/test/resources/testReferenceCrudMultipleYamlObject.yml -r .spectral.json
 ```
-test-results/spectral-results.xml -f junit
+
+Optionally write the result as JUnit XML:
+
+```
+npx @stoplight/spectral-cli lint src/test/resources/testReferenceCrudMultipleYamlObject.yml -r .spectral.json -o test-results/spectral-results.xml -f junit
+```
 
 ## Maven Integration
 

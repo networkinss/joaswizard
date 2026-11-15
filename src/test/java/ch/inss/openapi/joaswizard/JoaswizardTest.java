@@ -4,10 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,6 +16,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class JoaswizardTest implements Constants {
 
     private final static String output = "output" + sep;
@@ -505,7 +503,7 @@ class JoaswizardTest implements Constants {
         String output = jo.createCrudFromYamlToString(inputParameter);
 
         assertNotNull(output);
-        Assertions.assertTrue(jo.getErrorMessage().equals("Input is not Yaml format."));
+        Assertions.assertTrue(jo.getErrorMessage().equals("Could not parse input (string): not valid Yaml/JSON."));
     }
 
     @Test
