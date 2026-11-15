@@ -6,11 +6,11 @@
 
 # building
 target
-build
-tmp
-dist
-output
-gen
+/build/
+/tmp/
+/dist/
+/output/
+/gen/
 
 # misc
 .DS_Store
