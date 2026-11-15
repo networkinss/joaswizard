@@ -61,7 +61,7 @@ Nested objects.
 
 ## Build
 
-It is a normal Java Maven project. You will need Java SDK 11 and Maven to build it.
+It is a normal Java Maven project. You will need Java SDK 17 and Maven to build it.
 
 Joaswizard depends on a forked Handlebars (`com.github.jknack:handlebars`, version `4.3.2-FORK`), which is not on Maven Central.
 The original Handlebars ships with logging (slf4j) that can interfere with applications using it, so the fork removes the logging from the `handlebars` module.
