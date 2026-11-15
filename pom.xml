@@ -226,6 +226,9 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>3.12.0</version>
+            <configuration>
+              <excludePackageNames>ch.inss.openapi.joaswizard.domain:ch.inss.openapi.joaswizard.port:ch.inss.openapi.joaswizard.application:ch.inss.openapi.joaswizard.adapter.*:ch.inss.openapi.joaswizard.cli:ch.inss.openapi.joaswizard.internal.*</excludePackageNames>
+            </configuration>
             <executions>
               <execution>
                 <id>attach-javadocs</id>

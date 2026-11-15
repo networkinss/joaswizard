@@ -1,5 +1,6 @@
 package ch.inss.openapi.joaswizard;
 
+import ch.inss.openapi.joaswizard.domain.ResourceName;
 import ch.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
@@ -103,19 +104,11 @@ public class InputParameter {
      * @return if input parameter are valid.
      */
     public boolean checkValid() {
-        boolean valid = false;
-        if (this.sourceType == Sourcetype.EXCEL) {
-            valid = (this.inputFile != null || this.inputStream != null) && this.methods != null;
-        } else if (this.sourceType == Sourcetype.YAMLFILE) {
-            valid = this.inputFile != null && this.resource != null && this.resourceId != null;
-        } else if (this.sourceType == Sourcetype.YAMLSTRING) {
-            valid = this.sampleYamlData != null && this.resource != null && this.resourceId != null;
+        List<String> problems = LegacyMapper.structuralProblems(this);
+        if (problems.contains(LegacyMapper.RESOURCE_MISSING)) {
+            logger.severe(LegacyMapper.RESOURCE_MISSING);
         }
-        if (this.resource == null && this.sourceType != Sourcetype.EXCEL) {
-            logger.severe("Resource must be set. Define resouce (object name).");
-            valid = false;
-        }
-        return valid;
+        return problems.isEmpty();
     }
 
     public Set<Method> getMethodList() {
@@ -219,11 +212,11 @@ public class InputParameter {
     }
 
     public String getCapResource() {
-        return StringUtils.capitalize(resource.toLowerCase(Locale.ROOT));
+        return new ResourceName(resource).cap();
     }
 
     public String getCapResources() {
-        return getCapResource() + "s";
+        return new ResourceName(resource).capPlural();
     }
 
     public String getResource() {
@@ -231,7 +224,7 @@ public class InputParameter {
     }
 
     public String getLowerResource() {
-        return this.resource.toLowerCase(Locale.ROOT);
+        return new ResourceName(resource).lower();
     }
 
     public void setResource(String resource) {
@@ -239,11 +232,11 @@ public class InputParameter {
     }
 
     public String getResources() {
-        return resource + "s";
+        return new ResourceName(resource).plural();
     }
 
     public String getLowerResources() {
-        return resource.toLowerCase() + "s";
+        return new ResourceName(resource).lowerPlural();
     }
 
     public String getResourceId() {
