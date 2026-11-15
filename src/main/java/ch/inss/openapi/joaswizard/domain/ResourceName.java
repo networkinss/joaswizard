@@ -1,6 +1,5 @@
 package ch.inss.openapi.joaswizard.domain;
 
-import ch.apache.commons.lang3.StringUtils;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -20,12 +19,12 @@ public record ResourceName(String value) {
 
     /** @return lower case (locale ROOT) with first letter upper case, e.g. Pet. */
     public String cap() {
-        return StringUtils.capitalize(value.toLowerCase(Locale.ROOT));
+        return Strings.capitalize(value.toLowerCase(Locale.ROOT));
     }
 
-    /** @return {@link #cap()} plus "s". */
+    /** @return {@link #cap()} pluralised. */
     public String capPlural() {
-        return cap() + "s";
+        return pluralize(cap());
     }
 
     /** @return lower case (locale ROOT). */
@@ -33,13 +32,30 @@ public record ResourceName(String value) {
         return value.toLowerCase(Locale.ROOT);
     }
 
-    /** @return lower case in the DEFAULT locale plus "s" (kept as is for byte-identical output). */
+    /** @return lower case in the DEFAULT locale pluralised (kept as is for byte-identical output). */
     public String lowerPlural() {
-        return value.toLowerCase() + "s";
+        return pluralize(value.toLowerCase());
     }
 
-    /** @return the name as given plus "s". */
+    /** @return the name as given, pluralised. */
     public String plural() {
-        return value + "s";
+        return pluralize(value);
+    }
+
+    /**
+     * Basic English plural, decided on the lower-cased form, the casing of the stem is kept:
+     * consonant + y gives ies, s, x, z, ch, sh give es, everything else gets s.
+     */
+    private static String pluralize(String word) {
+        String l = word.toLowerCase(Locale.ROOT);
+        boolean caps = word.equals(word.toUpperCase(Locale.ROOT)) && !word.equals(l);
+        int n = l.length();
+        if (n > 1 && l.charAt(n - 1) == 'y' && "aeiou".indexOf(l.charAt(n - 2)) < 0) {
+            return word.substring(0, n - 1) + (caps ? "IES" : "ies");
+        }
+        if (l.endsWith("s") || l.endsWith("x") || l.endsWith("z") || l.endsWith("ch") || l.endsWith("sh")) {
+            return word + (caps ? "ES" : "es");
+        }
+        return word + (caps ? "S" : "s");
     }
 }

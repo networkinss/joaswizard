@@ -86,7 +86,7 @@ class NestedObjectsTest {
         String spec = generate("samplenestedaddress.yaml", "pet");
         compare("testReferenceNestedAddress.yml", spec);
         assertEquals(List.of("Pet", "Customer", "Address", "Invoice"), keys(schemas(spec), "ErrorModel"));
-        assertFalse(spec.contains("/addresss"), "nested schema gets no paths");
+        assertFalse(spec.contains("/addresses"), "nested schema gets no paths");
         assertTrue(spec.contains("/customers"));
     }
 
@@ -94,7 +94,7 @@ class NestedObjectsTest {
     void testExplicitRef() throws Exception {
         String spec = generate("sampleref.yaml", "pet");
         compare("testReferenceNestedRef.yml", spec);
-        assertTrue(spec.contains("/addresss"), "top level Address gets paths");
+        assertTrue(spec.contains("/addresses"), "top level Address gets paths");
         assertTrue(spec.contains("$ref: '#/components/schemas/Address'"));
     }
 

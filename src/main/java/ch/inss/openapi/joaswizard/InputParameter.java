@@ -1,7 +1,6 @@
 package ch.inss.openapi.joaswizard;
 
 import ch.inss.openapi.joaswizard.domain.ResourceName;
-import ch.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.*;
@@ -15,11 +14,8 @@ public class InputParameter {
     private String inputFile;
     private InputStream inputStream;
     private String outputFile;
-    private String internalid;
     private String mappingFile;
     private Integer maxobjects = 100;
-    private String[] tags;
-    private String[] arrayItems;
     private Sourcetype sourceType;
     private Set<Method> methods = new HashSet<>();
     private HashMap<String, Object> schemaData = new HashMap<>();
@@ -42,10 +38,6 @@ public class InputParameter {
      */
     private boolean prefixMatch = false;
 
-    /* Static fields. */
-    private final String openCurlyBrace = "{";
-    private final String closeCurlyBrace = "}";
-
     private static final Logger logger = Logger.getLogger(InputParameter.class.getName());
 
     public InputParameter(String inputFile, String outputFile, Sourcetype sourceType, Set<Method> methods, String mappingFile, boolean prefixMatch) {
@@ -65,10 +57,7 @@ public class InputParameter {
         this.inputFile = in.getInputFile();
         this.inputStream = in.getInputStream();
         this.outputFile = in.getOutputFile();
-        this.internalid = in.getInternalid();
         this.mappingFile = in.getMappingFile();
-        this.tags = in.getTags();
-        this.arrayItems = in.getArrayItems();
         this.sourceType = in.getSourceType();
         this.methods = in.getMethodList() == null ? null : new HashSet<>(in.getMethodList());
         this.schemaData = in.getSchemaData() == null ? null : new HashMap<>(in.getSchemaData());
@@ -174,23 +163,6 @@ public class InputParameter {
         this.schemaData = schemaData;
     }
 
-//    public HashMap<String, Object> getInfoData() {
-//        HashMap<String, Object> infoData = new HashMap<>();
-//        if(this.oasInfo == null ) return infoData;
-//        Map<String, String> describe;
-//        try {
-//            describe = BeanUtils.describe(this.oasInfo);
-//        } catch (IllegalAccessException e) {
-//            return infoData;
-//        } catch (InvocationTargetException e) {
-//            return infoData;
-//        } catch (NoSuchMethodException e) {
-//            return infoData;
-//        }
-//        infoData.putAll(describe);
-//        return infoData;
-//    }
-
     public boolean isGet() {
         return this.methods.contains(Method.GET);
     }
@@ -295,14 +267,6 @@ public class InputParameter {
         this.prefixMatch = prefixMatch;
     }
 
-    public String getOpenCurlyBrace() {
-        return openCurlyBrace;
-    }
-
-    public String getCloseCurlyBrace() {
-        return closeCurlyBrace;
-    }
-
     /**
      * Set the Yaml object properties as Base64 encoded string.
      *
@@ -383,14 +347,6 @@ public class InputParameter {
         this.sourceType = sourceType;
     }
 
-    public String getInternalid() {
-        return internalid;
-    }
-
-    public void setInternalid(String internalid) {
-        this.internalid = internalid;
-    }
-
     public String getMappingFile() {
         return mappingFile;
     }
@@ -405,22 +361,6 @@ public class InputParameter {
 
     public Integer getMaxobjects() {
         return maxobjects;
-    }
-
-    public String[] getTags() {
-        return tags;
-    }
-
-    public void setTags(String[] tags) {
-        this.tags = tags;
-    }
-
-    public String[] getArrayItems() {
-        return arrayItems;
-    }
-
-    public void setArrayItems(String[] arrayItems) {
-        this.arrayItems = arrayItems;
     }
 
     public OasInfo getOasInfo() {
@@ -439,15 +379,9 @@ public class InputParameter {
                 ", sampleYamlData='" + sampleYamlData + '\'' +
                 ", inputFile='" + inputFile + '\'' +
                 ", outputFile='" + outputFile + '\'' +
-                ", internalid='" + internalid + '\'' +
-                ", tags=" + Arrays.toString(tags) +
                 ", sourceType=" + sourceType +
                 ", methods=" + methods +
                 ", doInfo=" + doInfo +
-//                ", doPaths=" + doPaths +
-//                ", doSchemas=" + doSchemas +
-                ", openCurlyBrace='" + openCurlyBrace + '\'' +
-                ", closeCurlyBrace='" + closeCurlyBrace + '\'' +
                 '}';
     }
 
@@ -464,7 +398,7 @@ public class InputParameter {
     }
 
     public boolean isAllquery() {
-        return !(this.methods.contains(Method.GET) == false && this.methods.contains(Method.POST) == false);
+        return this.methods.contains(Method.GET) || this.methods.contains(Method.POST);
     }
 
     /**
@@ -477,12 +411,12 @@ public class InputParameter {
         return !(this.methods.size() == 1 && this.methods.contains(Method.POST));
     }
 
-    public static List getSourcetypeList() {
-        return new ArrayList<Sourcetype>(Arrays.asList(Sourcetype.values()));
+    public static List<Sourcetype> getSourcetypeList() {
+        return new ArrayList<>(Arrays.asList(Sourcetype.values()));
     }
 
-    public static List getAvalableMethodList() {
-        return new ArrayList<Method>(Arrays.asList(Method.values()));
+    public static List<Method> getAvalableMethodList() {
+        return new ArrayList<>(Arrays.asList(Method.values()));
     }
 
     public static boolean isValidSourcetype(String type) {

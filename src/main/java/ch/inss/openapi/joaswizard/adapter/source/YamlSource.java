@@ -110,7 +110,7 @@ public final class YamlSource implements ResourceSource {
      */
     public static String readFile(String file) {
         File filePath = new File(file);
-        if (filePath.isFile() == false) {
+        if (!filePath.isFile()) {
             return null;
         }
         String result = null;

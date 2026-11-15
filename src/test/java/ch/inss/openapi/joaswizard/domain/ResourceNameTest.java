@@ -51,7 +51,23 @@ class ResourceNameTest {
         assertEquals("Pets", pet.capPlural());
         assertEquals("pet", pet.lower());
         assertEquals("pets", pet.lowerPlural());
-        assertEquals("PETs", pet.plural());
+        assertEquals("PETS", pet.plural());
+    }
+
+    @Test
+    void pluralRules() {
+        String[][] cases = {{"category", "categories"}, {"day", "days"}, {"boy", "boys"}, {"address", "addresses"},
+                {"box", "boxes"}, {"quiz", "quizes"}, {"church", "churches"}, {"dish", "dishes"}, {"pet", "pets"},
+                {"y", "ys"}, {"Category", "Categories"}, {"CATEGORY", "CATEGORIES"}, {"Box", "Boxes"}, {"PET", "PETS"}, {"BOX", "BOXES"}, {"A1", "A1S"}, {"123", "123s"}};
+        for (String[] c : cases) {
+            assertEquals(c[1], new ResourceName(c[0]).plural(), c[0]);
+        }
+        ResourceName cat = new ResourceName("CATEGORY");
+        assertEquals("Categories", cat.capPlural());
+        assertEquals("categories", cat.lowerPlural());
+        assertEquals("Addresses", new ResourceName("address").capPlural());
+        assertEquals("boxes", new ResourceName("BOX").lowerPlural());
+        assertEquals("days", new ResourceName("Day").lowerPlural());
     }
 
     @Test

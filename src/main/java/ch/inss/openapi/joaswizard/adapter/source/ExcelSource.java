@@ -1,7 +1,5 @@
 package ch.inss.openapi.joaswizard.adapter.source;
 
-import ch.inss.openapi.joaswizard.Constants;
-import ch.inss.openapi.joaswizard.Header;
 import ch.inss.openapi.joaswizard.application.DiagnosticCollector;
 import ch.inss.openapi.joaswizard.application.Numbers;
 import ch.inss.openapi.joaswizard.application.TypeMapper;
@@ -22,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static ch.inss.openapi.joaswizard.Constants.*;
+
 /**
  * Reads resources from an Excel workbook, one sheet per resource. Types are explicit.
  * OAS type, format and pattern are defined in this sequence:
@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  * 2. If not defined there, it will check the mapping of the DbType.
  * 3. If no mapping is defined, it will guess. If it can be parsed to a number, it will be type integer. All other is a string.
  */
-public final class ExcelSource implements ResourceSource, Constants {
+public final class ExcelSource implements ResourceSource {
 
     private static final Logger logger = Logger.getLogger(ExcelSource.class.getName());
 
@@ -55,26 +55,34 @@ public final class ExcelSource implements ResourceSource, Constants {
                 return null;
             }
         }
-        List<ResourceDefinition> result = new ArrayList<>();
-        for (String sheetName : sheets.keySet()) {
-            ResourceName name = new ResourceName(sheetName);
-            List<Property> properties = readSheet(sheetName, sheets.get(sheetName), options, c);
-            result.add(properties == null ? ResourceDefinition.unreadable(name)
-                    : new ResourceDefinition(name, options.resourceId(), options.methods(), properties));
-        }
-        return result;
-    }
-
-    /** @return the properties of the sheet, null if stopOnError stopped reading it. */
-    private List<Property> readSheet(String sheetName, List<Map<String, String>> mapList, GenerationOptions options, DiagnosticCollector c) {
-        List<Property> list = new ArrayList<>();
-
-        /* If not in OasType field defined, it will try to take the type from the column DbType. */
+        /* If not in OasType field defined, it will try to take the type from the column DbType. Loaded once per workbook. */
         Map<String, MappedType> mapping = MappingFileLoader.load(options.mappingFile() == null ? DEFAULT_MAPPING : options.mappingFile());
         if (mapping == null) {
             mapping = new CaseInsensitiveMap<>();
         }
         TypeMapper typeMapper = new TypeMapper(mapping, options.prefixMatch());
+        List<ResourceDefinition> result = new ArrayList<>();
+        for (String sheetName : sheets.keySet()) {
+            if (sheets.get(sheetName).isEmpty()) {
+                c.warning("Sheet " + sheetName + " is empty, skipped.");
+                continue;
+            }
+            ResourceName name = new ResourceName(sheetName);
+            List<Property> properties = readSheet(sheetName, sheets.get(sheetName), options, typeMapper, c);
+            result.add(properties == null ? ResourceDefinition.unreadable(name)
+                    : new ResourceDefinition(name, options.resourceId(), options.methods(), properties));
+        }
+        if (result.isEmpty()) {
+            c.error("No data in the Excel input: all sheets are empty.");
+            return null;
+        }
+        return result;
+    }
+
+    /** @return the properties of the sheet, null if stopOnError stopped reading it. */
+    private List<Property> readSheet(String sheetName, List<Map<String, String>> mapList, GenerationOptions options, TypeMapper typeMapper, DiagnosticCollector c) {
+        List<Property> list = new ArrayList<>();
+
         String logPrefix = "Sheet " + sheetName + ": ";
         int idx = 0;
         int countEmpty = 0;
@@ -109,7 +117,7 @@ public final class ExcelSource implements ResourceSource, Constants {
             if (type == null || type.equals("")) {
                 /* DB type assignment if Oastype is not defined but DBType is present. */
                 String dbtype = sheetCIMap.get(Header.DBTYPE);
-                if (dbtype != null && "".equals(dbtype) == false) {
+                if (dbtype != null && !"".equals(dbtype)) {
                     mapped = typeMapper.map(dbtype);
                     type = mapped.type();
                 }
@@ -127,7 +135,7 @@ public final class ExcelSource implements ResourceSource, Constants {
                 }
             } else if (type != null) {
                 type = type.trim().toLowerCase();
-                if (Arrays.asList(DATATYPELIST).contains(type) == false) {
+                if (!Arrays.asList(DATATYPELIST).contains(type)) {
                     c.warning(logPrefix + "row " + (idx + 1) + ", property '" + key + "': type '" + type + "' is not valid, using string.");
                     type = "string";
                 }
@@ -169,11 +177,14 @@ public final class ExcelSource implements ResourceSource, Constants {
             }
             String description = null;
             String oasDescription = sheetCIMap.get(Header.OASDESCRIPTION);
-            if (oasDescription != null && oasDescription.isEmpty() == false && oasDescription.isBlank() == false) {
+            if (oasDescription != null && !oasDescription.isEmpty() && !oasDescription.isBlank()) {
                 description = oasDescription;
             }
 
             String pattern = sheetCIMap.get(Header.OASPATTERN.toString());
+            if (pattern == null || pattern.isEmpty()) {
+                pattern = mapped.pattern();
+            }
             /* Older mappings contained the pattern already wrapped in apostrophes (raw insertion). */
             if (pattern != null && pattern.length() > 2 && pattern.startsWith("'") && pattern.endsWith("'")) {
                 pattern = pattern.substring(1, pattern.length() - 1);
@@ -194,7 +205,7 @@ public final class ExcelSource implements ResourceSource, Constants {
             String max = sheetCIMap.get(Header.OASMAX);
             if (Numbers.isNumber(max)) {
                 maxLength = Integer.parseInt(max);
-            } else if (max != null && max.equals("") == false) {
+            } else if (max != null && !max.equals("")) {
                 c.warning(logPrefix + "Value for maxLength is not a number: " + max);
             }
             list.add(new Property(key, type, null, null, example, minLength, maxLength, outFormat, pattern,

@@ -35,6 +35,14 @@ public final class DiagnosticCollector {
         return list.stream().anyMatch(d -> d.getSeverity() == Diagnostic.Severity.ERROR);
     }
 
+    /** @return the message of the first diagnostic with this severity, null if there is none. */
+    public String first(Diagnostic.Severity severity) {
+        for (Diagnostic d : list) {
+            if (d.getSeverity() == severity) return d.getMessage();
+        }
+        return null;
+    }
+
     /** @return the message of the last diagnostic with this severity, null if there is none. */
     public String last(Diagnostic.Severity severity) {
         String result = null;

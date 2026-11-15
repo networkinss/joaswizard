@@ -1,6 +1,5 @@
 package ch.inss.openapi.joaswizard.adapter.source;
 
-import ch.inss.openapi.joaswizard.Header;
 import ch.inss.openapi.joaswizard.application.TypeMapper.MappedType;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -26,6 +25,9 @@ import java.util.logging.Logger;
 public final class MappingFileLoader {
 
     private static final Logger logger = Logger.getLogger(MappingFileLoader.class.getName());
+
+    /** Number of {@link #loadRaw} calls, lets tests check that a workbook loads the mapping once. */
+    static final java.util.concurrent.atomic.AtomicInteger LOADS = new java.util.concurrent.atomic.AtomicInteger();
 
     private MappingFileLoader() {
     }
@@ -53,6 +55,7 @@ public final class MappingFileLoader {
      * @return mapping by DB type, null if missing or not parsable.
      */
     public static CaseInsensitiveMap<String, HashMap<String, String>> loadRaw(String jsonFile) {
+        LOADS.incrementAndGet();
         final CaseInsensitiveMap<String, HashMap<String, String>> resultMap = new CaseInsensitiveMap<>();
         try {
             String file = YamlSource.readFile(jsonFile);

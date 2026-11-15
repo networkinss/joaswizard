@@ -12,10 +12,12 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static ch.inss.openapi.joaswizard.Constants.*;
+
 /**
  * Author: Oliver Glas.
  */
-public class Joaswizard implements Constants {
+public class Joaswizard {
 
     private static final Logger logger = Logger.getLogger(Joaswizard.class.getName());
 
@@ -74,9 +76,13 @@ public class Joaswizard implements Constants {
         return generated.spec();
     }
 
-    /** Deprecated Yaml methods return null for a null input without a message. */
+    /** Deprecated Yaml methods return null for a null input and report "Input parameter is missing.". */
     private String runYaml(InputParameter in, DiagnosticCollector c) {
-        return in == null ? null : this.run(in, LegacyMapper.Kind.YAML, c);
+        if (in == null) {
+            c.error("Input parameter is missing.");
+            return null;
+        }
+        return this.run(in, LegacyMapper.Kind.YAML, c);
     }
 
     /**
@@ -96,15 +102,15 @@ public class Joaswizard implements Constants {
         try {
             return call.apply(c);
         } finally {
-            this.errorMessage = c.last(Diagnostic.Severity.ERROR);
+            this.errorMessage = c.first(Diagnostic.Severity.ERROR);
             this.warningMessage = c.last(Diagnostic.Severity.WARNING);
         }
     }
 
     /**
-     * @return the last error message of the latest call of a deprecated method, null if that call had no error.
+     * @return the first error message (the cause) of the latest call of a deprecated method, null if that call had no error.
      * The value is reset at the start of each deprecated call, so it no longer leaks from a previous call.
-     * @deprecated not thread-safe and keeps only the last message, use {@link #generate(InputParameter)}.
+     * @deprecated not thread-safe and keeps only one message, use {@link #generate(InputParameter)}.
      */
     @Deprecated
     public String getErrorMessage() {
@@ -225,7 +231,7 @@ public class Joaswizard implements Constants {
     }
 
     private String schemaObjects(InputParameter inputParameter, DiagnosticCollector c) {
-        if (inputParameter.isDoSchemas() == false) {
+        if (!inputParameter.isDoSchemas()) {
             logger.fine("Skipping create schema (doSchemas = false).");
             return "";
         }
@@ -237,7 +243,7 @@ public class Joaswizard implements Constants {
                 c.error("No data. Please define input file or set sample yaml.");
                 return ERROR;
             }
-            HashMap sampleMap = inputParameter.getSchemaData();
+            HashMap<String, Object> sampleMap = inputParameter.getSchemaData();
             if (sampleMap == null || sampleMap.size() == 0) {
                 c.error("No data for " + inputParameter.getResource() + ". Please define input file or set sample yaml.");  //TODO check
                 return ERROR;
@@ -266,7 +272,7 @@ public class Joaswizard implements Constants {
     }
 
     private String info(InputParameter inputParameter, DiagnosticCollector c) {
-        if (inputParameter.isDoInfo() == false) {
+        if (!inputParameter.isDoInfo()) {
             logger.fine("Skipping info section (doInfo = false).");
             return "";
         }

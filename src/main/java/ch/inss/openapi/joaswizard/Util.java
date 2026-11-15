@@ -1,36 +1,25 @@
 package ch.inss.openapi.joaswizard;
 
 import ch.inss.openapi.joaswizard.adapter.output.FileSpecWriter;
-import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import ch.inss.openapi.joaswizard.adapter.source.MappingFileLoader;
 import ch.inss.openapi.joaswizard.adapter.source.YamlSource;
 import ch.inss.openapi.joaswizard.application.Numbers;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Helpers; the Yaml, mapping and number parts are delegating shims to the new packages.
  */
-public class Util implements Constants {
-
-    private static final Logger logger = Logger.getLogger(Util.class.getName());
+public class Util {
 
     static boolean writeStringToData(String userFolder, String data, String file) {
         return FileSpecWriter.writeRelative(userFolder, data, file);
-    }
-
-    /** Writes UTF-8 data to the path and creates missing parent folders. */
-    static boolean writeToPath(Path path, String data) {
-        return FileSpecWriter.writeToPath(path, data);
     }
 
     /**
@@ -53,40 +42,15 @@ public class Util implements Constants {
     }
 
     static boolean fileExists(String file) {
-        File filePath = new File(file);
-        if (filePath.isFile()) {
-            return true;
-        }
-        return false;
+        return new File(file).isFile();
     }
 
-    String readFromClasspath(String file) {
-        return MappingFileLoader.readClasspath(file);
-    }
-
-    /*** #1
-     *  Generate a LinkedHashMap from a String in Yaml format.
-     * @param strYaml
-     * @return
+    /**
+     * Generate a LinkedHashMap from a String in Yaml format.
      */
     static LinkedHashMap<String, Object> readYamlFromString(String strYaml) {
         return YamlSource.readYaml(strYaml);
     }
-
-//    static HashMap<String, Object> readYamlFile(String inputFile) {
-//        if (inputFile == null) {
-//            inputFile = "src/test/resources/Pet.yml";
-//        }
-//        File file = new File(inputFile);
-//        Yaml yaml = new Yaml();
-//        InputStream fis = null;
-//        try {
-//            fis = new FileInputStream(inputFile);
-//        } catch (FileNotFoundException e) {
-//        }
-//        InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-//        return yaml.load(isr);
-//    }
 
     /**
      * Optional leading minus, digits, optional single decimal part. null or blank = false.
@@ -101,21 +65,4 @@ public class Util implements Constants {
     static CaseInsensitiveMap<String, HashMap<String, String>> getJsonAsMap(String jsonFile) {
         return MappingFileLoader.loadRaw(jsonFile);
     }
-
-    /**
-     * Splits a String like a filename into the part before the file extension (like .yml) and the extension itself without dot.
-     */
-//    static String[] splitExtension(String name) {
-//        int pos = 0;
-//        String[] result = new String[2];
-//        pos = name.lastIndexOf(".");
-//        if (pos <= 1) {
-//            result[0] = name;
-//            return result;
-//        }
-//        result[0] = name.substring(0, pos);
-//        result[1] = name.substring(pos + 1, name.length());
-//        return result;
-//    }
-
 }

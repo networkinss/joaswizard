@@ -249,7 +249,7 @@ class RefactorGuardTest {
                 "\n" + "methods=[GET]" +
                 "\n" + "sourceType=EXCEL" +
                 "\n" + "sampleYamlData=null" +
-                "\n" + "title=null", "error=No data. Please define input file or set sample yaml." +
+                "\n" + "title=null", "error=Type mapping error in line 2, key: mystery" +
                 "\n" + "warning=null"));
         l.add(new Case("excelFile_noStopOnError_unmappable", Legacy.EXCEL_FILE,
                 () -> excelFile(unmappableWorkbook(), "get"),
@@ -329,7 +329,7 @@ class RefactorGuardTest {
                 "\n" + "title=null", "error=Could not parse input (string): not valid Yaml/JSON." +
                 "\n" + "warning=null"));
         l.add(new Case("nullInput", Legacy.YAML, () -> null,
-                "ERROR: Input parameter is missing.", "input=null", "error=null" +
+                "ERROR: Input parameter is missing.", "input=null", "error=Input parameter is missing." +
                 "\n" + "warning=null"));
         return l.stream();
     }

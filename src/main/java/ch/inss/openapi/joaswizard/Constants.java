@@ -1,30 +1,22 @@
 package ch.inss.openapi.joaswizard;
 
-public interface Constants {
-    String sep = System.getProperty("file.separator");
-    String nextLine = "\n";
-    //    String nextLine = System.getProperty("line.separator");
-    String CURRENT_FOLDER = "." + sep;
-    String DEFAULT_OUTPUT_FILE = "openapi.yaml";
-    String UNDEFINED = "undefined";
-    //    String FROMFILE = "file";
-//    String fullCrudTemplate = "fullCrud.yaml";
-    String pathComponentCrudTemplate = "pathsCrud.yaml";
-    //    String getTemplate = "getIdgetAll.yaml";
-    String schemaTemplate = "schema.yaml";
-    String componentsErrorTemplate = "componentsErrorModel.yaml";
-    String infoTemplate = "info.yaml";
-    String DEFAULT_MAPPING = "mapping.json";
+/**
+ * Shared constants. Use static imports or qualified references.
+ */
+public final class Constants {
+    public static final String sep = System.getProperty("file.separator");
+    public static final String nextLine = "\n";
+    public static final String DEFAULT_OUTPUT_FILE = "openapi.yaml";
+    public static final String UNDEFINED = "undefined";
+    public static final String DEFAULT_MAPPING = "mapping.json";
 
-    String OBJECTNAME = "objectName";
-    String[] DATATYPELIST = {"integer", "number", "string", "boolean"};
+    public static final String OBJECTNAME = "objectName";
+    public static final String[] DATATYPELIST = {"integer", "number", "string", "boolean"};
 
-    String WRITETOFILE = "writeFile";
-    String WRITETOSTRING = "writeToString";
+    public static final String ERROR = "Error";
 
-    String OK = "OK";
-    String ERROR = "Error";
-    String WARNIUNG = "Warning";
+    public static final String version = Util.readVersion();
 
-    String version = Util.readVersion();
+    private Constants() {
+    }
 }

@@ -67,8 +67,8 @@ class UtilTest {
         org.apache.commons.collections4.map.CaseInsensitiveMap<String, java.util.HashMap<String, String>> map = Util.getJsonAsMap("mapping.json");
         assertNotNull(map);
         assertFalse(map.isEmpty());
-        assertEquals("string", map.get("VARCHAR").get(Header.OASTYPE.toString()));
-        assertEquals("string", map.get("varchar").get(Header.OASTYPE.toString()));
+        assertEquals("string", map.get("VARCHAR").get("OASTYPE"));
+        assertEquals("string", map.get("varchar").get("OASTYPE"));
     }
 
     @Test

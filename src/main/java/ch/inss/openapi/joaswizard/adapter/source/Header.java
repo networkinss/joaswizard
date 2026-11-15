@@ -1,6 +1,6 @@
-package ch.inss.openapi.joaswizard;
+package ch.inss.openapi.joaswizard.adapter.source;
 
-public enum Header {
+enum Header {
     NAME,
     DBTYPE,
     OASTYPE,

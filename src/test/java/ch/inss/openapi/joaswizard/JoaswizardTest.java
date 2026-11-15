@@ -1,5 +1,6 @@
 package ch.inss.openapi.joaswizard;
 
+import ch.inss.openapi.joaswizard.adapter.source.ExcelWorkbookReader;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 
@@ -12,9 +13,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ch.inss.openapi.joaswizard.Constants.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class JoaswizardTest implements Constants {
+class JoaswizardTest {
 
     private final static String output = "output" + sep;
     private final static String outputPet = output + "test03_OutputPet.yml";
@@ -251,8 +253,8 @@ class JoaswizardTest implements Constants {
 
     @Test
     @Order(8)
-    void testExcelWrapper() throws Exception {
-        ExcelWrapper excelWrapper = new ExcelWrapper();
+    void testExcelWorkbookReader() throws Exception {
+        ExcelWorkbookReader excelWrapper = new ExcelWorkbookReader();
         HashMap<String, List<Map<String, String>>> integerListHashMap = excelWrapper.readExcelfile("src/test/resources/objectimport.xlsx");
         Assertions.assertEquals(3, integerListHashMap.keySet().size());
     }

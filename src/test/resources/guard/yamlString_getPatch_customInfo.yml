@@ -14,10 +14,10 @@ servers:
   - url: http://localhost:8080/api/v1
     description: Local environment.
 paths:
-  /categorys:
+  /categories:
     get:
-      description: List of categorys.
-      summary: List of categorys
+      description: List of categories.
+      summary: List of categories
       operationId: getCategoryList
       responses:
         '200':

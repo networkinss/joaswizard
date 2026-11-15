@@ -309,6 +309,21 @@ and from
 src/test/java/ch/inss/joaswizard/JoaswizardTest.java
 can be used to see how it works.
 
+## Breaking changes in 0.10.0
+
+Removed from the public API (all unused or internal):
+
+- `InputParameter`: `internalid`, `tags`, `arrayItems` (getters and setters), `getOpenCurlyBrace()`, `getCloseCurlyBrace()`. `getSourcetypeList()` and `getAvalableMethodList()` now return typed lists. `toString()` no longer shows the removed fields.
+- `Constants` is a `final class` and no longer an interface (do not implement it). Removed constants: `CURRENT_FOLDER`, `pathComponentCrudTemplate`, `schemaTemplate`, `componentsErrorTemplate`, `infoTemplate`, `WRITETOFILE`, `WRITETOSTRING`, `OK`, `WARNIUNG`.
+- Classes removed or no longer public: `ExcelWrapper` (use `Joaswizard`), `Header`, `LogFormatter`, root `YamlScalar`; the vendored `ch.apache.commons.lang3` classes.
+
+Behaviour changes:
+
+- Pluralisation follows basic English rules: consonant + y gives `ies` (`/categories`), words ending in s, x, z, ch, sh get `es` (`/addresses`), everything else `s`. Paths, summaries and schema names of such resources change.
+- An empty Excel sheet (no rows or header only) is skipped with the warning `Sheet <name> is empty, skipped.` instead of failing; if all sheets are empty the result has an error and no spec.
+- The Excel mapping file is loaded once per workbook, and the `oaspattern` of a mapping entry is now written as `pattern` when the `OasPattern` cell is empty (the default `mapping.json` has one, so such properties get a `pattern` now).
+- Deprecated `getErrorMessage()` returns the first error of the call (the cause), not the last. Deprecated Yaml/JSON methods with a null input now set the error `Input parameter is missing.`.
+
 ## Template adjustment
 
 To fill in your own details into the info section just adjust the files ending with .hbs (Handlebars)

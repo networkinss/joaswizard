@@ -7,5 +7,3 @@ Samples/target/
 test-results/
 .idea/
 
-# Vendored third-party Apache commons-lang3 copy, not our code.
-src/main/java/ch/apache/

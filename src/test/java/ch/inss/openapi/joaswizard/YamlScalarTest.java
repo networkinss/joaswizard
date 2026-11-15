@@ -1,5 +1,6 @@
 package ch.inss.openapi.joaswizard;
 
+import ch.inss.openapi.joaswizard.adapter.render.YamlScalar;
 import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;

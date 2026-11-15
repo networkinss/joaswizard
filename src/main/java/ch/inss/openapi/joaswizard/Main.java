@@ -12,7 +12,7 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Main implements Constants {
+public class Main {
 
     private static Logger logger = null;
     /** Strong reference, so the configured package logger is not garbage collected. */

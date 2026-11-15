@@ -593,10 +593,10 @@ paths:
               $ref: '#/components/schemas/Invoice'
         description: Invoice to be updated
         required: true
-  /addresss:
+  /addresses:
     get:
-      description: List of addresss.
-      summary: List of addresss
+      description: List of addresses.
+      summary: List of addresses
       operationId: getAddressList
       responses:
         '200':
